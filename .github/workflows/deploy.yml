@@ -22,15 +22,21 @@ jobs:
         run: npm install
 
       # Angular 18: el prod vive en environment.ts
-      - name: Patch environment.ts (production)
+      - name: Write production environments.ts
         run: |
-          ENV=src/environment.ts
-          sed -i "s|___API___|https://api.erre.com|g" "$ENV"
-          sed -i "s|___KC_URL___|https://auth.erre.com|g" "$ENV"
-          sed -i "s|___KC_REALM___|fastfood|g" "$ENV"
-          sed -i "s|___KC_CLIENT___|fastfood-web|g" "$ENV"
-          echo "----- environment.ts -----"
-          cat "$ENV"
+          cat > src/environments.ts <<'TS'
+          export const environment = {
+            production: true,
+            apiBaseUrl: 'https://api.erre.com',
+            keycloak: {
+              url: 'https://auth.erre.com',
+              realm: 'fastfood',
+              clientId: 'fastfood-web'
+            }
+          };
+          TS
+          echo "----- environments.ts -----"
+          cat src/environments.ts
 
       - name: Build (production)
         run: npm run build -- --configuration production

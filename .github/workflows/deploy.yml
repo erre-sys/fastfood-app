@@ -1,0 +1,72 @@
+name: deploy
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build Angular (CI)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Patch environment.prod.ts
+        run: |
+          ENV=src/environments/environment.prod.ts
+          sed -i "s|___API___|https://api.erre.com|g" "$ENV"
+          sed -i "s|___KC_URL___|https://auth.erre.com|g" "$ENV"
+          sed -i "s|___KC_REALM___|fastfood|g" "$ENV"
+          sed -i "s|___KC_CLIENT___|fastfood-web|g" "$ENV"
+          echo "----- environment.prod.ts -----"
+          cat "$ENV"
+
+      - name: Build (production)
+        run: npm run build -- --configuration production
+
+      - name: Archive dist
+        run: |
+          mkdir -p artifact
+          tar -C dist -czf artifact/web-dist-${GITHUB_SHA}.tgz .
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: artifact/web-dist-${{ github.sha }}.tgz
+          retention-days: 7
+
+  deploy:
+    name: Activate on server (self-hosted)
+    needs: build
+    runs-on: [ self-hosted, linux, X64 ]
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: /tmp
+
+      - name: Unpack and activate
+        run: |
+          set -e
+          APP_DIR="/var/www/fastfood-web"
+          REL_DIR="$APP_DIR/releases/${GITHUB_SHA}"
+          mkdir -p "$REL_DIR/dist"
+          tar -xzf /tmp/web-dist-${GITHUB_SHA}.tgz -C "$REL_DIR/dist"
+          sudo /usr/local/bin/ffw-activate.sh "$REL_DIR/dist"
+
+      - name: Show current symlink
+        run: ls -l /var/www/fastfood-web

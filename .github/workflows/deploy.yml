@@ -8,9 +8,6 @@ jobs:
   build:
     name: Build Angular (CI)
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,14 +21,15 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Patch environment.prod.ts
+      # Angular 18: el prod vive en environment.ts
+      - name: Patch environment.ts (production)
         run: |
-          ENV=src/environments/environment.prod.ts
+          ENV=src/environments/environment.ts
           sed -i "s|___API___|https://api.erre.com|g" "$ENV"
           sed -i "s|___KC_URL___|https://auth.erre.com|g" "$ENV"
           sed -i "s|___KC_REALM___|fastfood|g" "$ENV"
           sed -i "s|___KC_CLIENT___|fastfood-web|g" "$ENV"
-          echo "----- environment.prod.ts -----"
+          echo "----- environment.ts -----"
           cat "$ENV"
 
       - name: Build (production)
@@ -41,6 +39,7 @@ jobs:
         run: |
           mkdir -p artifact
           tar -C dist -czf artifact/web-dist-${GITHUB_SHA}.tgz .
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

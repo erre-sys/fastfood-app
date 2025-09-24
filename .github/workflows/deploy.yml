@@ -24,7 +24,7 @@ jobs:
       # Angular 18: el prod vive en environment.ts
       - name: Patch environment.ts (production)
         run: |
-          ENV=src/environments/environment.ts
+          ENV=src/environment.ts
           sed -i "s|___API___|https://api.erre.com|g" "$ENV"
           sed -i "s|___KC_URL___|https://auth.erre.com|g" "$ENV"
           sed -i "s|___KC_REALM___|fastfood|g" "$ENV"

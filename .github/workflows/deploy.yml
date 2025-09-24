@@ -19,7 +19,7 @@ jobs:
           cache: 'npm'
 
       - name: Install deps
-        run: npm ci
+        run: npm install
 
       # Angular 18: el prod vive en environment.ts
       - name: Patch environment.ts (production)

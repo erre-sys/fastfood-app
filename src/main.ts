@@ -1,6 +1,11 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import { appConfig } from './app/app.config';
 import { AppComponent } from './app/app.component';
+import { appConfig } from './app/app.config';
+import { authService } from './app/core/auth/auth.service';
+import { LoadingService } from './app/core/layout/loading/loading.service';
 
-bootstrapApplication(AppComponent, appConfig)
-  .catch((err) => console.error(err));
+(async () => {
+  const loader = new LoadingService();
+  await loader.wrap(authService.init());
+  await bootstrapApplication(AppComponent, appConfig);
+})();

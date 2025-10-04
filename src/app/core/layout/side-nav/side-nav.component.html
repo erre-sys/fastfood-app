@@ -1,0 +1,53 @@
+<aside class="sidebar">
+  <header class="brand">
+    <span class="brand__logo" aria-hidden="true">🍔</span>
+    <div>
+      <a routerLink="/home" class="brand__title">Pa las papas</a>
+      <div class="brand__subtitle">Panel</div>
+    </div>
+  </header>
+
+  <h2 class="nav__section">Ingredientes</h2>
+  <nav class="nav" aria-label="Ingredientes">
+    <ul class="nav__list">
+
+      <li>
+        <a routerLink="/grupos" class="nav__link" routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: true }">
+          <lucide-icon [img]="Menu" size="18"></lucide-icon>
+          <span>Grupos</span>
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/ingredientes" class="nav__link" routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: true }">
+          <lucide-icon [img]="Square" size="18"></lucide-icon>
+          <span>Ingredientes</span>
+        </a>
+      </li>
+
+    </ul>
+  </nav>
+
+  <h2 class="nav__section">Operación</h2>
+  <nav class="nav" aria-label="Operación">
+    <ul class="nav__list">
+      <li>
+        <a routerLink="/pedidos" class="nav__link" routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: true }">
+          <lucide-icon [img]="ShoppingBag" size="18"></lucide-icon>
+          <span>Pedidos</span>
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/settings" class="nav__link" routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: true }">
+          <lucide-icon [img]="Settings" size="18"></lucide-icon>
+          <span>Ajustes</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</aside>

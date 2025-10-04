@@ -1,0 +1,16 @@
+<label class="block" [formGroup]="formGroup">
+  <span *ngIf="label" class="block text-sm font-medium text-slate-700">
+    {{ label }} <span *ngIf="required" class="text-rose-500">*</span>
+  </span>
+
+  <input class="field mt-1" [formControlName]="controlName" [attr.id]="inputId || id || null" [attr.type]="type"
+    [attr.placeholder]="placeholder" [disabled]="disabled" [attr.required]="required ? '' : null"
+    [attr.aria-required]="required" [attr.aria-invalid]="ctrl?.invalid ?? null" />
+
+  <small *ngIf="hint" class="text-xs text-slate-500">{{ hint }}</small>
+
+  <!-- (Opcional) mini ayuda de validación -->
+  <small *ngIf="ctrl?.touched && ctrl?.invalid" class="block mt-1 text-xs text-rose-600">
+    Campo inválido.
+  </small>
+</label>

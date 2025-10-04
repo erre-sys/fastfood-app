@@ -1,0 +1,10 @@
+<section class="card mb-4">
+    <div *ngIf="heading || description" class="card-header">
+        <div class="font-semibold">{{ heading }}</div>
+        <div *ngIf="description" class="text-sm text-slate-500">{{ description }}</div>
+    </div>
+
+    <div class="card-body">
+        <ng-content></ng-content>
+    </div>
+</section>

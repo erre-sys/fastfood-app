@@ -1,0 +1,59 @@
+<app-page-layout [headerTemplate]="headerT" [contentTemplate]="contentT"></app-page-layout>
+
+<!-- HEADER -->
+<ng-template #headerT>
+  <div class="flex items-center justify-between">
+    <app-title [titleLabel]="titleLabel" (cancel)="goBack()"></app-title>
+
+    <a routerLink="/ingredientes/nuevo" class="btn btn--primary inline-flex items-center gap-2"
+      aria-label="Nuevo ingrediente">
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12h14" stroke-linecap="round"></path>
+      </svg>
+      <span class="hidden sm:inline">Nuevo</span>
+    </a>
+  </div>
+</ng-template>
+
+<!-- CONTENT -->
+<ng-template #contentT>
+  <!-- Tabs -->
+  <div class="mb-3 border-b border-slate-200">
+    <nav class="flex gap-6">
+      <button class="py-2 -mb-[1px] border-b-2" [class.border-rose-400]="tab()==='all'"
+        [class.border-transparent]="tab()!=='all'" (click)="setTab('all')">Todos</button>
+
+      <button class="py-2 -mb-[1px] border-b-2" [class.border-rose-400]="tab()==='active'"
+        [class.border-transparent]="tab()!=='active'" (click)="setTab('active')">Activos</button>
+
+      <button class="py-2 -mb-[1px] border-b-2" [class.border-rose-400]="tab()==='inactive'"
+        [class.border-transparent]="tab()!=='inactive'" (click)="setTab('inactive')">Inactivos</button>
+    </nav>
+  </div>
+
+  <!-- Search -->
+  <div class="mb-3">
+    <app-search class="w-full max-w-md" placeholder="Buscar por nombre o código (o ID)"
+      [value]="searchForm.controls.q.value" (valueChange)="onSearch($event)">
+    </app-search>
+  </div>
+
+  <!-- Tabla -->
+  <div class="card overflow-hidden">
+    <app-table [columns]="columns" [rows]="rows()" [loading]="loading()" [emptyText]="'No hay ingredientes'"
+      [sort]="{ key: sortKey(), dir: sortDir() }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
+
+      <ng-template #actionsTpl let-r>
+        <td class="td py-2 text-right">
+          <app-edit [to]="['/ingredientes', r.id, 'editar']" ariaLabel="Editar ingrediente"
+            title="Editar ingrediente"></app-edit>
+        </td>
+      </ng-template>
+    </app-table>
+
+    <app-paginator class="mt-2" [from]="from()" [to]="to()" [total]="total()" [pageIndex]="page()"
+      [pageSize]="pageSize()" [pageSizeOptions]="[5,10,20,50]" [maxPage]="maxPage()" (sizeChange)="setPageSize($event)"
+      (prev)="prev()" (next)="next()">
+    </app-paginator>
+  </div>
+</ng-template>

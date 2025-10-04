@@ -1,0 +1,9 @@
+<label class="flex w-full items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2" role="search">
+    <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" stroke-width="2"></circle>
+        <path d="M21 21l-4.3-4.3" stroke-width="2" stroke-linecap="round"></path>
+    </svg>
+    <input type="search" class="w-full outline-none text-sm bg-transparent" [attr.aria-label]="ariaLabel"
+        [placeholder]="placeholder" [value]="value" (input)="onInput(($any($event.target).value) ?? '')" />
+    <button *ngIf="value" type="button" class="icon-btn" aria-label="Limpiar búsqueda" (click)="clear()">✕</button>
+</label>

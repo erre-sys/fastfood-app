@@ -1,0 +1,391 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- Tokens (modo claro/oscuro) ---------- */
+:root {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --muted: #64748b;
+  --line: #e2e8f0;
+  --brand: #002147; /* Oxford */
+  --brand-contrast: #f1f5f9;
+  --warn: #d2b48c; /* Tan */
+  --danger: #e11d48;
+  --radius: 12px;
+  --z-header: 40;
+  --z-overlay: 50;
+  --sidebar-w: 280px;
+  --sidebar-w-collapsed: 80px;
+  --header-h: 64px;
+  --ff-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b1220;
+    --surface: #0f172a;
+    --muted: #94a3b8;
+    --line: #1e293b;
+    --brand-contrast: #0b1220;
+  }
+}
+
+html,
+body {
+  font-family: var(--ff-sans);
+  color: #0f172a; /* slate-900 */
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Base ---------- */
+@layer base {
+  html,
+  body {
+    @apply h-full;
+    background: var(--bg);
+    color: #0f172a;
+  }
+  *:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+}
+
+/* ---------- Layout Grid ---------- */
+@layer components {
+  .app-grid {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) 1fr;
+    grid-template-rows: auto;
+    min-height: 100vh;
+    background: var(--bg);
+  }
+  .app-grid.is-collapsed {
+    grid-template-columns: var(--sidebar-w-collapsed) 1fr;
+  }
+  @media (max-width: 1023px) {
+    /* < lg */
+    .app-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Header sticky */
+  .app-header {
+    @apply sticky top-0 border-b;
+    z-index: var(--z-header);
+    border-color: var(--line);
+    background: color-mix(in oklab, var(--surface) 92%, transparent);
+    backdrop-filter: blur(8px);
+    height: var(--header-h);
+    display: flex;
+    align-items: center;
+  }
+  .app-header__in {
+    @apply mx-auto w-full max-w-7xl px-6 flex items-center gap-3;
+  }
+
+  /* Main container */
+  .app-container {
+    max-width: var(--container-max);
+  }
+  .app-panel {
+    @apply bg-white dark:bg-[var(--surface)] rounded-xl2 shadow-sm border border-[var(--line)] p-4;
+  }
+
+  /* Footer */
+  .app-footer {
+    @apply border-t;
+    border-color: var(--line);
+    background: var(--surface);
+  }
+  .app-footer__in {
+    @apply mx-auto w-full max-w-7xl px-6 py-3 text-sm text-slate-500 flex items-center;
+  }
+
+  .card {
+    @apply bg-white border border-[var(--line)] rounded-xl2;
+  }
+  .card > .table {
+    @apply w-full;
+  }
+  .card .td,
+  .card .th {
+    @apply px-4;
+  }
+
+  @layer components {
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    /* Línea suave entre filas ya la tienes; este es solo hover */
+    .table .tr:hover .td {
+      @apply bg-slate-50;
+    }
+    /* Inactivo ya lo marca el <tr> con bg-amber-50 */
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--line);
+    transition: width 0.2s ease;
+    width: var(--sidebar-w);
+  }
+  .app-grid.is-collapsed .sidebar {
+    width: var(--sidebar-w-collapsed);
+  }
+
+  /* Off-canvas móvil */
+  @media (max-width: 1023px) {
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100dvh;
+      transform: translateX(-100%);
+      width: var(--sidebar-w);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+      transition: transform 0.2s ease;
+      z-index: var(--z-overlay);
+    }
+    .sidebar.is-open {
+      transform: translateX(0);
+    }
+    .sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.4);
+      backdrop-filter: blur(1px);
+      z-index: calc(var(--z-overlay) - 1);
+    }
+  }
+
+  /* Marca */
+  .brand {
+    @apply flex items-center gap-3 px-4 py-4;
+  }
+  .brand__logo {
+    @apply inline-flex h-9 w-9 items-center justify-center rounded-md text-white;
+    background: var(--brand);
+  }
+  .brand__title {
+    @apply text-[15px] font-semibold leading-none;
+  }
+  .brand__subtitle {
+    @apply text-xs text-slate-500;
+  }
+
+  .nav__section {
+    @apply px-4 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500;
+  }
+
+  .nav {
+    @apply px-2;
+  }
+  .nav__list {
+    @apply flex flex-col gap-1;
+  }
+  .nav__item {
+  }
+
+  .nav__link {
+    @apply flex items-center gap-3 rounded-md px-3 py-2 text-[14px]
+           text-slate-700 hover:bg-slate-50 active:bg-slate-100
+           transition-colors;
+  }
+  .nav__link svg {
+    @apply shrink-0 h-4 w-4;
+  }
+
+  .nav__link lucide-icon svg {
+    width: 1rem; /* 16px aprox */
+    height: 1rem;
+  }
+
+  .nav__link.is-active,
+  .nav__link[aria-current="page"] {
+    background: color-mix(in oklab, var(--brand) 10%, transparent);
+    color: var(--brand);
+    border: 1px solid color-mix(in oklab, var(--brand) 35%, transparent);
+  }
+
+  /* Colapso: ocultar textos cuando está colapsado en desktop */
+  .app-grid.is-collapsed .nav__link span {
+    display: none;
+  }
+  .app-grid.is-collapsed .brand__title,
+  .app-grid.is-collapsed .brand__subtitle {
+    display: none;
+  }
+  .app-grid.is-collapsed .brand {
+    @apply justify-center;
+  }
+
+  /* Botones semánticos */
+  .btn {
+    @apply inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm border border-slate-200 bg-white hover:bg-slate-50;
+  }
+  .btn--primary {
+    @apply border-transparent text-white;
+    background: var(--brand);
+  }
+  .btn--warn {
+    background: var(--warn);
+    color: #1f2937;
+    border-color: transparent;
+  }
+  .btn--danger {
+    background: var(--danger);
+    color: white;
+    border-color: transparent;
+  }
+  .icon-btn {
+    @apply inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200;
+  }
+
+  /* Toolbar */
+  .ltb {
+    @apply flex items-center justify-between gap-3 py-3;
+  }
+  .ltb__tabs {
+    @apply flex items-center gap-2;
+  }
+  .ltb__tab {
+    @apply inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm
+         text-slate-700 hover:bg-slate-50 border border-transparent;
+  }
+  .ltb__tab.is-active {
+    color: var(--brand);
+    border-color: color-mix(in oklab, var(--brand) 35%, transparent);
+    background: color-mix(in oklab, var(--brand) 10%, transparent);
+  }
+  .ltb__badge {
+    @apply text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600;
+  }
+
+  .ltb__right {
+    @apply flex items-center gap-2;
+  }
+
+  /* Search */
+  .ltb__search {
+    @apply flex items-center gap-2 rounded-md border px-3 py-2 bg-white;
+    border-color: var(--line);
+  }
+  .ltb__search input {
+    @apply outline-none text-sm w-56 bg-transparent;
+  }
+  .ltb__search:focus-within {
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand) 20%, transparent);
+  }
+
+  /* === Fix botones: variantes con hover propio y disabled === */
+  @layer components {
+    /* Base: deja el hover solo para neutros */
+    .btn {
+      @apply inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm
+           border border-slate-200 bg-white transition-colors;
+    }
+    .btn:hover {
+      @apply bg-slate-50;
+    }
+
+    .btn:hover:not(.btn--primary):not(.btn--warn):not(.btn--danger) {
+      @apply bg-slate-50;
+    }
+
+    /* ---- Primary (Oxford) ---- */
+    .btn--primary {
+      color: #fff;
+      border-color: transparent;
+      background: var(--brand); /* #002147 */
+    }
+    .btn--primary:hover,
+    .btn--primary:focus-visible {
+      background: color-mix(
+        in oklab,
+        var(--brand) 85%,
+        black
+      ); /* oscurece sin volverse blanco */
+      color: #fff;
+    }
+    .btn--primary:disabled,
+    .btn--primary[disabled] {
+      background: var(--brand);
+      color: #fff;
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* ---- Warn (Tan) ---- */
+    .btn--warn {
+      color: #1f2937; /* gris oscuro para contraste sobre Tan */
+      border-color: transparent;
+      background: var(--warn); /* #d2b48c */
+    }
+    .btn--warn:hover,
+    .btn--warn:focus-visible {
+      background: color-mix(in oklab, var(--warn) 85%, black);
+      color: #1f2937;
+    }
+    .btn--warn:disabled,
+    .btn--warn[disabled] {
+      background: var(--warn);
+      color: #1f2937;
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    /* ---- Danger (rojo) ---- */
+    .btn--danger {
+      color: #fff;
+      border-color: transparent;
+      background: var(--danger);
+    }
+    .btn--danger:hover,
+    .btn--danger:focus-visible {
+      background: color-mix(in oklab, var(--danger) 85%, black);
+      color: #fff;
+    }
+    .btn--danger:disabled,
+    .btn--danger[disabled] {
+      background: var(--danger);
+      color: #fff;
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    /* Icon button consistente (no se “blanquea”) */
+    .icon-btn {
+      @apply inline-flex h-9 w-9 items-center justify-center rounded-md
+           border border-slate-200 bg-white transition-colors;
+    }
+    .icon-btn:hover,
+    .icon-btn:focus-visible {
+      @apply bg-slate-50;
+    }
+    .icon-btn:disabled {
+      @apply opacity-50 pointer-events-none;
+    }
+
+    /* Desactiva hover global para botones deshabilitados */
+    .btn:disabled,
+    .btn[disabled] {
+      @apply pointer-events-none;
+    }
+  }
+}

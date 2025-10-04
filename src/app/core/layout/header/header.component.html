@@ -1,0 +1,29 @@
+<header class="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur">
+  <div class="mx-auto flex w-full max-w-7xl items-center gap-3 px-6 py-3">
+    <!-- breadcrumb/lado izquierdo -->
+    <div class="text-sm text-slate-600">fastfood</div>
+
+    <!-- empuja el resto a la derecha -->
+    <div class="ml-auto"></div>
+
+    <!-- menú de usuario -->
+    <ui-dropdown>
+      <span trigger class="btn btn--secondary">
+        <span class="hidden md:inline">{{ username() || 'Usuario' }}</span>
+        <span class="icon-btn border-0">⋮</span>
+      </span>
+
+      <div content class="flex flex-col">
+        <div class="px-2 py-2">
+          <div class="text-sm font-semibold leading-none">{{ username() || 'Usuario' }}</div>
+          <div class="text-xs text-slate-500">Erre</div>
+        </div>
+        <hr class="my-1">
+        <a class="btn btn--ghost justify-start" (click)="account()">Settings</a>
+        <a class="btn btn--ghost justify-start">Help</a>
+        <hr class="my-1">
+        <button class="btn btn--ghost justify-start text-rose-700" (click)="logout()">Sign out</button>
+      </div>
+    </ui-dropdown>
+  </div>
+</header>

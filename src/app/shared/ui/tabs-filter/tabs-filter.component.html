@@ -1,0 +1,19 @@
+<div class="mb-3 border-b border-slate-200">
+  <nav class="flex gap-6">
+    <button class="py-2 -mb-[1px] border-b-2" [class.border-rose-400]="active==='all'"
+      [class.text-slate-900]="active==='all'" [class.border-transparent]="active!=='all'"
+      [class.text-slate-500]="active!=='all'" (click)="setTab('all')">
+      Todos <span *ngIf="counters?.all" class="ml-1 text-slate-400">({{ counters?.all }})</span>
+    </button>
+    <button class="py-2 -mb-[1px] border-b-2" [class.border-rose-400]="active==='active'"
+      [class.text-slate-900]="active==='active'" [class.border-transparent]="active!=='active'"
+      [class.text-slate-500]="active!=='active'" (click)="setTab('active')">
+      Activos <span *ngIf="counters?.active" class="ml-1 text-slate-400">({{ counters?.active }})</span>
+    </button>
+    <button class="py-2 -mb-[1px] border-b-2" [class.border-rose-400]="active==='inactive'"
+      [class.text-slate-900]="active==='inactive'" [class.border-transparent]="active!=='inactive'"
+      [class.text-slate-500]="active!=='inactive'" (click)="setTab('inactive')">
+      Inactivos <span *ngIf="counters?.inactive" class="ml-1 text-slate-400">({{ counters?.inactive }})</span>
+    </button>
+  </nav>
+</div>

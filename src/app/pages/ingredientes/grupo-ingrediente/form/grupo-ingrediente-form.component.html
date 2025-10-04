@@ -1,0 +1,24 @@
+<form class="p-fluid" [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
+  <app-section-container title="Información del grupo">
+    <div class="grid md:grid-cols-2 gap-4">
+      <app-input label="Nombre" [formGroup]="form" controlName="nombre" [required]="true" id="nombre"
+        inputId="nombreInputId">
+      </app-input>
+
+      <label class="block">
+        <span class="block text-sm font-medium text-slate-700">Estado</span>
+        <select class="field mt-1" formControlName="estado" id="estado">
+          <option value="A">Activo</option>
+          <option value="I">Inactivo</option>
+        </select>
+      </label>
+    </div>
+  </app-section-container>
+
+  <div class="sticky bottom-0 bg-white px-4">
+    <app-save-cancel [saveLabel]="id ? 'Guardar cambios' : 'Crear'" cancelLabel="Cancelar" [loading]="loading()"
+      (cancel)="onCancel()">
+    </app-save-cancel>
+  </div>
+
+</form>

@@ -1,0 +1,71 @@
+<div class="card overflow-hidden">
+  <table class="table">
+    <thead class="thead">
+      <tr class="tr">
+        <th *ngFor="let c of columns; trackBy: trackByCol"
+            class="th py-3"
+            [style.width.px]="c.widthPx"
+            [ngClass]="{'text-right': c.align==='right','text-center': c.align==='center'}">
+
+          <button *ngIf="c.sortable; else plain"
+                  class="flex items-center gap-1"
+                  [attr.aria-sort]="ariaSort(c)"
+                  (click)="onSort(c)">
+            {{ c.header }}
+            <svg *ngIf="sort?.key===c.key && sort?.dir==='asc'" class="h-3 w-3" viewBox="0 0 24 24"><path d="M7 14l5-5 5 5"/></svg>
+            <svg *ngIf="sort?.key===c.key && sort?.dir==='desc'" class="h-3 w-3" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+          </button>
+          <ng-template #plain>{{ c.header }}</ng-template>
+        </th>
+
+        <th *ngIf="actionsTpl" class="th w-16 py-3 text-right">Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngIf="rows.length===0 && !loading">
+        <td class="td py-16 text-center text-slate-500" [attr.colspan]="columns.length + (actionsTpl?1:0)">
+          {{ emptyText }}
+        </td>
+      </tr>
+
+      <ng-container *ngFor="let r of rows; trackBy: rowTrackBy">
+        <tr class="tr hover:bg-slate-50">
+          <td *ngFor="let c of columns; trackBy: trackByCol"
+              class="td py-3"
+              [ngClass]="{'text-right': c.align==='right','text-center': c.align==='center'}">
+
+            <ng-container [ngSwitch]="c.type || 'text'">
+              <ng-container *ngSwitchCase="'badge'">
+                <span class="badge"
+                      [class.badge--ok]="c.badgeMap && c.badgeMap[r[c.key]]==='ok'"
+                      [class.badge--warn]="c.badgeMap && c.badgeMap[r[c.key]]==='warn'"
+                      [class.badge--danger]="c.badgeMap && c.badgeMap[r[c.key]]==='danger'"
+                      [class.badge--muted]="c.badgeMap && c.badgeMap[r[c.key]]==='muted'">
+                  {{ r[c.key] }}
+                </span>
+              </ng-container>
+
+              <ng-container *ngSwitchDefault>
+                {{ r[c.key] }}
+              </ng-container>
+            </ng-container>
+          </td>
+
+          <td *ngIf="actionsTpl" class="td py-2 text-right">
+            <ng-container *ngTemplateOutlet="actionsTpl; context: {$implicit: r}"></ng-container>
+          </td>
+        </tr>
+      </ng-container>
+
+      <tr *ngIf="loading">
+        <td class="td py-8" [attr.colspan]="columns.length + (actionsTpl?1:0)">
+          <div class="space-y-2">
+            <div class="h-12 skeleton"></div>
+            <div class="h-12 skeleton"></div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

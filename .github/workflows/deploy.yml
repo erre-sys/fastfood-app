@@ -24,14 +24,14 @@ jobs:
       # Angular 18: el prod vive en environment.ts
       - name: Write production environments.ts
         run: |
-          cat > src/environments.ts <<'TS'
+          cat > src/environments/environments.ts <<'TS'
           export const environment = {
             production: true,
             apiBaseUrl: 'https://api.erre.com',
             keycloak: {
               url: 'https://auth.erre.com',
               realm: 'fastfood',
-              clientId: 'fastfood-web'
+              clientId: 'web-fastfood'
             }
           };
           TS

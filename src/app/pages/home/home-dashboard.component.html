@@ -1,0 +1,133 @@
+<app-page-layout [headerTemplate]="headerT" [contentTemplate]="contentT"></app-page-layout>
+
+<!-- HEADER -->
+<ng-template #headerT>
+    <div class="flex items-center justify-between">
+        <app-title [titleLabel]="titleLabel"></app-title>
+    </div>
+</ng-template>
+
+<!-- CONTENT -->
+<ng-template #contentT>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- Col izquierda: usuario -->
+        <section class="lg:col-span-1">
+            <section class="card">
+                <div class="card-header">
+                    <div class="font-semibold">Mi perfil</div>
+                    <div class="text-sm text-slate-500">Resumen de usuario</div>
+                </div>
+                <div class="card-body">
+                    <div class="flex items-center gap-3">
+                        <div class="h-12 w-12 rounded-full bg-slate-200 grid place-content-center text-slate-600">
+                            {{ user.nombre[0] || 'U' }}
+                        </div>
+                        <div>
+                            <div class="font-medium">{{ user.nombre }}</div>
+                            <div class="text-sm text-slate-500">{{ user.email }}</div>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-sm">
+                        <span class="badge badge--muted">{{ user.rol }}</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Accesos rápidos -->
+            <section class="card mt-4">
+                <div class="card-header">
+                    <div class="font-semibold">Accesos rápidos</div>
+                </div>
+                <div class="card-body grid grid-cols-2 gap-2">
+                    <a routerLink="/grupos" class="btn btn--ghost justify-start">Grupos</a>
+                    <a routerLink="/grupos" class="btn btn--ghost justify-start">Ingredientes</a>
+                    <a routerLink="/grupos" class="btn btn--ghost justify-start">Platos</a>
+                    <a routerLink="/grupos" class="btn btn--ghost justify-start">Promociones</a>
+                </div>
+            </section>
+        </section>
+
+        <!-- Col derecha: contenido -->
+        <section class="lg:col-span-2 flex flex-col gap-4">
+            <app-section-container title="Promociones programadas" description="Últimas promociones (máx. 10)">
+                <!-- Skeleton -->
+                <div *ngIf="loading()" class="space-y-2">
+                    <div class="h-10 skeleton"></div>
+                    <div class="h-10 skeleton"></div>
+                </div>
+
+                <!-- Tabla -->
+                <div *ngIf="!loading()" class="card overflow-hidden">
+                    <table class="table">
+                        <thead class="thead">
+                            <tr class="tr">
+                                <th class="th py-2">ID</th>
+                                <th class="th py-2">Plato</th>
+                                <th class="th py-2">Rango</th>
+                                <th class="th py-2 text-right">Desc.</th>
+                                <th class="th py-2 text-right">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="tr" *ngFor="let p of promos() | slice:0:10">
+                                <td class="td py-2 tabular-nums">{{ p.promo_id }}</td>
+                                <td class="td py-2">#{{ p.plato_id }}</td>
+                                <td class="td py-2">
+                                    {{ p.fecha_inicio | date:'dd/MM/yyyy' }} – {{ p.fecha_fin | date:'dd/MM/yyyy' }}
+                                </td>
+                                <td class="td py-2 text-right">{{ p.descuento_pct }}%</td>
+                                <td class="td py-2 text-right">
+                                    <span class="badge" [class.badge--ok]="isActiva(p)"
+                                        [class.badge--muted]="!isActiva(p)">
+                                        {{ isActiva(p) ? 'Activa' : 'Inactiva' }}
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr *ngIf="promos().length===0">
+                                <td class="td py-10 text-center text-slate-500" colspan="5">
+                                    No hay promociones programadas
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </app-section-container>
+
+            <!-- Cards de módulos -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <a routerLink="/grupos" class="card hover:shadow-md transition">
+                    <div class="card-body">
+                        <div class="text-sm text-slate-500 mb-1">Módulo</div>
+                        <div class="font-semibold text-lg">Grupos de ingredientes</div>
+                        <p class="text-sm text-slate-500 mt-1">Crear y organizar grupos</p>
+                    </div>
+                </a>
+
+                <a routerLink="/grupos" class="card hover:shadow-md transition">
+                    <div class="card-body">
+                        <div class="text-sm text-slate-500 mb-1">Módulo</div>
+                        <div class="font-semibold text-lg">Ingredientes</div>
+                        <p class="text-sm text-slate-500 mt-1">Gestión de ingredientes</p>
+                    </div>
+                </a>
+
+                <a routerLink="/grupos" class="card hover:shadow-md transition">
+                    <div class="card-body">
+                        <div class="text-sm text-slate-500 mb-1">Módulo</div>
+                        <div class="font-semibold text-lg">Platos</div>
+                        <p class="text-sm text-slate-500 mt-1">Catálogo de platos</p>
+                    </div>
+                </a>
+
+                <a routerLink="/grupos" class="card hover:shadow-md transition">
+                    <div class="card-body">
+                        <div class="text-sm text-slate-500 mb-1">Módulo</div>
+                        <div class="font-semibold text-lg">Promociones</div>
+                        <p class="text-sm text-slate-500 mt-1">Programación de promociones</p>
+                    </div>
+                </a>
+            </div>
+        </section>
+    </div>
+</ng-template>

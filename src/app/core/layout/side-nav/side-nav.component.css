@@ -1,0 +1,105 @@
+/* ===== Paleta ===== */
+:root{
+  --cream:#FFFCF2;  /* fondo claro */
+  --sand:#CCC5B9;   /* bordes suaves */
+  --coal:#252422;   /* texto primario */
+  --ink:#403D39;    /* texto secundario */
+  --accent:#EB5E28; /* resaltado */
+  --radius:14px;
+}
+
+/* Contenedor */
+.sidenav{
+  display:flex; flex-direction:column; gap:.25rem;
+  height:100dvh; width:280px; padding:.75rem;
+  background:var(--cream);
+  color:var(--coal);
+  border-right:1px solid color-mix(in oklab, var(--sand) 65%, transparent);
+}
+
+/* Brand */
+.brand{ display:flex; align-items:center; gap:.75rem; padding:.5rem .5rem 1rem; }
+.brand__logo{
+  width:40px; height:40px; border-radius:12px;
+  display:grid; place-items:center;
+  background: color-mix(in oklab, var(--accent) 12%, white);
+  border:1px solid color-mix(in oklab, var(--accent) 35%, white);
+}
+.brand__title{
+  font-weight:700; font-size:15px; line-height:1; color:var(--coal);
+  text-decoration:none;
+}
+.brand__title:hover{ text-decoration:underline; }
+.brand__subtitle{ font-size:12px; color:var(--ink); opacity:.8; }
+
+/* Nav */
+.nav__list{ display:flex; flex-direction:column; gap:.25rem; margin:0; padding:0; list-style:none; }
+.nav__link{
+  display:flex; align-items:center; gap:.6rem;
+  padding:.55rem .6rem; border-radius:12px; text-decoration:none;
+  color:var(--ink); border:1px solid transparent;
+}
+.nav__link:hover{
+  background: color-mix(in oklab, var(--sand) 16%, transparent);
+  border-color: color-mix(in oklab, var(--sand) 55%, transparent);
+}
+.nav__link.is-active{
+  color:#fff;
+  background: color-mix(in oklab, var(--accent) 78%, transparent);
+  border-color: color-mix(in oklab, var(--accent) 88%, transparent);
+  box-shadow: 0 2px 10px color-mix(in oklab, var(--accent) 30%, transparent);
+}
+.nav__ico{ color: var(--ink); }
+.nav__link.is-active .nav__ico{ color:#fff; }
+
+/* Divider */
+.divider{
+  border:0; height:1px; margin:.75rem 0;
+  background: color-mix(in oklab, var(--sand) 60%, transparent);
+  border-radius:999px;
+}
+
+/* Sección colapsable */
+.section{ padding: .25rem; }
+.section__btn{
+  width:100%; display:flex; align-items:center; justify-content:space-between;
+  padding:.55rem .6rem; border-radius:12px; background:transparent; border:1px solid transparent;
+  color:var(--ink); font: inherit; cursor:pointer;
+}
+.section__btn:hover{
+  background: color-mix(in oklab, var(--sand) 16%, transparent);
+  border-color: color-mix(in oklab, var(--sand) 55%, transparent);
+}
+.section .left{ display:flex; align-items:center; gap:.6rem; }
+
+/* Submenú */
+.sub{ list-style:none; margin:.25rem 0 0 .25rem; padding-left:.5rem; border-left:1px solid color-mix(in oklab, var(--sand) 65%, transparent); }
+.sub__link{
+  display:flex; align-items:center; gap:.5rem;
+  padding:.45rem .5rem; margin:.125rem 0; border-radius:10px; text-decoration:none;
+  color:var(--ink); border:1px solid transparent;
+}
+.sub__link:hover{
+  background: color-mix(in oklab, var(--sand) 16%, transparent);
+  border-color: color-mix(in oklab, var(--sand) 55%, transparent);
+}
+.sub__link.is-active{
+  background: color-mix(in oklab, var(--accent) 14%, white);
+  border-color: color-mix(in oklab, var(--accent) 40%, transparent);
+  color: var(--coal);
+}
+.sub__bar{ width:12px; height:2px; background: color-mix(in oklab, var(--sand) 70%, transparent); border-radius:999px; }
+.sub__text{ flex:1; }
+
+/* Botón icono (móvil) */
+.icon-btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:36px; height:36px; border-radius:10px;
+  border:1px solid color-mix(in oklab, var(--sand) 65%, transparent);
+  background:white; color:var(--coal);
+}
+
+/* Responsive: ancho menor */
+@media (max-width: 1023px){
+  .sidenav{ width: 280px; }
+}

@@ -1,0 +1,50 @@
+<app-page-layout [headerTemplate]="headerT" [contentTemplate]="contentT"></app-page-layout>
+
+<!-- HEADER -->
+<ng-template #headerT>
+  <div class="flex items-center justify-between">
+    <app-title [titleLabel]="titleLabel" (cancel)="goBack()"></app-title>
+
+    <a routerLink="/grupos/nuevo" class="btn btn--primary inline-flex items-center gap-2" aria-label="Nuevo grupo">
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12h14" stroke-linecap="round"></path>
+      </svg>
+      <span class="hidden sm:inline">Nuevo</span>
+    </a>
+  </div>
+</ng-template>
+
+<!-- CONTENT -->
+<ng-template #contentT>
+  <!-- Tabs -->
+  <nav class="tabs">
+    <button class="tab tab--all" [class.is-active]="tab==='all'" (click)="setTab('all')">Todos</button>
+    <button class="tab tab--active" [class.is-active]="tab==='active'" (click)="setTab('active')">Activos</button>
+    <button class="tab tab--inactive" [class.is-active]="tab==='inactive'"
+      (click)="setTab('inactive')">Inactivos</button>
+  </nav>
+
+  <!-- Search -->
+  <div class="mb-3">
+    <app-search class="w-full max-w-md" placeholder="Buscar por nombre o ID" [value]="searchForm.controls.q.value"
+      (valueChange)="onSearch($event)">
+    </app-search>
+  </div>
+
+  <!-- Tabla -->
+  <div class="card overflow-hidden">
+    <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay grupos'"
+      [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
+
+      <ng-template #actionsTpl let-r>
+        <app-edit [to]="['/grupo-platos', r.id, 'editar']" ariaLabel="Editar grupo" title="Editar grupo"></app-edit>
+      </ng-template>
+    </app-table>
+
+    <!-- Paginación -->
+    <app-paginator class="mt-2" [from]="from()" [to]="to()" [total]="total" [pageIndex]="page" [pageSize]="pageSize"
+      [pageSizeOptions]="[10,20,30,50]" [maxPage]="maxPage()" (sizeChange)="setPageSize($event)" (prev)="prev()"
+      (next)="next()">
+    </app-paginator>
+  </div>
+</ng-template>

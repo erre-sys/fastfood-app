@@ -1,16 +1,34 @@
-<label class="block" [formGroup]="formGroup">
-  <span *ngIf="label" class="block text-sm font-medium text-slate-700">
-    {{ label }} <span *ngIf="required" class="text-rose-500">*</span>
-  </span>
+<label class="form-field" [formGroup]="formGroup" [attr.for]="id">
+  <span *ngIf="label" class="form-label" [class.req]="required">{{ label }}</span>
 
-  <input class="field mt-1" [formControlName]="controlName" [attr.id]="inputId || id || null" [attr.type]="type"
-    [attr.placeholder]="placeholder" [disabled]="disabled" [attr.required]="required ? '' : null"
-    [attr.aria-required]="required" [attr.aria-invalid]="ctrl?.invalid ?? null" />
+  <!-- wrapper para prefix/suffix -->
+  <div class="input-affix">
+    <!-- prefix -->
+    <ng-container *ngIf="prefixTpl">
+      <span class="input-affix__prefix">
+        <ng-container [ngTemplateOutlet]="prefixTpl"></ng-container>
+      </span>
+    </ng-container>
 
-  <small *ngIf="hint" class="text-xs text-slate-500">{{ hint }}</small>
+    <ng-container [ngSwitch]="type">
+      <textarea *ngSwitchCase="'textarea'" class="field" [class.field--soft]="soft" [class.is-invalid]="invalid"
+        [id]="id" [attr.placeholder]="placeholder || null" [attr.aria-invalid]="invalid || null"
+        [attr.aria-describedby]="joinIds(helpId, invalid ? errId : null)" [disabled]="disabled"
+        [autocomplete]="autocomplete || null" [formControlName]="controlName" rows="3"></textarea>
 
-  <!-- (Opcional) mini ayuda de validación -->
-  <small *ngIf="ctrl?.touched && ctrl?.invalid" class="block mt-1 text-xs text-rose-600">
-    Campo inválido.
-  </small>
+      <input class="field" [class.field--soft]="soft" [class.is-invalid]="invalid" [id]="id" [attr.type]="type"
+        [formControlName]="controlName" [attr.aria-invalid]="invalid || null"
+        [attr.aria-disabled]="ctrl?.disabled || null"
+        [attr.aria-describedby]="joinIds(helpId, invalid ? errId : null)" />
+    </ng-container>
+
+    <ng-container *ngIf="suffixTpl">
+      <span class="input-affix__suffix">
+        <ng-container [ngTemplateOutlet]="suffixTpl"></ng-container>
+      </span>
+    </ng-container>
+  </div>
+
+  <small *ngIf="hint" class="form-help" [id]="helpId">{{ hint }}</small>
+  <small *ngIf="invalid" class="form-error" [id]="errId">{{ msgForError() }}</small>
 </label>

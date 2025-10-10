@@ -1,0 +1,19 @@
+<form class="form" [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
+  <app-section-container [heading]="'Información del grupo'" [compact]="true" [divider]="true" [inset]="true">
+
+    <div class="fg">
+      <app-input label="Nombre" [required]="true" [formGroup]="form" controlName="nombre" [soft]="true"
+        [disabled]="loading()" [errors]="{ required:'Nombre es requerido.' }">
+      </app-input>
+
+      <app-select label="Estado" [formGroup]="form" controlName="estado"
+        [items]="[{label:'Activo', value:'A'}, {label:'Inactivo', value:'I'}]" [required]="true" [soft]="true"
+        [disabled]="loading()">
+      </app-select>
+    </div>
+  </app-section-container>
+
+  <app-save-cancel [saveLabel]="id ? 'Guardar cambios' : 'Crear'" cancelLabel="Cancelar" [loading]="loading()"
+    [sticky]="true" (cancel)="onCancel()">
+  </app-save-cancel>
+</form>

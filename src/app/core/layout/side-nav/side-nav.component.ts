@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
-import { LucideAngularModule, Menu, Settings, ShoppingBag, Square } from 'lucide-angular';
+import { LucideAngularModule, ShoppingBasket, SquareMenu, Soup, LayoutDashboard, ShoppingBag } from 'lucide-angular';
 
 @Component({
   selector: 'app-side-nav',
@@ -12,8 +12,9 @@ import { LucideAngularModule, Menu, Settings, ShoppingBag, Square } from 'lucide
 export class SideNavComponent {
   @Output() close = new EventEmitter<void>();
 
-  Menu = Menu;
-  Square = Square;
-  Settings = Settings;
+  SquareMenu = SquareMenu;
+  ShoppingBasket = ShoppingBasket;
+  LayoutDashboard = LayoutDashboard;
+  Soup = Soup;
   ShoppingBag = ShoppingBag;
 }

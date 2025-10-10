@@ -1,20 +1,13 @@
-<div class="min-h-[calc(100vh-4rem)] flex flex-col">
-  <!-- header -->
-  <header
-    class="px-4 py-3 border-b border-slate-200 bg-white"
-    [class.sticky]="stickyHeader"
-    [class.top-0]="stickyHeader"
-    [class.z-30]="stickyHeader">
+<div class="layout">
+  <header class="layout__header" [class.is-sticky]="stickyHeader">
     <ng-container *ngIf="headerTemplate" [ngTemplateOutlet]="headerTemplate"></ng-container>
   </header>
 
-  <!-- content -->
-  <main class="flex-1 px-4 py-4">
+  <main class="layout__content">
     <ng-container *ngIf="contentTemplate" [ngTemplateOutlet]="contentTemplate"></ng-container>
   </main>
 
-  <!-- footer opcional -->
-  <footer *ngIf="footerTemplate" class="px-4 py-3 border-t border-slate-200 bg-white">
+  <footer *ngIf="footerTemplate" class="layout__footer">
     <ng-container [ngTemplateOutlet]="footerTemplate"></ng-container>
   </footer>
 </div>

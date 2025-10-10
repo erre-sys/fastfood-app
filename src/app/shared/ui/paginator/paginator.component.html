@@ -1,18 +1,31 @@
-<div class="flex items-center justify-between px-4 py-3 border-t border-slate-200">
-    <div class="text-sm text-slate-600">
+<nav class="pager" role="navigation" aria-label="Paginación">
+    <!-- Info (announce para lectores de pantalla) -->
+    <p class="pager__info" aria-live="polite">
         Mostrando <strong>{{ from }}</strong>–<strong>{{ to }}</strong> de <strong>{{ total }}</strong>
-    </div>
+    </p>
 
-    <div class="flex items-center gap-2">
-        <label class="flex items-center gap-2 text-sm">
+    <div class="pager__controls">
+        <!-- tamaño de página -->
+        <label class="pager__size">
             <span>Por página</span>
             <select #sel class="field h-9 w-24" [value]="pageSize" (change)="onSizeChange(sel.value)">
                 <option *ngFor="let n of pageSizeOptions" [value]="n">{{ n }}</option>
             </select>
         </label>
 
-        <button class="btn" (click)="goPrev()" [disabled]="pageIndex===0">Anterior</button>
-        <div class="px-2 text-sm">Página {{ pageIndex + 1 }} / {{ maxPage }}</div>
-        <button class="btn" (click)="goNext()" [disabled]="(pageIndex + 1) >= maxPage">Siguiente</button>
+        <!-- navegación -->
+        <div class="pager__nav" role="group" aria-label="Controles de página">
+            <button type="button" class="pager__btn" [disabled]="pageIndex===0" (click)="goPrev()"
+                aria-label="Página anterior">
+                <lucide-icon [img]="ChevronLeft" size="16" aria-hidden="true"></lucide-icon>
+            </button>
+
+            <span class="pager__page">Página {{ pageIndex + 1 }} / {{ maxPage }}</span>
+
+            <button type="button" class="pager__btn" [disabled]="(pageIndex + 1) >= maxPage" (click)="goNext()"
+                aria-label="Página siguiente">
+                <lucide-icon [img]="ChevronRight" size="16" aria-hidden="true"></lucide-icon>
+            </button>
+        </div>
     </div>
-</div>
+</nav>

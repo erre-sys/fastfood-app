@@ -1,28 +1,24 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { NgIf } from '@angular/common';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { NgIf } from '@angular/common';
+import { LucideAngularModule, Pencil } from 'lucide-angular';
 
 @Component({
   selector: 'app-edit',
   standalone: true,
-  imports: [NgIf, RouterLink],
+  imports: [NgIf, RouterLink, LucideAngularModule],
   templateUrl: './edit.component.html'
 })
 export class EditActionComponent {
-  /** Ruta a la que navegar. Si no se define, emite (edit) */
-  @Input() to?: string | any[] | null = null;
-
-  /** Texto accesible (tooltip/aria) */
-  @Input() ariaLabel = 'Editar';
-  @Input() title?: string;
-
-  /** Deshabilitar */
+  @Input() to?: any[] | string;
   @Input() disabled = false;
+  @Input() ariaLabel?: string;
+  @Input() title?: string;
+  @Output() clickEdit = new EventEmitter<void>();
 
-  /** Evento si no se usa routerLink */
-  @Output() edit = new EventEmitter<void>();
+  Pencil = Pencil;
 
-  onClick(): void {
-    if (!this.to) this.edit.emit();
+  onClick() {
+    if (!this.disabled) this.clickEdit.emit();
   }
 }

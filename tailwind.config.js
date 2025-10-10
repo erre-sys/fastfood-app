@@ -1,47 +1,53 @@
-/** @type {import('tailwindcss').Config} */
+// tailwind.config.js
 module.exports = {
-  content: [
-    "./src/**/*.{html,ts}",
-  ],
+  darkMode: ["class", '[data-theme="dark"]'], // soporta .dark o data-theme
+  content: ["./src/**/*.{html,ts}"],
   theme: {
     extend: {
       colors: {
-        brand: {
-          DEFAULT: "#002147", // Oxford Blue
-          50: "#e6ecf2",
-          100: "#cfd9e6",
-          200: "#9fb3cd",
-          300: "#6f8db4",
-          400: "#40679b",
-          500: "#1b4579",
-          600: "#0f335e",
-          700: "#0a2646",
-          800: "#071b32",
-          900: "#041221",
+        bg: "rgb(var(--bg) / <alpha-value>)",
+        surface: "rgb(var(--surface) / <alpha-value>)",
+        "surface-2": "rgb(var(--surface-2) / <alpha-value>)",
+        line: "rgb(var(--line) / <alpha-value>)",
+        foreground: "rgb(var(--foreground) / <alpha-value>)",
+
+        primary: {
+          DEFAULT: "rgb(var(--primary) / <alpha-value>)",
+          foreground: "rgb(var(--primary-foreground) / <alpha-value>)",
         },
-        tan: {
-          DEFAULT: "#d2b48c",
+        secondary: {
+          DEFAULT: "rgb(var(--secondary) / <alpha-value>)",
+          foreground: "rgb(var(--secondary-foreground) / <alpha-value>)",
         },
-        danger: {
-          DEFAULT: "#e11d48", // rojo para delete
+        accent: {
+          DEFAULT: "rgb(var(--accent) / <alpha-value>)",
+          foreground: "rgb(var(--accent-foreground) / <alpha-value>)",
         },
-      },
-      spacing: {
-        'sidebar': '280px',
-        'sidebar-collapsed': '80px',
-        'header': '64px',
-      },
-      boxShadow: {
-        header: '0 1px 0 rgba(0,0,0,.06)',
+        success: { DEFAULT: "rgb(var(--success) / <alpha-value>)" },
+        warning: { DEFAULT: "rgb(var(--accent) / <alpha-value>)" }, // tu naranja como warning
+        danger: { DEFAULT: "rgb(var(--danger) / <alpha-value>)" },
+        info: { DEFAULT: "rgb(var(--info) / <alpha-value>)" },
+        muted: { DEFAULT: "rgb(var(--muted) / <alpha-value>)" },
       },
       borderRadius: {
-        xl2: '1rem',
+        lg: "var(--radius)",
+        xl: "calc(var(--radius) + 4px)",
+      },
+      boxShadow: {
+        soft: "var(--shadow-soft)",
+        lift: "var(--shadow-lift)",
+      },
+      spacing: {
+        header: "var(--header-h)",
+        sidebar: "var(--sidebar-w)",
+        "sidebar-collapsed": "var(--sidebar-w-collapsed)",
+      },
+      zIndex: {
+        header: "var(--z-header)",
+        overlay: "var(--z-overlay)",
       },
     },
   },
-  safelist: [
-    // routerLinkActive
-    'is-active'
-  ],
-  plugins: [require('@tailwindcss/forms')],
-}
+  plugins: [require("@tailwindcss/forms")],
+  safelist: ["is-active"],
+};

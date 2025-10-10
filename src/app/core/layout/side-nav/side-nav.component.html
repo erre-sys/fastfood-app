@@ -12,9 +12,9 @@
     <ul class="nav__list">
 
       <li>
-        <a routerLink="/grupos" class="nav__link" routerLinkActive="is-active"
+        <a routerLink="/grupo-ingredientes" class="nav__link" routerLinkActive="is-active"
           [routerLinkActiveOptions]="{ exact: true }">
-          <lucide-icon [img]="Menu" size="18"></lucide-icon>
+          <lucide-icon [img]="SquareMenu" size="18"></lucide-icon>
           <span>Grupos</span>
         </a>
       </li>
@@ -22,8 +22,31 @@
       <li>
         <a routerLink="/ingredientes" class="nav__link" routerLinkActive="is-active"
           [routerLinkActiveOptions]="{ exact: true }">
-          <lucide-icon [img]="Square" size="18"></lucide-icon>
+          <lucide-icon [img]="ShoppingBasket" size="18"></lucide-icon>
           <span>Ingredientes</span>
+        </a>
+      </li>
+
+    </ul>
+  </nav>
+
+  <h2 class="nav__section">Platos</h2>
+  <nav class="nav" aria-label="Platos">
+    <ul class="nav__list">
+
+      <li>
+        <a routerLink="/grupo-platos" class="nav__link" routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: true }">
+          <lucide-icon [img]="LayoutDashboard" size="18"></lucide-icon>
+          <span>Grupos</span>
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/platos" class="nav__link" routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: true }">
+          <lucide-icon [img]="Soup" size="18"></lucide-icon>
+          <span>Platos</span>
         </a>
       </li>
 
@@ -41,13 +64,7 @@
         </a>
       </li>
 
-      <li>
-        <a routerLink="/settings" class="nav__link" routerLinkActive="is-active"
-          [routerLinkActiveOptions]="{ exact: true }">
-          <lucide-icon [img]="Settings" size="18"></lucide-icon>
-          <span>Ajustes</span>
-        </a>
-      </li>
+      
     </ul>
   </nav>
 </aside>

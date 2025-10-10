@@ -1,10 +1,16 @@
-<div class="flex items-center gap-3">
-    <button *ngIf="showBack" type="button" class="btn" (click)="cancel.emit()" aria-label="Volver">
-        ←
-    </button>
+<header class="title">
+    <div class="title__left">
+        <button type="button" class="back-btn" (click)="cancel.emit()" aria-label="Volver">
+            <lucide-icon [img]="ArrowLeft" size="16" aria-hidden="true"></lucide-icon>
+        </button>
 
-    <div>
-        <h1 class="title-xl leading-none">{{ titleLabel }}</h1>
-        <p *ngIf="subtitle" class="text-sm text-slate-500">{{ subtitle }}</p>
+        <div class="title__text">
+            <div class="title__label">{{ titleLabel }}</div>
+            <div *ngIf="subtitle" class="title__sub">{{ subtitle }}</div>
+        </div>
     </div>
-</div>
+
+    <div class="title__aside">
+        <ng-content></ng-content>
+    </div>
+</header>

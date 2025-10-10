@@ -1,23 +1,22 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+
+import { GrupoIngredienteService } from '../../../../services/grupo-ingrediente.service';
 
 import { InputComponent } from '../../../../shared/ui/input/input.component';
 import { SectionContainerComponent } from '../../../../shared/ui/section-container/section-container.component';
-
-import { GrupoIngredienteService } from '../../../../services/grupo-ingrediente.service';
+import { AppSelectComponent } from '../../../../shared/ui/select/select.component';
 import { SaveCancelComponent } from '../../../../shared';
+import { GrupoIngredienteCreate, GrupoIngredienteUpdate } from '../../../../interfaces/grupo-ingrediente.interface';
 
 @Component({
   selector: 'app-grupo-ingrediente-form',
   standalone: true,
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    InputComponent,
-    SectionContainerComponent,
-    SaveCancelComponent
+    CommonModule, ReactiveFormsModule,
+    InputComponent, SectionContainerComponent, AppSelectComponent, SaveCancelComponent,
   ],
   templateUrl: './grupo-ingrediente-form.component.html',
 })
@@ -32,12 +31,11 @@ export default class GrupoIngredienteFormPage implements OnInit {
 
   form = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(2)]],
-    estado: <'A' | 'I'>'A',
+    estado: <'A'|'I'>'A',
+    aplicaComida: <'S'|'N'>'N',   // 👈 camelCase para hablar directo con el back
   });
 
-  get titleLabel() {
-    return this.id ? 'Editar grupo' : 'Nuevo grupo';
-  }
+  get titleLabel() { return this.id ? 'Editar grupo' : 'Nuevo grupo'; }
 
   ngOnInit(): void {
     const raw = this.route.snapshot.paramMap.get('id');
@@ -46,7 +44,13 @@ export default class GrupoIngredienteFormPage implements OnInit {
     if (this.id) {
       this.loading.set(true);
       this.api.obtener(this.id).subscribe({
-        next: (g) => this.form.setValue({ nombre: g.nombre, estado: g.estado }),
+        next: (g) => {
+          this.form.setValue({
+            nombre: g.nombre,
+            estado: g.estado,
+            aplicaComida: g.aplicaComida ?? 'N',
+          });
+        },
         error: () => {},
         complete: () => this.loading.set(false),
       });
@@ -60,24 +64,19 @@ export default class GrupoIngredienteFormPage implements OnInit {
     this.loading.set(true);
 
     if (!this.id) {
-      this.api.crear(this.form.getRawValue()).subscribe({
-        next: () => this.router.navigate(['/grupos']),
+      const body = this.form.getRawValue() as GrupoIngredienteCreate;
+      this.api.crear(body).subscribe({
+        next: () => this.router.navigate(['/grupo-ingredientes']),
         error: () => this.loading.set(false),
       });
     } else {
-      this.api
-        .actualizar({
-          grupo_ingrediente_id: this.id,
-          ...this.form.getRawValue(),
-        })
-        .subscribe({
-          next: () => this.router.navigate(['/grupos']),
-          error: () => this.loading.set(false),
-        });
+      const body: GrupoIngredienteUpdate = { id: this.id, ...(this.form.getRawValue() as GrupoIngredienteCreate) };
+      this.api.actualizar(body).subscribe({
+        next: () => this.router.navigate(['/grupo-ingredientes']),
+        error: () => this.loading.set(false),
+      });
     }
   }
 
-  onCancel() {
-    history.back();
-  }
+  onCancel() { history.back(); }
 }

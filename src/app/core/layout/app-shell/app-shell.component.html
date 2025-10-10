@@ -1,44 +1,20 @@
 <div class="app-grid" [class.is-collapsed]="isCollapsed()">
   <!-- Sidebar -->
-  <app-side-nav class="sidebar" [class.is-open]="isMobileOpen()" (close)="closeMobile()">
-  </app-side-nav>
+  <app-side-nav class="sidebar" [class.is-open]="isMobileOpen()" (close)="closeMobile()"></app-side-nav>
 
-  <!-- Área principal -->
+  <!-- Columna principal -->
   <div class="flex min-h-screen flex-col">
-    <header class="app-header">
-      <div class="app-header__in">
-        <!-- hamburguesa (móvil) / colapsar (desktop) -->
-        <div class="flex items-center gap-2">
-          <button class="icon-btn md:hidden" (click)="openMobile()" aria-label="Abrir menú">
-            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" />
-            </svg>
-          </button>
+    <app-header (openMobile)="openMobile()" (toggleCollapse)="toggleCollapse()">
+    </app-header>
 
-          <button class="icon-btn hidden md:inline-flex" (click)="toggleCollapse()" aria-label="Colapsar menú">
-            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M6 4l12 8-12 8V4z" />
-            </svg>
-          </button>
-
-          <!-- logo / título breadcrumb -->
-          <span class="ml-1 text-sm font-medium text-slate-600">FastFood</span>
-        </div>
-
-        <div class="ml-auto"></div>
-
-        <!-- menú/usuario a la derecha -->
-        <app-header></app-header>
-      </div>
-    </header>
-
-
+    <!-- Main -->
     <main class="app-container">
       <article class="app-panel">
         <router-outlet></router-outlet>
       </article>
     </main>
 
+    <!-- Footer -->
     <footer class="app-footer">
       <div class="app-footer__in">
         <span class="rounded-full bg-slate-100 px-2 py-0.5">v1.0</span>
@@ -49,5 +25,5 @@
 </div>
 
 @if (isMobileOpen()) {
-  <div class="sidebar-overlay md:hidden" (click)="closeMobile()"></div>
+<div class="sidebar-overlay md:hidden" (click)="closeMobile()"></div>
 }

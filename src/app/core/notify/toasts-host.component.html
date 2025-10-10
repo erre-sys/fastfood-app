@@ -1,0 +1,11 @@
+<div class="toasts" aria-live="polite" aria-atomic="true">
+  <div *ngFor="let t of notify.items(); trackBy: track"
+       class="toast"
+       [class.toast--success]="t.type==='success'"
+       [class.toast--error]="t.type==='error'"
+       [class.toast--info]="t.type==='info'"
+       [class.toast--warning]="t.type==='warning'">
+    <div class="toast__text">{{ t.text }}</div>
+    <button type="button" class="toast__close" (click)="notify.dismiss(t.id)" aria-label="Cerrar">×</button>
+  </div>
+</div>

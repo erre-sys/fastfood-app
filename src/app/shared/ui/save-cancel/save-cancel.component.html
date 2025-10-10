@@ -1,24 +1,27 @@
-<div class="flex items-center gap-2 border-t border-slate-200 mt-4 pt-4" [class.justify-end]="align==='end'"
-    [class.justify-between]="align==='between'">
-
+<footer class="actions" [class.actions--end]="align==='end'" [class.actions--between]="align==='between'"
+    [class.actions--sticky]="sticky">
+    <!-- espacio fantasma para el modo between -->
     <div *ngIf="align==='between'"></div>
 
-    <div class="flex items-center gap-2">
-        <button type="button" class="btn" (click)="cancel.emit()" [disabled]="loading"> {{ cancelLabel }} </button>
+    <div class="actions__right">
+        <button type="button" class="btn btn--ghost" (click)="cancel.emit()" [disabled]="loading">
+            {{ cancelLabel }}
+        </button>
 
-        <button *ngIf="showDelete" type="button" class="btn btn--warn" (click)="delete.emit()" [disabled]="loading">
+        <button *ngIf="showDelete" type="button" class="btn btn--warning" (click)="delete.emit()" [disabled]="loading">
             {{ deleteLabel }}
         </button>
 
-        <button type="submit" class="btn btn--primary" [disabled]="disabled || loading">
+        <button type="submit" class="btn btn--primary" [disabled]="disabled || loading" aria-live="polite">
             <span *ngIf="!loading">{{ saveLabel }}</span>
             <span *ngIf="loading" class="inline-flex items-center gap-2">
-                <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    aria-hidden="true">
                     <circle cx="12" cy="12" r="10" opacity="0.25"></circle>
-                    <path d="M12 2a10 10 0 0 1 10 10" stroke-width="2"></path>
+                    <path d="M12 2a10 10 0 0 1 10 10"></path>
                 </svg>
-                Guardando…
+                <span>Guardando…</span>
             </span>
         </button>
     </div>
-</div>
+</footer>

@@ -12,6 +12,7 @@ export class SaveCancelComponent {
   @Input() saveLabel = 'Guardar';
   @Input() cancelLabel = 'Cancelar';
   @Input() deleteLabel = 'Eliminar';
+  @Input() sticky = false;
 
   /** Estados */
   @Input() loading = false;

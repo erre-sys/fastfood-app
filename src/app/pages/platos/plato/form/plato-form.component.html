@@ -1,0 +1,30 @@
+<form class="form" [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
+    <app-section-container [heading]="titleLabel" [compact]="true" [divider]="true" [inset]="true">
+        <div class="fg">
+            <app-input label="Código" [required]="true" [formGroup]="form" controlName="codigo"
+                [soft]="true"></app-input>
+            <app-input label="Nombre" [required]="true" [formGroup]="form" controlName="nombre"
+                [soft]="true"></app-input>
+
+            <app-select label="Grupo" [formGroup]="form" controlName="grupoPlatoId" [items]="grupos" [soft]="true"
+                [errors]="{ required: 'Selecciona un grupo.' }"></app-select>
+
+            <app-input label="Precio" type="number" [formGroup]="form" controlName="precioBase"
+                [soft]="true"></app-input>
+
+            <app-select label="Estado" [formGroup]="form" controlName="estado"
+                [items]="[{label:'Activo', value:'A'}, {label:'Inactivo', value:'I'}]" [soft]="true"></app-select>
+
+            <app-select label="¿Es Promoción?" [formGroup]="form" controlName="enPromocion"
+                [items]="[{label:'Sí', value:'S'}, {label:'No', value:'N'}]" [soft]="true"></app-select>
+
+            <app-input label="Descuento" type="number" [formGroup]="form" controlName="descuentoPct"
+                [soft]="true"></app-input>
+
+        </div>
+    </app-section-container>
+
+    <app-save-cancel [saveLabel]="id ? 'Guardar cambios' : 'Crear'" cancelLabel="Cancelar" [loading]="loading()"
+        [sticky]="true" (cancel)="onCancel()">
+    </app-save-cancel>
+</form>

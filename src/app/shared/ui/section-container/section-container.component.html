@@ -1,10 +1,14 @@
-<section class="card mb-4">
-    <div *ngIf="heading || description" class="card-header">
-        <div class="font-semibold">{{ heading }}</div>
-        <div *ngIf="description" class="text-sm text-slate-500">{{ description }}</div>
-    </div>
+<div *ngIf="heading || description || actionsTpl" class="card-header">
+  <div>
+    <h2 class="section-title" [id]="headingId" *ngIf="heading">{{ heading }}</h2>
+    <p class="section-desc" *ngIf="description">{{ description }}</p>
+  </div>
 
-    <div class="card-body">
-        <ng-content></ng-content>
-    </div>
-</section>
+  <div class="section-actions" *ngIf="actionsTpl">
+    <ng-container [ngTemplateOutlet]="actionsTpl"></ng-container>
+  </div>
+</div>
+
+<div class="card-body">
+  <ng-content></ng-content>
+</div>

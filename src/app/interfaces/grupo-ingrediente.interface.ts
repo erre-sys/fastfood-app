@@ -1,9 +1,18 @@
+
+export type Estado = 'A' | 'I';
+export type SN = 'S' | 'N';
+
 export interface GrupoIngrediente {
-  grupo_ingrediente_id: number;
+  id: number;
   nombre: string;
-  estado: 'A' | 'I';
+  estado: Estado;
+  aplicaComida: SN;
 }
 
-// payloads para no repetir modelos:
-export type GrupoIngredienteCreate = Omit<GrupoIngrediente, 'grupo_ingrediente_id'>;
-export type GrupoIngredienteUpdate = GrupoIngrediente;
+export interface GrupoIngredienteCreate {
+  nombre: string;
+  estado: Estado;
+  aplicaComida: SN;
+}
+
+export interface GrupoIngredienteUpdate extends GrupoIngrediente {}

@@ -2,28 +2,21 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environments';
+import { withSuccess } from '../core/interceptors/toast-context';
+import { GrupoIngrediente, GrupoIngredienteCreate, GrupoIngredienteUpdate } from '../interfaces/grupo-ingrediente.interface';
+import { Estado, SN } from './ingrediente.service';
 
-export interface GrupoIngrediente {
-  grupo_ingrediente_id: number;
-  nombre: string;
-  estado: 'A' | 'I';
-}
-export interface GrupoIngredienteCreate {
-  nombre: string;
-  estado: 'A' | 'I';
-}
-export interface GrupoIngredienteUpdate extends GrupoIngrediente {}
 
-export interface PagerAndSortDto {
-  page?: number; // 0-based
-  size?: number;
-  sortBy?: string; // 'id' | 'nombre' | 'estado' | 'grupoIngredienteId'
-  direction?: 'asc' | 'desc';
+export interface Pager {
+  page: number;      
+  size: number;
+  sortBy: string;   
+  direction: 'asc' | 'desc';
 }
 
-export interface CriterioBusqueda {
-  llave: string;
-  operacion: string;
+export interface Filtro {
+  llave: string;           
+  operacion: 'EQ' | 'LIKE' | 'IN' | 'NE' | 'GT' | 'LT' | 'GE' | 'LE';
   valor?: any;
   valores?: any[];
 }
@@ -34,70 +27,54 @@ export class GrupoIngredienteService {
   private base = `${environment.apiBaseUrl}/grupo-ingredientes`;
 
   private pickId(r: any): number {
-    const keys = ['grupoIngredienteId', 'id'];
-    for (const k of keys) {
+    for (const k of ['id', 'grupoIngredienteId', 'grupo_ingrediente_id']) {
       const v = r?.[k];
-      if (v !== null && v !== undefined && !Number.isNaN(Number(v))) {
-        return Number(v);
-      }
+      if (v !== null && v !== undefined && !Number.isNaN(Number(v))) return Number(v);
     }
     return -1;
   }
-
+  
   private normalize = (r: any): GrupoIngrediente => ({
-    grupo_ingrediente_id: this.pickId(r),
+    id: this.pickId(r),
     nombre: r?.nombre ?? '',
-    estado: (r?.estado ?? 'A') as 'A' | 'I',
+    estado: (r?.estado ?? 'A') as Estado,
+    aplicaComida: (r?.aplicaComida ?? r?.aplica_comida ?? 'N') as SN,
   });
 
+  // ---- CRUD ----
   listar(): Observable<GrupoIngrediente[]> {
-    return this.http
-      .get<any[]>(this.base)
-      .pipe(map((arr) => (arr ?? []).map(this.normalize)));
+    return this.http.get<any[]>(this.base).pipe(map(arr => (arr ?? []).map(this.normalize)));
   }
 
   obtener(id: number): Observable<GrupoIngrediente> {
     return this.http.get<any>(`${this.base}/${id}`).pipe(map(this.normalize));
   }
 
-  crear(dto: GrupoIngredienteCreate): Observable<void> {
-    return this.http.post<void>(this.base, dto);
-  }
+  crear(dto: GrupoIngredienteCreate) {
+  return this.http.post<void>(this.base, dto, {
+    context: withSuccess('Creado correctamente.'),
+  });
+}
 
-  actualizar(dto: GrupoIngredienteUpdate): Observable<void> {
-    const body = {
-      id: dto.grupo_ingrediente_id,
-      nombre: dto.nombre,
-      estado: dto.estado,
-    };
-    return this.http.put<void>(this.base, body);
-  }
+actualizar(dto: GrupoIngredienteUpdate) {
+  return this.http.put<void>(this.base, dto, {
+    context: withSuccess('Actualizado correctamente.'),
+  });
+}
 
-  eliminar(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.base}/${id}`);
-  }
+eliminar(id: number) {
+  return this.http.delete<void>(`${this.base}/${id}`, {
+    context: withSuccess('Eliminado correctamente.'),
+  });
+}
 
-  private mapSortKeyForApi(k?: string) {
-    if (!k) return 'grupoIngredienteId';
-    if (k === 'id' || k === 'grupo_ingrediente_id') return 'grupoIngredienteId';
-    return k;
-  }
-
-  buscarPaginado(
-    pager: {
-      page: number;
-      size: number;
-      sortBy: string;
-      direction: 'asc' | 'desc';
-    },
-    filtros: CriterioBusqueda[]
-  ) {
+  buscarPaginado(pager: Pager, filtros: Filtro[]) {
     const params = new HttpParams({
       fromObject: {
         page: String(pager.page ?? 0),
         size: String(pager.size ?? 10),
-        sortBy: this.mapSortKeyForApi(pager.sortBy),
-        direction: pager.direction ?? 'asc',
+        sortBy: pager.sortBy || 'id',
+        direction: pager.direction || 'asc',
       },
     });
 
@@ -109,3 +86,5 @@ export class GrupoIngredienteService {
     }>(`${this.base}/search`, filtros ?? [], { params });
   }
 }
+export type { GrupoIngrediente };
+

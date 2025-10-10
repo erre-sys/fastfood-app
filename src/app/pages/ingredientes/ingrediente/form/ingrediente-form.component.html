@@ -1,57 +1,37 @@
-<form class="p-fluid" [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
-    <app-section-container title="Información del ingrediente">
-        <div class="grid md:grid-cols-2 gap-4">
-            <!-- Grupo -->
-            <label class="block">
-                <span class="block text-sm font-medium text-slate-700">Grupo</span>
-                <select class="field mt-1" formControlName="grupoIngredienteId" id="grupoIngredienteId">
-                    <option [ngValue]="null" disabled>-- Selecciona --</option>
-                    <option *ngFor="let g of grupos" [ngValue]="g.id">{{ g.nombre }}</option>
-                </select>
-            </label>
+<form class="form" [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
+    <app-section-container [heading]="titleLabel" [compact]="true" [divider]="true" [inset]="true">
+        <div class="fg">
+            <app-input label="Código" [required]="true" [formGroup]="form" controlName="codigo"
+                [soft]="true"></app-input>
+            <app-input label="Nombre" [required]="true" [formGroup]="form" controlName="nombre"
+                [soft]="true"></app-input>
 
-            <app-input label="Código" [formGroup]="form" controlName="codigo" [required]="true" id="codigo"
-                inputId="codigoInput">
-            </app-input>
+            <app-select label="Grupo" [formGroup]="form" controlName="grupoIngredienteId" [items]="grupos" [soft]="true"
+                [errors]="{ required: 'Selecciona un grupo.' }"></app-select>
 
-            <app-input label="Nombre" [formGroup]="form" controlName="nombre" [required]="true" id="nombre"
-                inputId="nombreInput">
-            </app-input>
+            <app-select label="Unidad" [formGroup]="form" controlName="unidad" [items]="[{label:'Porcentaje', value:'PORC'}, {label:'Gramos', value:'G'}
+                    , {label:'Litros', value:'LT'}, {label:'Unidad', value:'UND'}, {label:'Kilogramos', value:'KG'}
+                    , {label:'Paquete', value:'PACK'}, {label:'Mililitros', value:'ML'}
+                ]" [soft]="true"></app-select>
 
-            <app-input label="Unidad" [formGroup]="form" controlName="unidad" [required]="true" id="unidad"
-                inputId="unidadInput">
-            </app-input>
+            <app-select label="¿Es extra?" [formGroup]="form" controlName="esExtra"
+                [items]="[{label:'Sí', value:'S'}, {label:'No', value:'N'}]" [soft]="true"></app-select>
 
-            <label class="block">
-                <span class="block text-sm font-medium text-slate-700">Es extra</span>
-                <select class="field mt-1" formControlName="esExtra" id="esExtra">
-                    <option value="N">No</option>
-                    <option value="S">Sí</option>
-                </select>
-            </label>
+            <app-input label="Precio extra" type="number" [formGroup]="form" controlName="precioExtra"
+                [soft]="true"></app-input>
 
-            <app-input label="Precio extra" [formGroup]="form" controlName="precioExtra" id="precioExtra"
-                inputId="precioExtraInput" type="number" [disabled]="form.get('esExtra')?.value !== 'S'">
-            </app-input>
+            <app-input label="Stock mínimo" type="number" [formGroup]="form" controlName="stockMinimo"
+                [soft]="true"></app-input>
 
-            <app-input label="Stock mínimo" [formGroup]="form" controlName="stockMinimo" id="stockMinimo"
-                inputId="stockMinimoInput" type="number">
-            </app-input>
+            <app-select label="Aplica comida" [formGroup]="form" controlName="aplicaComida"
+                [items]="[{label:'Sí', value:'S'}, {label:'No', value:'N'}]" [soft]="true"></app-select>
 
-            <label class="block">
-                <span class="block text-sm font-medium text-slate-700">Estado</span>
-                <select class="field mt-1" formControlName="estado" id="estado">
-                    <option value="A">Activo</option>
-                    <option value="I">Inactivo</option>
-                </select>
-            </label>
+            <app-select label="Estado" [formGroup]="form" controlName="estado"
+                [items]="[{label:'Activo', value:'A'}, {label:'Inactivo', value:'I'}]" [soft]="true"></app-select>
         </div>
-
     </app-section-container>
-    <div class="sticky bottom-0 bg-white px-4">
-        <app-save-cancel [saveLabel]="id ? 'Guardar cambios' : 'Crear'" cancelLabel="Cancelar" [loading]="loading()"
-            (cancel)="onCancel()">
-        </app-save-cancel>
-    </div>
 
+    <app-save-cancel [saveLabel]="id ? 'Guardar cambios' : 'Crear'" cancelLabel="Cancelar" [loading]="loading()"
+        [sticky]="true" (cancel)="onCancel()">
+    </app-save-cancel>
 </form>

@@ -1,0 +1,12 @@
+/* 1) Carga tus hojas (Sass @use exige ir antes que cualquier otra regla) */
+@use "./tokens.css";
+@use "./themes.css";
+@use "./base.css";
+@use "./layout.css";
+@use "./utilities.css";
+@use "./ui-classes.css"; // temporal mientras migras a componentes Angular
+
+/* 2) Ahora sí, las directivas de Tailwind */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

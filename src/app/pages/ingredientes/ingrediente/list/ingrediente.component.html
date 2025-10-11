@@ -5,13 +5,9 @@
   <div class="flex items-center justify-between">
     <app-title [titleLabel]="titleLabel" (cancel)="goBack()"></app-title>
 
-    <a routerLink="/ingredientes/nuevo" class="btn btn--primary inline-flex items-center gap-2"
-      aria-label="Nuevo ingrediente">
-      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 5v14M5 12h14" stroke-linecap="round"></path>
-      </svg>
-      <span class="hidden sm:inline">Nuevo</span>
-    </a>
+    <app-new [to]="['/ingredientes/nuevo']" label="Nuevo" variant="primary" [responsiveText]="true"
+      ariaLabel="Crear ingrediente">
+    </app-new>
   </div>
 </ng-template>
 
@@ -37,8 +33,7 @@
     <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay ingredientes'"
       [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
       <ng-template #actionsTpl let-r>
-        <app-edit [to]="['/ingredientes', r.id, 'editar']" ariaLabel="Editar ingrediente"
-          title="Editar ingrediente"></app-edit>
+        <app-edit [to]="['/ingredientes', r.id, 'editar']" variant="primary" ></app-edit>
       </ng-template>
     </app-table>
 

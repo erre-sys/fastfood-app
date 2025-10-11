@@ -12,6 +12,14 @@
 
     <div class="ml-auto"></div>
 
+
+    <!-- Botón para cambiar de tema oscuro/claro -->
+    <button class="icon-btn" (click)="theme.toggle()" [attr.aria-pressed]="theme.isDark()"
+      [attr.aria-label]="theme.isDark() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'"
+      title="{{ theme.isDark() ? 'Claro' : 'Oscuro' }}">
+      <lucide-icon [img]="theme.isDark() ? Sun : Moon" size="18"></lucide-icon>
+    </button>
+
     <!-- Menú de usuario (tu dropdown) -->
     <ui-dropdown>
       <span trigger class="btn btn--secondary">
@@ -30,11 +38,11 @@
         <a class="btn btn--ghost justify-start" (click)="account()"><lucide-icon [img]="Settings"
             size="18"></lucide-icon>Settings</a>
         <hr class="my-1">
-        <button class="btn btn--ghost justify-start text-rose-700" (click)="logout()"> 
+        <button class="btn btn--ghost justify-start text-rose-700" (click)="logout()">
           <lucide-icon [img]="LogOut" size="18"></lucide-icon>
-          <span>Cerrar Sesión</span>     
+          <span>Cerrar Sesión</span>
         </button>
-        
+
       </div>
     </ui-dropdown>
   </div>

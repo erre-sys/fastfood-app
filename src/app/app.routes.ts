@@ -16,6 +16,28 @@ export const routes: Routes = [
       },
 
       {
+        path: 'proveedores',
+        loadComponent: () =>
+          import('./pages/proveedores/proveedor/list/proveedor.component').then(
+            (m) => m.default
+          ),
+      },
+      {
+        path: 'proveedores/nuevo',
+        loadComponent: () =>
+          import(
+            './pages/proveedores/proveedor/form/proveedor-form.component'
+          ).then((m) => m.default),
+      },
+            {
+        path: 'proveedores/:id/editar',
+        loadComponent: () =>
+          import(
+            './pages/proveedores/proveedor/form/proveedor-form.component'
+          ).then((m) => m.default),
+      },
+
+      {
         path: 'grupo-ingredientes',
         loadComponent: () =>
           import(

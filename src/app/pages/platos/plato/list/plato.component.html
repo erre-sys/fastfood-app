@@ -5,13 +5,9 @@
   <div class="flex items-center justify-between">
     <app-title [titleLabel]="titleLabel" (cancel)="goBack()"></app-title>
 
-    <a routerLink="/platos/nuevo" class="btn btn--primary inline-flex items-center gap-2"
-      aria-label="Nuevo plato">
-      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 5v14M5 12h14" stroke-linecap="round"></path>
-      </svg>
-      <span class="hidden sm:inline">Nuevo</span>
-    </a>
+    <app-new [to]="['/platos/nuevo']" label="Nuevo" variant="primary" [responsiveText]="true"
+      ariaLabel="Crear ingrediente">
+    </app-new>
   </div>
 </ng-template>
 

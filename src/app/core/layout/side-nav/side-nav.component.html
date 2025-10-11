@@ -7,6 +7,20 @@
     </div>
   </header>
 
+  <h2 class="nav__section">Proveedores</h2>
+  <nav class="nav" aria-label="Proveedores">
+    <ul class="nav__list">
+
+      <li>
+        <a routerLink="/proveedores" class="nav__link" routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: true }">
+          <lucide-icon [img]="SquareMenu" size="18"></lucide-icon>
+          <span>Proveedores</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
   <h2 class="nav__section">Ingredientes</h2>
   <nav class="nav" aria-label="Ingredientes">
     <ul class="nav__list">

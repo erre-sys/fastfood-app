@@ -1,19 +1,13 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
-
-import { GrupoPlatoService } from '../../../../services/grupo-plato.service';
-
-import { PageLayoutComponent } from '../../../../shared/ui/page-layout/page-layout.component';
-import { TitleComponent } from '../../../../shared/ui/title/title.component';
-import { TableComponent } from '../../../../shared/ui/table/table.component';
-import { SearchComponent } from '../../../../shared/ui/searchbox/search.component';
-import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
+import { Proveedor} from '../../../../interfaces/proveedor.interface';
+import { ProveedoresService } from '../../../../services/proveedores.service';
 import { EditActionComponent } from '../../../../shared/ui/buttons/edit/edit.component';
-import { GrupoPlato } from '../../../../interfaces/grupo-plato.interface';
 import { NewActionComponent } from '../../../../shared/ui/buttons/new/new.component';
+import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, PaginatorComponent } from '../../../../shared';
 
 type Tab = 'all' | 'active' | 'inactive';
 type Dir = 'asc' | 'desc';
@@ -32,16 +26,15 @@ type ColumnDef<Row> = {
 };
 
 @Component({
-  selector: 'app-grupo-platos-list',
+  selector: 'app-proveedores-list',
   standalone: true,
   imports: [CommonModule, RouterLink, ReactiveFormsModule, PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, PaginatorComponent, EditActionComponent, NewActionComponent],
-  templateUrl: './grupo-plato.component.html',
+  templateUrl: './proveedor.component.html'
 })
+export default class ProveedoresListPage implements OnInit {
+  private api = inject(ProveedoresService);
 
-export default class GrupoPlatosListPage implements OnInit {
-  private api = inject(GrupoPlatoService);
-
-  titleLabel = 'Grupos de platos';
+  titleLabel = 'Proveedores';
 
   // estado UI
   tab: Tab = 'all';
@@ -52,15 +45,17 @@ export default class GrupoPlatosListPage implements OnInit {
 
   loading = false;
   total = 0;
-  rows: GrupoPlato[] = [];
+  rows: Proveedor[] = [];
 
   searchForm = new FormGroup({
     q: new FormControl<string>('', { nonNullable: true }),
   });
 
-  columns: ColumnDef<GrupoPlato>[] = [
-    { key: 'id', header: 'Id', widthPx: 96, sortable: true },
+  columns: ColumnDef<Proveedor>[] = [
+    { key: 'id', header: 'ID', widthPx: 96, sortable: true },
     { key: 'nombre', header: 'Nombre', sortable: true },
+    { key: 'ruc', header: 'RUC / Cédula', sortable: true },
+    { key: 'telefono', header: '# Teléfono', sortable: true },
     {key: 'estado', header: 'Estado',widthPx: 140,sortable: true,type: 'badge',
       badgeMap: { A: 'ok', I: 'warn' }, valueMap: { A: 'Activo', I: 'Inactivo' },align: 'center',},
   ];
@@ -84,7 +79,7 @@ export default class GrupoPlatosListPage implements OnInit {
     if (term) {
       filtros.push({ llave: 'nombre', operacion: 'LIKE', valor: term });
       const n = Number(term);
-      if (!Number.isNaN(n)) filtros.push({ llave: 'id', operacion: '=', valor: n });
+      if (!Number.isNaN(n)) filtros.push({ llave: 'id', operacion: 'EQ', valor: n });
     }
 
     this.api.buscarPaginado(
@@ -92,14 +87,16 @@ export default class GrupoPlatosListPage implements OnInit {
       filtros
     ).subscribe({
       next: p => {
-        const contenido = (p?.contenido ?? p?.content ?? []) as any[];
-        console.log('contenido', contenido);
+        const contenido = (p?.contenido ?? []) as any[];
         this.rows = contenido.map(r => ({
-          id: (r?.id ?? r?.grupoPlatoId ?? r?.grupo_plato_id) ?? -1,
+          id: (r?.id ?? r?.proveedorId ?? r?.proveedor_id) ?? -1,
           nombre: r?.nombre ?? '',
+          ruc:  r?.ruc ?? '',
+          telefono: r?.telefono ?? '',
+          email: r?.mail ?? '',
           estado: (r?.estado ?? 'A'),
-        })) as GrupoPlato[];
-        this.total = Number(p?.totalRegistros ?? p?.totalElements ?? this.rows.length);
+        })) as Proveedor[];
+        this.total = Number(p?.totalRegistros ?? this.rows.length);
       },
       error: () => { this.rows = []; this.total = 0; },
       complete: () => { this.loading = false; },

@@ -1,33 +1,39 @@
 // tailwind.config.js
 module.exports = {
-  darkMode: ["class", '[data-theme="dark"]'], // soporta .dark o data-theme
+  darkMode: ["class", '[data-theme="dark"]'],
   content: ["./src/**/*.{html,ts}"],
   theme: {
     extend: {
       colors: {
-        bg: "rgb(var(--bg) / <alpha-value>)",
-        surface: "rgb(var(--surface) / <alpha-value>)",
-        "surface-2": "rgb(var(--surface-2) / <alpha-value>)",
-        line: "rgb(var(--line) / <alpha-value>)",
-        foreground: "rgb(var(--foreground) / <alpha-value>)",
+        // usa las variables *-rgb para permitir /<alpha>
+        bg:        "rgb(var(--bg-rgb) / <alpha-value>)",
+        surface:   "rgb(var(--surface-rgb) / <alpha-value>)",
+        "surface-2":"rgb(var(--surface2-rgb) / <alpha-value>)",
+        "surface-3":"rgb(var(--surface3-rgb) / <alpha-value>)",
+        line:      "rgb(var(--line-rgb) / <alpha-value>)",
+        foreground:"rgb(var(--fg-rgb) / <alpha-value>)",
+
+        brand:     "rgb(var(--brand-rgb) / <alpha-value>)",
+        accent:    "rgb(var(--accent-rgb) / <alpha-value>)",
 
         primary: {
-          DEFAULT: "rgb(var(--primary) / <alpha-value>)",
-          foreground: "rgb(var(--primary-foreground) / <alpha-value>)",
+          DEFAULT:    "rgb(var(--primary-rgb) / <alpha-value>)",
+          foreground: "rgb(var(--brand-ctr-rgb) / <alpha-value>)",
         },
         secondary: {
-          DEFAULT: "rgb(var(--secondary) / <alpha-value>)",
-          foreground: "rgb(var(--secondary-foreground) / <alpha-value>)",
+          DEFAULT:    "rgb(var(--secondary-rgb) / <alpha-value>)",
+          foreground: "rgb(var(--brand-ctr-rgb) / <alpha-value>)",
         },
         accent: {
-          DEFAULT: "rgb(var(--accent) / <alpha-value>)",
-          foreground: "rgb(var(--accent-foreground) / <alpha-value>)",
+          DEFAULT:    "rgb(var(--accent-rgb) / <alpha-value>)",
+          foreground: "rgb(var(--brand-ctr-rgb) / <alpha-value>)",
         },
-        success: { DEFAULT: "rgb(var(--success) / <alpha-value>)" },
-        warning: { DEFAULT: "rgb(var(--accent) / <alpha-value>)" }, // tu naranja como warning
-        danger: { DEFAULT: "rgb(var(--danger) / <alpha-value>)" },
-        info: { DEFAULT: "rgb(var(--info) / <alpha-value>)" },
-        muted: { DEFAULT: "rgb(var(--muted) / <alpha-value>)" },
+
+        success:  "rgb(var(--success-rgb) / <alpha-value>)",
+        warning:  "rgb(var(--warning-rgb) / <alpha-value>)",
+        danger:   "rgb(var(--danger-rgb)  / <alpha-value>)",
+        info:     "rgb(var(--info-rgb)    / <alpha-value>)",
+        muted:    "rgb(var(--muted-rgb)   / <alpha-value>)",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -49,5 +55,5 @@ module.exports = {
     },
   },
   plugins: [require("@tailwindcss/forms")],
-  safelist: ["is-active"],
+  safelist: ["is-active","is-open","is-collapsed"],
 };

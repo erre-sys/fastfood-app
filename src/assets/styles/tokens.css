@@ -1,0 +1,65 @@
+:root {
+  /* colores base (hex) */
+  --bg: #f8fafc;
+  --surface: #f8fafc;
+  --line: #e2e8f0;
+  --muted: #94a3b8;
+
+  /* nomenclatura unificada */
+  --brand: #002147;
+  --brand-contrast: #f1f5f9;
+
+  --success: #22c55e;
+  --warning: #f59e0b;  /* mapeo de tu --warn */
+  --danger:  #e11d48;
+  --info:    #38bdf8;
+
+  /* texto */
+  --foreground: #0f172a;
+
+  /* tamaños y z-index */
+  --radius: 12px;
+  --z-header: 40;
+  --z-overlay: 50;
+  --sidebar-w: 280px;
+  --sidebar-w-collapsed: 80px;
+  --header-h: 64px;
+
+  /* tipografías */
+  --ff-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* superficies auxiliares y sombras */
+  --surface-2: #f6f8fb;
+  --surface-3: #eef2f7;
+  --ring-brand: color-mix(in oklab, var(--brand) 28%, transparent);
+  --shadow-soft: 0 8px 24px rgba(2, 6, 23, 0.06);
+  --shadow-lift: 0 12px 32px rgba(2, 6, 23, 0.09);
+
+  /* ====== Duplicados RGB para Tailwind (separados por espacios) ====== */
+  --bg-rgb:        248 250 252;
+  --surface-rgb:   248 250 252;
+  --surface2-rgb:  246 248 251;
+  --surface3-rgb:  238 242 247;
+  --line-rgb:      226 232 240;
+  --muted-rgb:     148 163 184;
+  --brand-rgb:       0  33  71;
+  --brand-ctr-rgb: 241 245 249;
+  --success-rgb:    34 197  94;
+  --warning-rgb:   245 158  11;
+  --danger-rgb:    225  29  72;
+  --info-rgb:       56 189 248;
+  --fg-rgb:         15  23  42;
+
+  /* alias para tailwind “primary/secondary” si lo deseas */
+  --primary:              var(--brand);
+  --primary-foreground:   var(--brand-contrast);
+  --secondary:            #475569;
+  --secondary-foreground: #ffffff;
+  --accent:               #0ea5e9;
+  --accent-foreground:    #f8fafc;
+  --primary-rgb:          var(--brand-rgb);
+  --secondary-rgb:        71 85 105;
+  --accent-rgb:           14 165 233;
+}

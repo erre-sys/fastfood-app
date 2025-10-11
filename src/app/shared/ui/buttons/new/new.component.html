@@ -1,0 +1,35 @@
+<ng-container [ngSwitch]="iconOnly">
+
+  <ng-container *ngSwitchCase="true">
+    <a *ngIf="to; else iconBtn" class="icon-btn" [routerLink]="to" (click)="preventWhenDisabled($event)"
+      [attr.aria-label]="ariaLabel || label" [attr.title]="title || ariaLabel || label"
+      [attr.aria-disabled]="disabled || null" [attr.tabindex]="disabled ? -1 : null">
+      <lucide-icon [img]="Plus" [size]="iconSize" aria-hidden="true"></lucide-icon>
+    </a>
+
+    <ng-template #iconBtn>
+      <button type="button" class="icon-btn" [disabled]="disabled" (click)="emit()"
+        [attr.aria-label]="ariaLabel || label" [attr.title]="title || ariaLabel || label">
+        <lucide-icon [img]="Plus" [size]="iconSize" aria-hidden="true"></lucide-icon>
+      </button>
+    </ng-template>
+  </ng-container>
+
+  <ng-container *ngSwitchDefault>
+    <a *ngIf="to; else textBtn" class="btn inline-flex items-center gap-2" [ngClass]="variantClasses" [routerLink]="to"
+      (click)="preventWhenDisabled($event)" [attr.aria-label]="ariaLabel || label"
+      [attr.title]="title || ariaLabel || label" [attr.aria-disabled]="disabled || null"
+      [attr.tabindex]="disabled ? -1 : null">
+      <lucide-icon [img]="Plus" [size]="iconSize" aria-hidden="true"></lucide-icon>
+      <span [class.hidden]="responsiveText" class="sm:inline">{{ label }}</span>
+    </a>
+
+    <ng-template #textBtn>
+      <button type="button" class="btn inline-flex items-center gap-2" [ngClass]="variantClasses" [disabled]="disabled"
+        (click)="emit()" [attr.aria-label]="ariaLabel || label" [attr.title]="title || ariaLabel || label">
+        <lucide-icon [img]="Plus" [size]="iconSize" aria-hidden="true"></lucide-icon>
+        <span [class.hidden]="responsiveText" class="sm:inline">{{ label }}</span>
+      </button>
+    </ng-template>
+  </ng-container>
+</ng-container>

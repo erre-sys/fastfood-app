@@ -1,0 +1,52 @@
+/* === Tema oscuro activado por clase .dark o data-theme="dark" === */
+.dark,
+[data-theme="dark"] {
+  /* superficies y texto (navy profundo) */
+  --bg: #071521;
+  --surface: #0c1f2e;
+  --surface-2: #0a1a27;
+  --surface-3: #0e2433;
+  --line: #1e3141;
+  --foreground: #e6edf5;
+
+  /* contraste sobre brand en dark */
+  --brand-contrast: #e6edf5;
+
+  /* RGB para utilidades Tailwind con /opacity */
+  --bg-rgb: 7 21 33;
+  --surface-rgb: 12 31 46;
+  --surface2-rgb: 10 26 39;
+  --surface3-rgb: 14 36 51;
+  --line-rgb: 30 49 65;
+  --fg-rgb: 230 237 245;
+}
+
+:root {
+  color-scheme: light;
+}
+
+.dark,
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* === Fallback: si NO usas clase pero el SO está en dark, aplica igual === */
+@media (prefers-color-scheme: dark) {
+  :root:not(.dark, [data-theme="light"]) {
+    --bg: #071521;
+    --surface: #0c1f2e;
+    --surface-2: #0a1a27;
+    --surface-3: #0e2433;
+    --line: #1e3141;
+    --foreground: #e6edf5;
+
+    --brand-contrast: #e6edf5;
+
+    --bg-rgb: 7 21 33;
+    --surface-rgb: 12 31 46;
+    --surface2-rgb: 10 26 39;
+    --surface3-rgb: 14 36 51;
+    --line-rgb: 30 49 65;
+    --fg-rgb: 230 237 245;
+  }
+}

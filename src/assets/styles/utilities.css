@@ -1,0 +1,24 @@
+@layer components {
+  .grid-autofit { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+  .muted { color: #64748b; font-size: 0.85rem; }
+
+  .skeleton { @apply w-full rounded-md bg-slate-200; position: relative; overflow: hidden; }
+  .skeleton::after {
+    content:""; position:absolute; inset:0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.4), transparent);
+    transform: translateX(-100%); animation: skel 1.2s infinite;
+  }
+  @keyframes skel { to { transform: translateX(100%); } }
+
+  /* Pills */
+  .pill { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border; background:#f1f5f9; color:#0f172a; border-color:#e2e8f0; }
+  .pill--success { background:#ecfdf5; color:#065f46; border-color:#a7f3d0; }
+  .pill--warning { background:#fffbeb; color:#92400e; border-color:#fde68a; }
+  .pill--danger  { background:#fef2f2; color:#991b1b; border-color:#fecaca; }
+  .pill--muted   { background:#f1f5f9; color:#475569; border-color:#e2e8f0; }
+  .pill--info    { background:#eff6ff; color:#1e3a8a; border-color:#bfdbfe; }
+
+  /* grids para forms */
+  .fg { display:grid; gap:1rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .fg--compact { gap:.75rem; }
+}

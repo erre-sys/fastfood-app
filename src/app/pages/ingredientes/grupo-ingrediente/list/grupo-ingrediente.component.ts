@@ -11,7 +11,8 @@ import { TitleComponent } from '../../../../shared/ui/title/title.component';
 import { TableComponent } from '../../../../shared/ui/table/table.component';
 import { SearchComponent } from '../../../../shared/ui/searchbox/search.component';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
-import { EditActionComponent } from '../../../../shared/ui/edit/edit.component';
+import { EditActionComponent } from '../../../../shared/ui/buttons/edit/edit.component';
+import { NewActionComponent } from '../../../../shared/ui/buttons/new/new.component';
 
 type Tab = 'all' | 'active' | 'inactive';
 type Dir = 'asc' | 'desc';
@@ -32,7 +33,7 @@ type ColumnDef<Row> = {
 @Component({
   selector: 'app-grupos-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, PaginatorComponent, EditActionComponent],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, PaginatorComponent, EditActionComponent, NewActionComponent],
   templateUrl: './grupo-ingrediente.component.html',
 })
 

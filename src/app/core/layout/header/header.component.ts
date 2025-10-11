@@ -2,14 +2,8 @@ import { Component, EventEmitter, OnInit, Output, signal } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { DropdownComponent } from '../menu/dropdown.component';
 import { authService } from '../../auth/auth.service';
-
-import {
-  Settings,
-  UserCog,
-  LucideAngularModule,
-  LogOut,
-  Menu, Blinds
-} from 'lucide-angular';
+import { LucideAngularModule, Settings, UserCog, LogOut, Menu, Blinds, Sun, Moon, Monitor } from 'lucide-angular';
+import { ThemeService } from '../../../../assets/styles/theme.service';
 
 @Component({
   selector: 'app-header',
@@ -23,16 +17,18 @@ export class HeaderComponent implements OnInit {
 
   username = signal<string | null>(null);
 
-  Menu = Menu;
-  Settings = Settings;
-  UserCog = UserCog;
-  Blinds = Blinds;
-  LogOut = LogOut;
+
+  Menu = Menu; Settings = Settings; UserCog = UserCog; Blinds = Blinds; LogOut = LogOut;
+  Sun = Sun; Moon = Moon; Monitor = Monitor;
+
+  constructor(public theme: ThemeService) {} 
 
   async ngOnInit() {
     const p = await authService.profile();
     this.username.set(p.username ?? null);
   }
+
+
 
   login() {
     authService.login();

@@ -1,0 +1,28 @@
+<form class="form" [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
+    <app-section-container [heading]="'Información del proveedor'" [compact]="true" [divider]="true" [inset]="true">
+
+        <div class="fg">
+            <app-input [formGroup]="form" controlName="nombre" label="Nombre" [required]="true"
+                hint="Nombre comercial o razón social">
+            </app-input>
+
+            <app-input [formGroup]="form" controlName="ruc" label="RUC" [required]="true">
+            </app-input>
+
+            <app-input [formGroup]="form" controlName="telefono" label="Teléfono" placeholder="+593...">
+            </app-input>
+
+            <app-input [formGroup]="form" controlName="email" label="Email" type="email">
+            </app-input>
+
+            <app-select label="Estado" [formGroup]="form" controlName="estado"
+                [items]="[{label:'Activo', value:'A'}, {label:'Inactivo', value:'I'}]" [required]="true" [soft]="true"
+                [disabled]="loading()">
+            </app-select>
+        </div>
+    </app-section-container>
+
+    <app-save-cancel [saveLabel]="id ? 'Guardar cambios' : 'Crear'" cancelLabel="Cancelar" [loading]="loading()"
+        [sticky]="true" (cancel)="onCancel()">
+    </app-save-cancel>
+</form>

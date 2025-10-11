@@ -2,6 +2,21 @@
 <html lang="en">
 
 <head>
+
+  <script>
+    (() => {
+      const key = 'theme';
+      const saved = localStorage.getItem(key) || 'system';
+      const mql = window.matchMedia('(prefers-color-scheme: dark)');
+      const isDark = saved === 'dark' || (saved === 'system' && mql.matches);
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+
+
   <meta charset="utf-8">
   <title>Pa las Papas</title>
   <base href="/">

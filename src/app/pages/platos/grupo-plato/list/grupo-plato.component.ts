@@ -1,50 +1,39 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
+import { PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, PaginatorComponent } from '../../../../shared';
+import { LucideAngularModule, Banknote, Pencil, Plus } from 'lucide-angular';
+import { UiButtonComponent } from '../../../../shared/ui/buttons/ui-button/ui-button.component';
+import { TabsFilterComponent } from '../../../../shared/ui/tabs-filter/tabs-filter.component';
+import { ColumnDef, Dir, TableSort, TabStatus } from '../../../../shared/ui/table/column-def';
+import { GrupoPlato } from '../../../../interfaces/grupo-plato.interface';
 import { GrupoPlatoService } from '../../../../services/grupo-plato.service';
 
-import { PageLayoutComponent } from '../../../../shared/ui/page-layout/page-layout.component';
-import { TitleComponent } from '../../../../shared/ui/fields/title/title.component';
-import { TableComponent } from '../../../../shared/ui/table/table.component';
-import { SearchComponent } from '../../../../shared/ui/fields/searchbox/search.component';
-import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
-import { EditActionComponent } from '../../../../shared/ui/buttons/edit/edit.component';
-import { GrupoPlato } from '../../../../interfaces/grupo-plato.interface';
-import { NewActionComponent } from '../../../../shared/ui/buttons/new/new.component';
-
-type Tab = 'all' | 'active' | 'inactive';
-type Dir = 'asc' | 'desc';
-type TableSort = { key: string; dir: 'asc' | 'desc' };
-type Align = 'left' | 'right' | 'center';
-
-type ColumnDef<Row> = {
-  key: keyof Row | string;
-  header: string;
-  widthPx?: number;
-  sortable?: boolean;
-  align?: Align;
-  type?: 'text' | 'badge';
-  badgeMap?: Record<string, 'ok' | 'warn' | 'muted' | 'danger'>;
-  valueMap?: Record<string, string>;
-};
 
 @Component({
   selector: 'app-grupo-platos-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, PaginatorComponent, EditActionComponent, NewActionComponent],
+  imports: [ CommonModule, RouterLink, ReactiveFormsModule,
+    PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, PaginatorComponent,
+    LucideAngularModule, UiButtonComponent, TabsFilterComponent],
   templateUrl: './grupo-plato.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush   
 })
 
-export default class GrupoPlatosListPage implements OnInit {
+export default class GrupoPlatosListPage implements OnInit, OnDestroy {
+  private readonly destroyed$ = new Subject<void>();
   private api = inject(GrupoPlatoService);
+  private cdr = inject(ChangeDetectorRef);
 
   titleLabel = 'Grupos de platos';
+  subTitleLabel = 'Administración de grupo de platos';
 
-  // estado UI
-  tab: Tab = 'all';
+// UI
+  tab: TabStatus = 'all';
   sortKey: string = 'id';
   sortDir: Dir = 'asc';
   page = 0;
@@ -53,6 +42,11 @@ export default class GrupoPlatosListPage implements OnInit {
   loading = false;
   total = 0;
   rows: GrupoPlato[] = [];
+
+  // Íconos
+  Banknote = Banknote;
+  Pencil = Pencil;
+  Plus = Plus;
 
   searchForm = new FormGroup({
     q: new FormControl<string>('', { nonNullable: true }),
@@ -64,17 +58,25 @@ export default class GrupoPlatosListPage implements OnInit {
     {key: 'estado', header: 'Estado',widthPx: 140,sortable: true,type: 'badge',
       badgeMap: { A: 'ok', I: 'warn' }, valueMap: { A: 'Activo', I: 'Inactivo' },align: 'center',},
   ];
+  
+  counters = { all: 0, active: undefined as number | undefined, inactive: undefined as number | undefined };
 
   ngOnInit(): void {
     this.searchForm.controls.q.valueChanges
-      .pipe(debounceTime(250), distinctUntilChanged())
+      .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroyed$))
       .subscribe(() => { this.page = 0; this.load(); });
 
     this.load();
   }
 
+  ngOnDestroy(): void {
+    this.destroyed$.next();
+    this.destroyed$.complete();
+  }
+
   private load(): void {
     this.loading = true;
+    this.cdr.markForCheck();
 
     const filtros: any[] = [];
     if (this.tab === 'active') filtros.push({ llave: 'estado', operacion: '=', valor: 'A' });
@@ -100,13 +102,22 @@ export default class GrupoPlatosListPage implements OnInit {
           estado: (r?.estado ?? 'A'),
         })) as GrupoPlato[];
         this.total = Number(p?.totalRegistros ?? p?.totalElements ?? this.rows.length);
+        this.counters.all = this.total;
+        this.cdr.markForCheck();   
       },
-      error: () => { this.rows = []; this.total = 0; },
-      complete: () => { this.loading = false; },
+      error: () => {
+        this.rows = []; this.total = 0;
+        this.loading = false;
+        this.cdr.markForCheck();   
+      },
+      complete: () => {
+        this.loading = false;
+        this.cdr.markForCheck();   
+      },
     });
   }
-
-  setTab(k: Tab) { if (this.tab !== k) { this.tab = k; this.page = 0; this.load(); } }
+  // ---- UI handlers
+  setTab(k: TabStatus) { if (this.tab !== k) { this.tab = k; this.page = 0; this.load(); } }
   onSort(s: TableSort) { if (!s?.key) return; this.sortKey = s.key; this.sortDir = s.dir as Dir; this.page = 0; this.load(); }
   setPageSize(n: number) { if (n > 0 && n !== this.pageSize) { this.pageSize = n; this.page = 0; this.load(); } }
   prev() { if (this.page > 0) { this.page--; this.load(); } }
@@ -118,4 +129,5 @@ export default class GrupoPlatosListPage implements OnInit {
 
   goBack() { history.back(); }
   onSearch(term: string) { this.searchForm.controls.q.setValue(term, { emitEvent: true }); }
+  onEdit(row: GrupoPlato) { }
 }

@@ -2,46 +2,47 @@
 
 <!-- HEADER -->
 <ng-template #headerT>
-  <div class="flex items-center justify-between">
-    <app-title [titleLabel]="titleLabel" (cancel)="goBack()"></app-title>
-
-    <app-new [to]="['/grupo-platos/nuevo']" label="Nuevo" variant="primary" [responsiveText]="true"
-      ariaLabel="Crear ingrediente">
-    </app-new>
-  </div>
+    <app-title [titleLabel]="titleLabel" [subtitle]="subTitleLabel" [showBack]="true"
+        variant="tinted" tone="brand" (cancel)="goBack()">
+        <ui-button [icon]="Plus" label="Nuevo" variant="primary" size="md" [to]="['/grupo-platos/nuevo']"></ui-button>
+    </app-title>
 </ng-template>
 
 <!-- CONTENT -->
 <ng-template #contentT>
   <!-- Tabs -->
-  <nav class="tabs">
-    <button class="tab tab--all" [class.is-active]="tab==='all'" (click)="setTab('all')">Todos</button>
-    <button class="tab tab--active" [class.is-active]="tab==='active'" (click)="setTab('active')">Activos</button>
-    <button class="tab tab--inactive" [class.is-active]="tab==='inactive'"
-      (click)="setTab('inactive')">Inactivos</button>
-  </nav>
+    <app-tabs-filter [items]="[
+    { key:'all',      label:'Todos',     count:counters.all,      tone:'brand'   },
+    { key:'active',   label:'Activos',   count:counters.active,   tone:'success' },
+    { key:'inactive', label:'Inactivos', count:counters.inactive, tone:'warn'    }
+  ]" [active]="tab" (activeChange)="setTab($any($event))">
+    </app-tabs-filter>
 
-  <!-- Search -->
-  <div class="mb-3">
+    <!-- Search -->
     <app-search class="w-full max-w-md" placeholder="Buscar por nombre o ID" [value]="searchForm.controls.q.value"
-      (valueChange)="onSearch($event)">
+        (valueChange)="onSearch($event)">
     </app-search>
-  </div>
 
   <!-- Tabla -->
-  <div class="card overflow-hidden">
-    <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay grupos'"
-      [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
+    <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay grupos de platos'"
+        [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
 
-      <ng-template #actionsTpl let-r>
-        <app-edit [to]="['/grupo-platos', r.id, 'editar']" ariaLabel="Editar grupo" title="Editar grupo"></app-edit>
-      </ng-template>
+        <ng-template #actionsTpl let-r>
+            <ui-button [icon]="Pencil" label="Editar" variant="primary" size="sm"
+                [to]="['/grupo-platos', r.id, 'editar']" [ariaLabel]="'Editar ' + r.nombre">
+            </ui-button>
+
+            <ui-button class="ml-1" [icon]="Banknote" label="Pagar" variant="secondary" size="sm"
+                [to]="['/pago-proveedor', r.id, 'nuevo']" [ariaLabel]="'Registrar pago a ' + r.nombre">
+            </ui-button>
+        </ng-template>
     </app-table>
 
     <!-- Paginación -->
-    <app-paginator class="mt-2" [from]="from()" [to]="to()" [total]="total" [pageIndex]="page" [pageSize]="pageSize"
-      [pageSizeOptions]="[10,20,30,50]" [maxPage]="maxPage()" (sizeChange)="setPageSize($event)" (prev)="prev()"
-      (next)="next()">
+    <app-paginator class="pager--md" [from]="from()" [to]="to()" [total]="total" [pageIndex]="page"
+        [pageSize]="pageSize" [pageSizeOptions]="[10,20,30,50]" [maxPage]="maxPage()" [controlsId]="'proveedores-table'"
+        [showInfo]="true" [showSize]="true" [showNav]="true" [showEdges]="true" [hideOnSinglePage]="false"
+        (sizeChange)="setPageSize($event)" (first)="page=0;" (prev)="prev()" (next)="next()" (last)="page=maxPage()-1;">
     </app-paginator>
-  </div>
+
 </ng-template>

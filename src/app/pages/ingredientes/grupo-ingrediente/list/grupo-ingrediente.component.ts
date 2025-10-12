@@ -1,49 +1,38 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
-import { GrupoIngredienteService, GrupoIngrediente } from '../../../../services/grupo-ingrediente.service';
-
-import { PageLayoutComponent } from '../../../../shared/ui/page-layout/page-layout.component';
-import { TitleComponent } from '../../../../shared/ui/fields/title/title.component';
-import { TableComponent } from '../../../../shared/ui/table/table.component';
-import { SearchComponent } from '../../../../shared/ui/fields/searchbox/search.component';
-import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
-import { EditActionComponent } from '../../../../shared/ui/buttons/edit/edit.component';
-import { NewActionComponent } from '../../../../shared/ui/buttons/new/new.component';
-
-type Tab = 'all' | 'active' | 'inactive';
-type Dir = 'asc' | 'desc';
-type TableSort = { key: string; dir: 'asc' | 'desc' };
-type Align = 'left' | 'right' | 'center';
-
-type ColumnDef<Row> = {
-  key: keyof Row | string;
-  header: string;
-  widthPx?: number;
-  sortable?: boolean;
-  align?: Align;
-  type?: 'text' | 'badge';
-  badgeMap?: Record<string, 'ok' | 'warn' | 'muted' | 'danger'>;
-  valueMap?: Record<string, string>;
-};
+import { PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, PaginatorComponent } from '../../../../shared';
+import { LucideAngularModule, Banknote, Pencil, Plus } from 'lucide-angular';
+import { UiButtonComponent } from '../../../../shared/ui/buttons/ui-button/ui-button.component';
+import { TabsFilterComponent } from '../../../../shared/ui/tabs-filter/tabs-filter.component';
+import { ColumnDef, Dir, TableSort, TabStatus } from '../../../../shared/ui/table/column-def';
+import { GrupoIngrediente } from '../../../../interfaces/grupo-ingrediente.interface';
+import { GrupoIngredienteService } from '../../../../services/grupo-ingrediente.service';
 
 @Component({
   selector: 'app-grupos-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, PaginatorComponent, EditActionComponent, NewActionComponent],
+  imports: [ CommonModule, RouterLink, ReactiveFormsModule,
+    PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, PaginatorComponent,
+    LucideAngularModule, UiButtonComponent, TabsFilterComponent ],
   templateUrl: './grupo-ingrediente.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export default class GrupoIngredientesListPage implements OnInit {
+export default class GrupoIngredientesListPage implements OnInit, OnDestroy {
+  private readonly destroyed$ = new Subject<void>();
   private api = inject(GrupoIngredienteService);
+  private cdr = inject(ChangeDetectorRef);   
 
   titleLabel = 'Grupos de ingredientes';
+  subTitleLabel = 'Administración de grupo de ingredientes';
 
-  // estado UI
-  tab: Tab = 'all';
+  // UI
+  tab: TabStatus = 'all';
   sortKey: string = 'id';
   sortDir: Dir = 'asc';
   page = 0;
@@ -52,6 +41,10 @@ export default class GrupoIngredientesListPage implements OnInit {
   loading = false;
   total = 0;
   rows: GrupoIngrediente[] = [];
+
+  // Íconos
+  Plus = Plus;
+  Pencil = Pencil;
 
   searchForm = new FormGroup({
     q: new FormControl<string>('', { nonNullable: true }),
@@ -66,16 +59,24 @@ export default class GrupoIngredientesListPage implements OnInit {
       badgeMap: { A: 'ok', I: 'warn' }, valueMap: { A: 'Activo', I: 'Inactivo' },align: 'center',},
   ];
 
+  counters = { all: 0, active: undefined as number | undefined, inactive: undefined as number | undefined };
+
   ngOnInit(): void {
     this.searchForm.controls.q.valueChanges
-      .pipe(debounceTime(250), distinctUntilChanged())
+      .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroyed$))
       .subscribe(() => { this.page = 0; this.load(); });
 
     this.load();
   }
 
+  ngOnDestroy(): void {
+    this.destroyed$.next();
+    this.destroyed$.complete();
+  }
+
   private load(): void {
     this.loading = true;
+    this.cdr.markForCheck(); 
 
     const filtros: any[] = [];
     if (this.tab === 'active') filtros.push({ llave: 'estado', operacion: '=', valor: 'A' });
@@ -101,22 +102,34 @@ export default class GrupoIngredientesListPage implements OnInit {
           aplicaComida: (r?.aplicaComida ?? r?.aplica_comida ?? 'N'),
         })) as GrupoIngrediente[];
         this.total = Number(p?.totalRegistros ?? p?.totalElements ?? this.rows.length);
+        this.counters.all = this.total;
+        this.cdr.markForCheck();   
       },
-      error: () => { this.rows = []; this.total = 0; },
-      complete: () => { this.loading = false; },
+      error: () => {
+        this.rows = []; this.total = 0;
+        this.loading = false;
+        this.cdr.markForCheck();   
+      },
+      complete: () => {
+        this.loading = false;
+        this.cdr.markForCheck();   
+      },
     });
   }
 
-  setTab(k: Tab) { if (this.tab !== k) { this.tab = k; this.page = 0; this.load(); } }
-  onSort(s: TableSort) { if (!s?.key) return; this.sortKey = s.key; this.sortDir = s.dir as Dir; this.page = 0; this.load(); }
-  setPageSize(n: number) { if (n > 0 && n !== this.pageSize) { this.pageSize = n; this.page = 0; this.load(); } }
-  prev() { if (this.page > 0) { this.page--; this.load(); } }
-  next() { if (this.page + 1 < this.maxPage()) { this.page++; this.load(); } }
-
-  maxPage() { return Math.max(1, Math.ceil(this.total / this.pageSize)); }
-  from() { return this.total ? this.page * this.pageSize + 1 : 0; }
-  to() { return Math.min((this.page + 1) * this.pageSize, this.total); }
-
-  goBack() { history.back(); }
-  onSearch(term: string) { this.searchForm.controls.q.setValue(term, { emitEvent: true }); }
+    // ---- UI handlers
+    setTab(k: TabStatus) { if (this.tab !== k) { this.tab = k; this.page = 0; this.load(); } }
+    onSort(s: TableSort) { if (!s?.key) return; this.sortKey = s.key; this.sortDir = s.dir as Dir; this.page = 0; this.load(); }
+    setPageSize(n: number) { if (n > 0 && n !== this.pageSize) { this.pageSize = n; this.page = 0; this.load(); } }
+    prev() { if (this.page > 0) { this.page--; this.load(); } }
+    next() { if (this.page + 1 < this.maxPage()) { this.page++; this.load(); } }
+  
+    maxPage() { return Math.max(1, Math.ceil(this.total / this.pageSize)); }
+    from() { return this.total ? this.page * this.pageSize + 1 : 0; }
+    to() { return Math.min((this.page + 1) * this.pageSize, this.total); }
+  
+    goBack() { history.back(); }
+    onSearch(term: string) { this.searchForm.controls.q.setValue(term, { emitEvent: true });}
+  
+    onEdit(row: GrupoIngrediente) { }
 }

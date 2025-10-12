@@ -11,42 +11,28 @@ import { PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, P
 import { LucideAngularModule, Banknote, Pencil, Plus } from 'lucide-angular';
 import { UiButtonComponent } from '../../../../shared/ui/buttons/ui-button/ui-button.component';
 import { TabsFilterComponent } from '../../../../shared/ui/tabs-filter/tabs-filter.component';
-
-type Tab = 'all' | 'active' | 'inactive';
-type Dir = 'asc' | 'desc';
-type TableSort = { key: string; dir: 'asc' | 'desc' };
-type Align = 'left' | 'right' | 'center';
-
-type ColumnDef<Row> = {
-  key: keyof Row | string;
-  header: string;
-  widthPx?: number;
-  sortable?: boolean;
-  align?: Align;
-  type?: 'text' | 'badge';
-  badgeMap?: Record<string, 'ok' | 'warn' | 'muted' | 'danger'>;
-  valueMap?: Record<string, string>;
-};
+import { ColumnDef, Dir, TableSort, TabStatus } from '../../../../shared/ui/table/column-def';
 
 @Component({
   selector: 'app-proveedores-list',
   standalone: true,
-  imports: [
-    CommonModule, RouterLink, ReactiveFormsModule,
+  imports: [ CommonModule, RouterLink, ReactiveFormsModule,
     PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, PaginatorComponent,
-    LucideAngularModule, UiButtonComponent, TabsFilterComponent
-  ],
+    LucideAngularModule, UiButtonComponent, TabsFilterComponent ],
   templateUrl: './proveedor.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush   
 })
+
 export default class ProveedoresListPage implements OnInit, OnDestroy {
   private readonly destroyed$ = new Subject<void>();
   private api = inject(ProveedoresService);
-  private cdr = inject(ChangeDetectorRef);          
+  private cdr = inject(ChangeDetectorRef);
+  
+  titleLabel = 'Proveedores';
+  subTitleLabel = 'Administración de proveedores';
 
   // UI
-  titleLabel = 'Proveedores';
-  tab: Tab = 'all';
+  tab: TabStatus = 'all';
   sortKey: string = 'id';
   sortDir: Dir = 'asc';
   page = 0;
@@ -132,7 +118,8 @@ export default class ProveedoresListPage implements OnInit, OnDestroy {
     });
   }
 
-  setTab(k: Tab) { if (this.tab !== k) { this.tab = k; this.page = 0; this.load(); } }
+  // ---- UI handlers
+  setTab(k: TabStatus) { if (this.tab !== k) { this.tab = k; this.page = 0; this.load(); } }
   onSort(s: TableSort) { if (!s?.key) return; this.sortKey = s.key; this.sortDir = s.dir as Dir; this.page = 0; this.load(); }
   setPageSize(n: number) { if (n > 0 && n !== this.pageSize) { this.pageSize = n; this.page = 0; this.load(); } }
   prev() { if (this.page > 0) { this.page--; this.load(); } }
@@ -143,11 +130,8 @@ export default class ProveedoresListPage implements OnInit, OnDestroy {
   to() { return Math.min((this.page + 1) * this.pageSize, this.total); }
 
   goBack() { history.back(); }
+  onSearch(term: string) { this.searchForm.controls.q.setValue(term, { emitEvent: true });}
 
-  onSearch(term: string) {
-    this.searchForm.controls.q.setValue(term, { emitEvent: true });
-  }
-
-  onEdit(row: Proveedor) { /* future: drawer/modal */ }
-  onPay(row: Proveedor)  { /* future: drawer/modal */ }
+  onEdit(row: Proveedor) { }
+  onPay(row: Proveedor)  { }
 }

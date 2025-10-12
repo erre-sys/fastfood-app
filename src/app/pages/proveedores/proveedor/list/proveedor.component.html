@@ -2,12 +2,11 @@
 
 <!-- HEADER -->
 <ng-template #headerT>
-    <app-title [titleLabel]="'Proveedores'" [subtitle]="'Administra tus proveedores y pagos'" [showBack]="true"
+    <app-title [titleLabel]="titleLabel" [subtitle]="subTitleLabel" [showBack]="true"
         variant="tinted" tone="brand" (cancel)="goBack()">
         <ui-button [icon]="Plus" label="Nuevo" variant="primary" size="md" [to]="['/proveedores/nuevo']"></ui-button>
     </app-title>
 </ng-template>
-
 
 <!-- CONTENT -->
 <ng-template #contentT>
@@ -18,7 +17,6 @@
     { key:'inactive', label:'Inactivos', count:counters.inactive, tone:'warn'    }
   ]" [active]="tab" (activeChange)="setTab($any($event))">
     </app-tabs-filter>
-
 
     <!-- Search -->
     <app-search class="w-full max-w-md" placeholder="Buscar por nombre o ID" [value]="searchForm.controls.q.value"
@@ -31,7 +29,7 @@
 
         <ng-template #actionsTpl let-r>
             <ui-button [icon]="Pencil" label="Editar" variant="primary" size="sm"
-                [to]="['/proveedores', r.id, 'editar']" [ariaLabel]="'Editar proveedor ' + r.nombre">
+                [to]="['/proveedores', r.id, 'editar']" [ariaLabel]="'Editar ' + r.nombre">
             </ui-button>
 
             <ui-button class="ml-1" [icon]="Banknote" label="Pagar" variant="secondary" size="sm"
@@ -44,10 +42,7 @@
     <app-paginator class="pager--md" [from]="from()" [to]="to()" [total]="total" [pageIndex]="page"
         [pageSize]="pageSize" [pageSizeOptions]="[10,20,30,50]" [maxPage]="maxPage()" [controlsId]="'proveedores-table'"
         [showInfo]="true" [showSize]="true" [showNav]="true" [showEdges]="true" [hideOnSinglePage]="false"
-        (sizeChange)="setPageSize($event)" (first)="page=0;" (prev)="prev()" (next)="next()"
-        (last)="page=maxPage()-1;">
+        (sizeChange)="setPageSize($event)" (first)="page=0;" (prev)="prev()" (next)="next()" (last)="page=maxPage()-1;">
     </app-paginator>
-
-
 
 </ng-template>

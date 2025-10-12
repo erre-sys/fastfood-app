@@ -1,43 +1,47 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { PagosProveedorService } from '../../../../services/pago-proveedor.service';
 import { PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, PaginatorComponent } from '../../../../shared';
-import { NewActionComponent } from '../../../../shared/ui/buttons/new/new.component';
 import { PagoProveedor } from '../../../../interfaces/pago-proveedor.interface';
 import { ProveedoresService } from '../../../../services/proveedores.service';
-import { ColumnDef } from '../../../../shared/ui/table/column-def';
-
-
-type Tab = 'all' | 'active' | 'inactive';
-type Dir = 'asc' | 'desc';
-type TableSort = { key: string; dir: Dir };
-type Align = 'left' | 'right' | 'center';
+import { ColumnDef, Dir, TableSort, TabStatus } from '../../../../shared/ui/table/column-def';
+import { UiButtonComponent } from '../../../../shared/ui/buttons/ui-button/ui-button.component';
+import { LucideAngularModule, Plus } from 'lucide-angular';
+import { TabsFilterComponent } from '../../../../shared/ui/tabs-filter/tabs-filter.component';
 
 @Component({
   standalone: true,
   selector: 'app-pago-proveedor-list',
   templateUrl: './pago-proveedor.component.html',
-  imports: [CommonModule, RouterLink, ReactiveFormsModule,PageLayoutComponent, TitleComponent, TableComponent,SearchComponent, PaginatorComponent, NewActionComponent],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule,LucideAngularModule, PageLayoutComponent, 
+            TitleComponent, TableComponent,SearchComponent, PaginatorComponent, UiButtonComponent, TabsFilterComponent],
 })
-export default class PagosProveedorListPage implements OnInit {
+
+export default class PagosProveedorListPage implements OnInit, OnDestroy {
+  private readonly destroyed$ = new Subject<void>();
   private api = inject(PagosProveedorService);
-    private gruposApi = inject(ProveedoresService);
+  private proveedoresApi = inject(ProveedoresService);
+  private cdr = inject(ChangeDetectorRef);  
 
   titleLabel = 'Pagos a proveedores';
+  subTitleLabel = 'Administración de pagos a proveedores';
 
-   // estado UI
-   tab: Tab = 'all';
-   sortKey: string = 'id';
-   sortDir: Dir = 'asc';
-   page = 0;
-   pageSize = 10;
- 
-   loading = false;
-   total = 0;
-   rows: PagoProveedor[] = [];
+  // UI
+  tab: TabStatus = 'all';
+  sortKey: string = 'id';
+  sortDir: Dir = 'asc';
+  page = 0;
+  pageSize = 10;
+
+  loading = false;
+  total = 0;
+  rows: PagoProveedor[] = [];
+
+  // Íconos
+  Plus = Plus;
  
    searchForm = new FormGroup({
     q: new FormControl<string>('', { nonNullable: true }),
@@ -52,7 +56,7 @@ export default class PagosProveedorListPage implements OnInit {
     { key: 'montoTotal', header: 'Monto', widthPx: 120, align: 'right', sortable: true, type: 'money', currency: 'USD' },
   ];
 
-
+  counters = { all: 0, active: undefined as number | undefined, inactive: undefined as number | undefined };
   proveedorName: any;
 
   ngOnInit(): void {
@@ -60,12 +64,17 @@ export default class PagosProveedorListPage implements OnInit {
     this.searchForm.controls.q.valueChanges
       .pipe(debounceTime(250), distinctUntilChanged())
       .subscribe(() => { this.page = 0; this.load(); });
-
     this.load();
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed$.next();
+    this.destroyed$.complete();
   }
 
   private load(): void {
     this.loading = true;
+    this.cdr.markForCheck(); 
 
     const filtros: any[] = [];
     if (this.tab === 'active') filtros.push({ llave: 'metodo', operacion: '=', valor: 'EFECTIVO' });
@@ -98,14 +107,23 @@ export default class PagosProveedorListPage implements OnInit {
               proveedorNombre: this.proveedorName?.get(r?.proveedorId ?? r?.proveedor_id ?? -1) ?? '',
             })) as PagoProveedor[];
             this.total = Number(p?.totalRegistros ?? this.rows.length);
+            this.counters.all = this.total;
+            this.cdr.markForCheck();
           },
-      error: () => { this.rows = []; this.total = 0; },
-      complete: () => { this.loading = false; },
+      error: () => {
+        this.rows = []; this.total = 0;
+        this.loading = false;
+        this.cdr.markForCheck();   
+      },
+      complete: () => {
+        this.loading = false;
+        this.cdr.markForCheck();   
+      },
     });
   }
 
   private loadProveedores(): void {
-    this.gruposApi.listarActivos().subscribe({
+    this.proveedoresApi.listarActivos().subscribe({
       next: (arr) => {
         this.proveedorName = new Map(
           (arr ?? []).map((p: any) => [
@@ -124,7 +142,7 @@ export default class PagosProveedorListPage implements OnInit {
   }
 
   // handlers UI
-  setTab(k: Tab) { if (this.tab !== k) { this.tab = k; this.page = 0; this.load(); } }
+  setTab(k: TabStatus) { if (this.tab !== k) { this.tab = k; this.page = 0; this.load(); } }
   onSort(s: TableSort) { if (!s?.key) return; this.sortKey = s.key; this.sortDir = s.dir as Dir; this.page = 0; this.load(); }
   setPageSize(n: number) { if (n > 0 && n !== this.pageSize) { this.pageSize = n; this.page = 0; this.load(); } }
   prev() { if (this.page > 0) { this.page--; this.load(); } }
@@ -136,6 +154,8 @@ export default class PagosProveedorListPage implements OnInit {
 
   goBack() { history.back(); }
   onSearch(term: string) { this.searchForm.controls.q.setValue(term, { emitEvent: true }); }
+  
+  onEdit(row: PagoProveedor) { /* future: drawer/modal */ }
 }
 
 

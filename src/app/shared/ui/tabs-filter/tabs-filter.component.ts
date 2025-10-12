@@ -24,6 +24,9 @@ export class TabsFilterComponent {
     { key:'all', label:'Todos',    tone:'brand' },
     { key:'active', label:'Activos',  tone:'success' },
     { key:'inactive', label:'Inactivos', tone:'warn' },
+    /* ---------------- OTROS ------------------- */
+    { key:'efectivo', label:'Efectivo',  tone:'success' },
+    { key:'transfer', label:'Transferencia',  tone:'success' },
   ];
 
   @Input() active: TabKey = 'all';

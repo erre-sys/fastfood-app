@@ -2,45 +2,43 @@
 
 <!-- HEADER -->
 <ng-template #headerT>
-  <div class="flex items-center justify-between">
-    <app-title [titleLabel]="titleLabel" (cancel)="goBack()"></app-title>
-
-    <app-new [to]="['/ingredientes/nuevo']" label="Nuevo" variant="primary" [responsiveText]="true"
-      ariaLabel="Crear ingrediente">
-    </app-new>
-  </div>
+  <app-title [titleLabel]="titleLabel" [subtitle]="subTitleLabel" [showBack]="true" variant="tinted" tone="brand"
+    (cancel)="goBack()">
+    <ui-button [icon]="Plus" label="Nuevo" variant="primary" size="md" [to]="['/ingredientes/nuevo']"></ui-button>
+  </app-title>
 </ng-template>
 
 <!-- CONTENT -->
 <ng-template #contentT>
   <!-- Tabs -->
-  <nav class="tabs">
-    <button class="tab tab--all" [class.is-active]="tab==='all'" (click)="setTab('all')">Todos</button>
-    <button class="tab tab--active" [class.is-active]="tab==='active'" (click)="setTab('active')">Activos</button>
-    <button class="tab tab--inactive" [class.is-active]="tab==='inactive'"
-      (click)="setTab('inactive')">Inactivos</button>
-  </nav>
+  <app-tabs-filter [items]="[
+    { key:'all',      label:'Todos',     count:counters.all,      tone:'brand'   },
+    { key:'active',   label:'Activos',   count:counters.active,   tone:'success' },
+    { key:'inactive', label:'Inactivos', count:counters.inactive, tone:'warn'    }
+  ]" [active]="tab" (activeChange)="setTab($any($event))">
+  </app-tabs-filter>
 
   <!-- Search -->
-  <div class="mb-3">
-    <app-search class="w-full max-w-md" placeholder="Buscar por nombre o código (o ID)"
-      [value]="searchForm.controls.q.value" (valueChange)="onSearch($event)">
-    </app-search>
-  </div>
+  <app-search class="w-full max-w-md" placeholder="Buscar por nombre o ID" [value]="searchForm.controls.q.value"
+    (valueChange)="onSearch($event)">
+  </app-search>
 
   <!-- Tabla -->
-  <div class="card overflow-hidden">
-    <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay ingredientes'"
-      [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
-      <ng-template #actionsTpl let-r>
-        <app-edit [to]="['/ingredientes', r.id, 'editar']" variant="primary" ></app-edit>
-      </ng-template>
-    </app-table>
+  <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay ingredientes'"
+    [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
 
-    <!-- Paginación -->
-    <app-paginator class="mt-2" [from]="from()" [to]="to()" [total]="total" [pageIndex]="page" [pageSize]="pageSize"
-      [pageSizeOptions]="[10,20,30,50]" [maxPage]="maxPage()" (sizeChange)="setPageSize($event)" (prev)="prev()"
-      (next)="next()">
+    <ng-template #actionsTpl let-r>
+      <ui-button [icon]="Pencil" label="Editar" variant="primary" size="sm" [to]="['/ingredientes', r.id, 'editar']"
+        [ariaLabel]="'Editar ' + r.nombre">
+      </ui-button>
+    </ng-template>
+  </app-table>
+
+  <!-- Paginación -->
+    <app-paginator class="pager--md" [from]="from()" [to]="to()" [total]="total" [pageIndex]="page"
+        [pageSize]="pageSize" [pageSizeOptions]="[10,20,30,50]" [maxPage]="maxPage()" [controlsId]="'ingredientes-table'"
+        [showInfo]="true" [showSize]="true" [showNav]="true" [showEdges]="true" [hideOnSinglePage]="false"
+        (sizeChange)="setPageSize($event)" (first)="page=0;" (prev)="prev()" (next)="next()" (last)="page=maxPage()-1;">
     </app-paginator>
-  </div>
+
 </ng-template>

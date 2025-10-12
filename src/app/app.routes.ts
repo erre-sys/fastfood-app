@@ -29,13 +29,36 @@ export const routes: Routes = [
             './pages/proveedores/proveedor/form/proveedor-form.component'
           ).then((m) => m.default),
       },
-            {
+      {
         path: 'proveedores/:id/editar',
         loadComponent: () =>
           import(
             './pages/proveedores/proveedor/form/proveedor-form.component'
           ).then((m) => m.default),
       },
+
+      {
+        path: 'pago-proveedor',
+        loadComponent: () =>
+          import('./pages/proveedores/pago/list/pago-proveedor.component').then(
+            (m) => m.default
+          ),
+      },
+      {
+        path: 'pago-proveedor/nuevo',
+        loadComponent: () =>
+          import('./pages/proveedores/pago/form/pago-proveedor-form.component').then(
+            (m) => m.default
+          ),
+      },
+{
+        path: 'pago-proveedor/:id/nuevo',
+        loadComponent: () =>
+          import('./pages/proveedores/pago/form/pago-proveedor-form.component').then(
+            (m) => m.default
+          ),
+      },
+
 
       {
         path: 'grupo-ingredientes',

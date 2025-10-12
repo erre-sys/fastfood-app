@@ -45,7 +45,6 @@
                   [class.pill--muted]="c.badgeMap && c.badgeMap[r[c.key]]==='muted'">
                   {{ c.valueMap?.[r[c.key]] ?? r[c.key] }}
                 </span>
-
               </ng-container>
 
               <ng-container *ngSwitchCase="'status'">
@@ -54,10 +53,23 @@
                 </span>
               </ng-container>
 
+              <!-- fecha -->
+              <ng-container *ngSwitchCase="'date'">
+                {{ r[c.key] | date:(c.format || 'dd/MM/yyyy HH:mm'):(undefined):(c.locale || 'es-EC') }}
+              </ng-container>
+
+              <!-- dinero -->
+              <ng-container *ngSwitchCase="'money'">
+                {{ r[c.key] | currency:(c.currency || 'USD'):'symbol':'1.2-2':(c.locale || 'es-EC') }}
+              </ng-container>
+
+
               <ng-container *ngSwitchDefault>
                 {{ r[c.key] }}
               </ng-container>
             </ng-container>
+
+
           </td>
 
           <td *ngIf="actionsTpl" class="td--actions">

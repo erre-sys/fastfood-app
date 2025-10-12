@@ -71,7 +71,7 @@ export default class PlatosListPage implements OnInit {
   private groupName = new Map<number, string>();
 
   // formateador USD
-  private fmtUSD = new Intl.NumberFormat('es-EC', {
+  private stringToUSD = new Intl.NumberFormat('es-EC', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
@@ -150,8 +150,8 @@ export default class PlatosListPage implements OnInit {
             nombre: r?.nombre ?? '',
             grupoPlatoId: gid,
             grupoNombre: this.groupName.get(gid) ?? '',
-            precioBase: this.fmtUSD.format(precioNum),
-            descuentoPct: this.fmtUSD.format(descuentoNum),
+            precioBase: this.stringToUSD.format(precioNum),
+            descuentoPct: this.stringToUSD.format(descuentoNum),
             enPromocion: (r?.enPromocion ?? r?.en_promocion ?? 'N') as 'S' | 'N',
             estado: (r?.estado ?? 'A') as 'A' | 'I',
           };

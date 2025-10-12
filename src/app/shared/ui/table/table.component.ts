@@ -1,30 +1,12 @@
 import { Component, EventEmitter, Input, Output, TemplateRef} from '@angular/core';
-import { NgIf, NgFor, NgClass, NgTemplateOutlet, NgSwitch, NgSwitchCase, NgSwitchDefault,} from '@angular/common';
+import { NgIf, NgFor, NgClass, NgTemplateOutlet, NgSwitch, NgSwitchCase, NgSwitchDefault, DatePipe, CurrencyPipe} from '@angular/common';
 import { LucideAngularModule, ChevronDown } from 'lucide-angular';
-
-export type Align = 'left' | 'center' | 'right';
-export type Dir = 'asc' | 'desc';
-
-export interface TableSort {
-  key: string;
-  dir: Dir;
-}
-
-export interface ColumnDef {
-  key: string;
-  header: string;
-  widthPx?: number;
-  align?: Align;
-  type?: 'text' | 'badge' | 'status'; 
-  badgeMap?: Record<string, 'ok' | 'warn' | 'danger' | 'muted'>; 
-  sortable?: boolean;
-  valueMap?: Record<string, string>; 
-}
+import { ColumnDef, TableSort } from './column-def';
 
 @Component({
   selector: 'app-table',
   standalone: true,
-  imports: [NgIf, NgFor, NgClass, NgSwitch, NgSwitchCase, NgTemplateOutlet, NgSwitchDefault, LucideAngularModule],
+  imports: [NgIf, NgFor, NgClass, NgSwitch, NgSwitchCase, NgTemplateOutlet, NgSwitchDefault, LucideAngularModule, DatePipe, CurrencyPipe],
   templateUrl: './table.component.html',
 })
 export class TableComponent {
@@ -70,7 +52,7 @@ export class TableComponent {
       case 'P':
         return { label: 'Pendiente', cls: 'pill--warning' };
       case 'I':
-        return { label: 'Inactivo', cls: 'pill--warn' };
+        return { label: 'Inactivo', cls: 'pill--warning' };
       case 'N':
         return { label: 'No', cls: 'pill--muted' };
       default:

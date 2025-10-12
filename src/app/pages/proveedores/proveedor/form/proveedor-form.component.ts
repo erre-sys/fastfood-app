@@ -48,7 +48,7 @@ export default class ProveedorFormPage implements OnInit {
 
     if (this.id) {
       this.loading.set(true);
-      this.api.obtener(this.id).subscribe({
+      this.api.obtenerPorId(this.id).subscribe({
         next: (g) => {
           this.form.setValue({
             nombre: g.nombre,

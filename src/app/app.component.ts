@@ -9,5 +9,5 @@ import { ToastsHostComponent } from './core/notify/toasts-host.component';
   templateUrl: './app.component.html'
 })
 export class AppComponent {
-  title = 'webapp';
+  title = 'palaspapas';
 }

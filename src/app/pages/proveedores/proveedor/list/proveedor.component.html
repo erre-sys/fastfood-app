@@ -30,11 +30,12 @@
 
     <!-- Tabla -->
     <div class="card overflow-hidden">
-        <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay grupos'"
+        <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay proveedores'"
             [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
 
             <ng-template #actionsTpl let-r>
                 <app-edit [to]="['/proveedores', r.id, 'editar']" label="Editar" variant="primary"></app-edit>
+                <app-pay [to]="['/pago-proveedor', r.id, 'nuevo']" label="Pagar" variant="primary"></app-pay>
             </ng-template>
         </app-table>
 

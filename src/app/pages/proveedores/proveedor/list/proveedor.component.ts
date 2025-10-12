@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Proveedor} from '../../../../interfaces/proveedor.interface';
@@ -8,6 +8,7 @@ import { NewActionComponent } from '../../../../shared/ui/buttons/new/new.compon
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, PaginatorComponent } from '../../../../shared';
+import { PayActionComponent } from "../../../../shared/ui/buttons/pay/pay.component";
 
 type Tab = 'all' | 'active' | 'inactive';
 type Dir = 'asc' | 'desc';
@@ -28,7 +29,7 @@ type ColumnDef<Row> = {
 @Component({
   selector: 'app-proveedores-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, PaginatorComponent, EditActionComponent, NewActionComponent],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, PaginatorComponent, EditActionComponent, NewActionComponent, PayActionComponent],
   templateUrl: './proveedor.component.html'
 })
 export default class ProveedoresListPage implements OnInit {

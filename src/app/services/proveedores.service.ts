@@ -9,11 +9,11 @@ export class ProveedoresService {
   private http = inject(HttpClient);
   private base = `${environment.apiBaseUrl}/proveedores`; 
 
-  activos(): Observable<Proveedor[]> {
+  listarActivos(): Observable<Proveedor[]> {
     return this.http.get<Proveedor[]>(this.base);
   }
 
-  obtener(id: number): Observable<Proveedor> {
+  obtenerPorId(id: number): Observable<Proveedor> {
     return this.http.get<Proveedor>(`${this.base}/${id}`);
   }
 

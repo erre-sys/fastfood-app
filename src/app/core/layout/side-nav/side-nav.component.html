@@ -18,6 +18,15 @@
           <span>Proveedores</span>
         </a>
       </li>
+
+      <li>
+        <a routerLink="/pago-proveedor" class="nav__link" routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: true }">
+          <lucide-icon [img]="SquareMenu" size="18"></lucide-icon>
+          <span>Pagos</span>
+        </a>
+      </li>
+
     </ul>
   </nav>
 
@@ -27,20 +36,21 @@
 
       <li>
         <a routerLink="/grupo-ingredientes" class="nav__link" routerLinkActive="is-active"
-          [routerLinkActiveOptions]="{ exact: true }">
+          #rlaGrupoIng="routerLinkActive" [routerLinkActiveOptions]="{ exact: false }"
+          [attr.aria-current]="rlaGrupoIng.isActive ? 'page' : null" data-tip="Grupos de ingredientes">
           <lucide-icon [img]="SquareMenu" size="18"></lucide-icon>
           <span>Grupos</span>
         </a>
       </li>
 
       <li>
-        <a routerLink="/ingredientes" class="nav__link" routerLinkActive="is-active"
-          [routerLinkActiveOptions]="{ exact: true }">
+        <a routerLink="/ingredientes" class="nav__link" routerLinkActive="is-active" #rlaIng="routerLinkActive"
+          [routerLinkActiveOptions]="{ exact: false }" [attr.aria-current]="rlaIng.isActive ? 'page' : null"
+          data-tip="Ingredientes">
           <lucide-icon [img]="ShoppingBasket" size="18"></lucide-icon>
           <span>Ingredientes</span>
         </a>
       </li>
-
     </ul>
   </nav>
 
@@ -78,7 +88,7 @@
         </a>
       </li>
 
-      
+
     </ul>
   </nav>
 </aside>

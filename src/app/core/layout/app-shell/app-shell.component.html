@@ -1,14 +1,20 @@
+<!-- Enlaces de salto para lectores de pantalla/teclado -->
+<a href="#content" class="sr-only focus:not-sr-only fixed left-2 top-2 z-[9999] rounded bg-surface px-3 py-1 text-sm border border-line shadow-soft">
+  Saltar al contenido
+</a>
+
 <div class="app-grid" [class.is-collapsed]="isCollapsed()">
   <!-- Sidebar -->
-  <app-side-nav class="sidebar" [class.is-open]="isMobileOpen()" (close)="closeMobile()"></app-side-nav>
+  <app-side-nav class="sidebar"
+    [class.is-open]="isMobileOpen()"
+    (close)="closeMobile()"></app-side-nav>
 
   <!-- Columna principal -->
   <div class="flex min-h-screen flex-col">
-    <app-header (openMobile)="openMobile()" (toggleCollapse)="toggleCollapse()">
-    </app-header>
+    <app-header (openMobile)="openMobile()" (toggleCollapse)="toggleCollapse()"></app-header>
 
     <!-- Main -->
-    <main class="app-container">
+    <main id="content" class="app-container" role="main" aria-label="Contenido principal">
       <article class="app-panel">
         <router-outlet></router-outlet>
       </article>
@@ -17,7 +23,7 @@
     <!-- Footer -->
     <footer class="app-footer">
       <div class="app-footer__in">
-        <span class="rounded-full bg-slate-100 px-2 py-0.5">v1.0</span>
+        <span class="rounded-full bg-surface-2 px-2 py-0.5 border border-line/60">v1.0</span>
         <span class="ml-2">Pa las papas</span>
       </div>
     </footer>
@@ -25,5 +31,5 @@
 </div>
 
 @if (isMobileOpen()) {
-<div class="sidebar-overlay md:hidden" (click)="closeMobile()"></div>
+  <div class="sidebar-overlay md:hidden" (click)="closeMobile()" aria-hidden="true"></div>
 }

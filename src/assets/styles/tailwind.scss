@@ -4,7 +4,7 @@
 @use "./base.css";
 @use "./layout.css";
 @use "./utilities.css";
-@use "./ui-classes.css"; // temporal mientras migras a componentes Angular
+@use "./ui-classes.css"; 
 
 /* 2) Ahora sí, las directivas de Tailwind */
 @tailwind base;

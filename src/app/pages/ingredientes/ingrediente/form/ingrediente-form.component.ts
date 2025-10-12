@@ -51,11 +51,9 @@ export default class IngredienteFormPage implements OnInit {
       error: () => (this.grupos = []),
     });
 
-
     const raw = this.route.snapshot.paramMap.get('id');
     this.id = raw ? Number(raw) : undefined;
 
-    // reactividad: esExtra -> precioExtra habilitado/deshabilitado
     this.form.get('esExtra')!.valueChanges.subscribe((v) => {
       const ctrl = this.form.get('precioExtra')!;
       if (v === 'S') ctrl.enable({ emitEvent: false });

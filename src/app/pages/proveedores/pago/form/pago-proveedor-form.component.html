@@ -1,0 +1,34 @@
+<form class="form" [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
+    <app-section-container [heading]="'Pago a proveedor'" [compact]="true" [divider]="true" [inset]="true">
+        <div class="fg">
+            <app-select label="Proveedor" [formGroup]="form" controlName="proveedorId" [items]="proveedores"
+                labelKey="label" valueKey="value" [required]="true" [soft]="true"
+                [attr.disabled]="(preProvId || loading()) ? true : null"
+                [errors]="{ required: 'Selecciona un proveedor.' }">
+            </app-select>
+
+            <app-select label="Método de pago" [formGroup]="form" controlName="metodo" [items]="[
+          {label:'Efectivo', value:'EFECTIVO'},
+          {label:'Transferencia', value:'TRANSFERENCIA'}
+        ]" [required]="true" [soft]="true" [attr.disabled]="loading() ? true : null">
+            </app-select>
+
+            <app-input label="Referencia" [formGroup]="form" controlName="referencia" [soft]="true"
+                [attr.disabled]="loading() ? true : null">
+            </app-input>
+
+            <app-input label="Monto (USD)" type="number" [formGroup]="form" controlName="montoTotal" [required]="true"
+                [soft]="true" [attr.disabled]="loading() ? true : null" [errors]="{ min: 'Debe ser mayor a 0' }"
+                [step]="0.01">
+            </app-input>
+
+            <app-input label="Observaciones" type="textarea" [formGroup]="form" controlName="observaciones"
+                [soft]="true" [attr.disabled]="loading() ? true : null">
+            </app-input>
+        </div>
+    </app-section-container>
+
+    <app-save-cancel [saveLabel]="'Registrar pago'" cancelLabel="Cancelar" [loading]="loading()" [sticky]="true"
+        (cancel)="onCancel()">
+    </app-save-cancel>
+</form>

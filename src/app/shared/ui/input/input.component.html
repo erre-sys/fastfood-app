@@ -1,9 +1,7 @@
 <label class="form-field" [formGroup]="formGroup" [attr.for]="id">
   <span *ngIf="label" class="form-label" [class.req]="required">{{ label }}</span>
 
-  <!-- wrapper para prefix/suffix -->
   <div class="input-affix">
-    <!-- prefix -->
     <ng-container *ngIf="prefixTpl">
       <span class="input-affix__prefix">
         <ng-container [ngTemplateOutlet]="prefixTpl"></ng-container>
@@ -13,13 +11,14 @@
     <ng-container [ngSwitch]="type">
       <textarea *ngSwitchCase="'textarea'" class="field" [class.field--soft]="soft" [class.is-invalid]="invalid"
         [id]="id" [attr.placeholder]="placeholder || null" [attr.aria-invalid]="invalid || null"
-        [attr.aria-describedby]="joinIds(helpId, invalid ? errId : null)" [disabled]="disabled"
+        [attr.aria-describedby]="joinIds(helpId, invalid ? errId : null)" [readonly]="readonly || null"
         [autocomplete]="autocomplete || null" [formControlName]="controlName" rows="3"></textarea>
 
-      <input class="field" [class.field--soft]="soft" [class.is-invalid]="invalid" [id]="id" [attr.type]="type"
-        [formControlName]="controlName" [attr.aria-invalid]="invalid || null"
-        [attr.aria-disabled]="ctrl?.disabled || null"
-        [attr.aria-describedby]="joinIds(helpId, invalid ? errId : null)" />
+      <input *ngSwitchDefault class="field" [class.field--soft]="soft" [class.is-invalid]="invalid" [id]="id"
+        [attr.type]="type" [formControlName]="controlName" [attr.aria-invalid]="invalid || null"
+        [attr.aria-describedby]="joinIds(helpId, invalid ? errId : null)" [readonly]="readonly || null"
+        [attr.min]="min ?? null" [attr.max]="max ?? null" [attr.step]="step ?? null"
+        [autocomplete]="autocomplete || null" />
     </ng-container>
 
     <ng-container *ngIf="suffixTpl">

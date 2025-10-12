@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, Input, TemplateRef } from '@angular/core';
+// input.component.ts
+import { ChangeDetectionStrategy, Component, Input, TemplateRef, OnChanges, SimpleChanges, OnInit } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { NgIf, NgSwitch, NgSwitchCase, NgSwitchDefault, NgTemplateOutlet } from '@angular/common';
+import { NgIf, NgTemplateOutlet, NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
 
 type InputType = 'text' | 'number' | 'email' | 'password' | 'textarea';
 
@@ -11,26 +12,22 @@ type InputType = 'text' | 'number' | 'email' | 'password' | 'textarea';
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './input.component.html',
 })
-export class InputComponent {
-
+export class InputComponent implements OnInit, OnChanges {
   @Input({ required: true }) formGroup!: FormGroup;
   @Input({ required: true }) controlName!: string;
 
-  // ---- UI/UX
   @Input() label?: string;
   @Input() required = false;
   @Input() hint?: string;
 
-  // tipo y atributos comunes
   @Input() type: InputType = 'text';
   @Input() placeholder = '';
   @Input() inputId?: string;
-  @Input() soft = true;        // si es false, el input ocupa 100% del ancho del contenedor
-  @Input() disabled = false;
+  @Input() soft = true;
+  @Input() disabled = false;     // <- seguimos recibiéndolo
   @Input() readonly = false;
   @Input() autocomplete?: string;
 
-  // number extras
   @Input() min?: number;
   @Input() max?: number;
   @Input() step?: number;
@@ -41,28 +38,29 @@ export class InputComponent {
   @Input() prefixTpl?: TemplateRef<unknown>;
   @Input() suffixTpl?: TemplateRef<unknown>;
 
-  
-  // ids accesibles
-  get id(): string {
-    return this.inputId ?? `${this.controlName}-input`;
-  }
-  get helpId(): string | null {
-    return this.hint ? `${this.id}-help` : null;
-  }
-  get errId(): string {
-    return `${this.id}-error`;
-  }
+  get id()       { return this.inputId ?? `${this.controlName}-input`; }
+  get helpId()   { return this.hint ? `${this.id}-help` : null; }
+  get errId()    { return `${this.id}-error`; }
+  get ctrl()     { return this.formGroup?.get(this.controlName); }
 
-  get ctrl() {
-    return this.formGroup?.get(this.controlName);
-  }
   get invalid(): boolean {
     const c = this.ctrl;
     if (!c) return false;
     if (this.showErrorsOn === 'always') return !!c.errors;
     if (this.showErrorsOn === 'dirty')  return !!c.errors && c.dirty;
-    // default touched
     return !!c.errors && (c.touched || c.dirty);
+  }
+
+  ngOnInit() { this.syncDisabled(); }
+  ngOnChanges(ch: SimpleChanges) {
+    if ('disabled' in ch) this.syncDisabled();
+  }
+
+  private syncDisabled() {
+    const c = this.ctrl;
+    if (!c) return;
+    if (this.disabled && c.enabled) { c.disable({ emitEvent: false }); }
+    if (!this.disabled && c.disabled) { c.enable({ emitEvent: false }); }
   }
 
   msgForError(): string | null {
@@ -82,8 +80,8 @@ export class InputComponent {
     return map[key] ?? 'Valor inválido.';
   }
 
-  joinIds(...ids: Array<string | null | undefined>): string | null {
-  const out = ids.filter((v): v is string => !!v).join(' ');
-  return out || null;
-}
+  joinIds(...ids: Array<string | null | undefined>) {
+    const out = ids.filter((v): v is string => !!v).join(' ');
+    return out || null;
+  }
 }

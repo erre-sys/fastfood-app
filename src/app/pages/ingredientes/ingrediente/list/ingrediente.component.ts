@@ -5,7 +5,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 import { Ingrediente, IngredienteService } from '../../../../services/ingrediente.service';
-import { GrupoIngrediente, GrupoIngredienteService } from '../../../../services/grupo-ingrediente.service';
+import { GrupoIngredienteService } from '../../../../services/grupo-ingrediente.service';
 
 import { PageLayoutComponent } from '../../../../shared/ui/page-layout/page-layout.component';
 import { TitleComponent } from '../../../../shared/ui/title/title.component';

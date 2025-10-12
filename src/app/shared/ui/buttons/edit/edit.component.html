@@ -1,14 +1,14 @@
 <ng-container [ngSwitch]="iconOnly">
   <!-- Icon-only -->
   <ng-container *ngSwitchCase="true">
-    <a *ngIf="to; else iconBtn" class="icon-btn icon-btn--edit" [routerLink]="to" (click)="preventWhenDisabled($event)"
+    <a *ngIf="to; else iconBtn" class="icon-btn" [routerLink]="to" (click)="preventWhenDisabled($event)"
       [attr.aria-label]="ariaLabel || label" [attr.title]="title || ariaLabel || label"
       [attr.aria-disabled]="disabled || null" [attr.tabindex]="disabled ? -1 : null">
       <lucide-icon [img]="Pencil" [size]="iconSize" aria-hidden="true"></lucide-icon>
     </a>
 
     <ng-template #iconBtn>
-      <button type="button" class="icon-btn icon-btn--edit" [disabled]="disabled" (click)="emit()"
+      <button type="button" class="icon-btn" [disabled]="disabled" (click)="emit()"
         [attr.aria-label]="ariaLabel || label" [attr.title]="title || ariaLabel || label">
         <lucide-icon [img]="Pencil" [size]="iconSize" aria-hidden="true"></lucide-icon>
       </button>

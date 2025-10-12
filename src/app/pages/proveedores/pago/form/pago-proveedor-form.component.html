@@ -2,15 +2,14 @@
     <app-section-container [heading]="'Pago a proveedor'" [compact]="true" [divider]="true" [inset]="true">
         <div class="fg">
             <app-select label="Proveedor" [formGroup]="form" controlName="proveedorId" [items]="proveedores"
-                labelKey="label" valueKey="value" [required]="true" [soft]="true"
-                [attr.disabled]="(preProvId || loading()) ? true : null"
+                labelKey="label" valueKey="value" [required]="true" [soft]="true" [disabled]="preProvId || loading()"
                 [errors]="{ required: 'Selecciona un proveedor.' }">
             </app-select>
 
             <app-select label="Método de pago" [formGroup]="form" controlName="metodo" [items]="[
-          {label:'Efectivo', value:'EFECTIVO'},
-          {label:'Transferencia', value:'TRANSFERENCIA'}
-        ]" [required]="true" [soft]="true" [attr.disabled]="loading() ? true : null">
+                    {label:'Efectivo', value:'EFECTIVO'},
+                    {label:'Transferencia', value:'TRANSFERENCIA'}
+                    ]" [required]="true" [soft]="true" [disabled]="loading()">
             </app-select>
 
             <app-input label="Referencia" [formGroup]="form" controlName="referencia" [soft]="true"

@@ -5,9 +5,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { GrupoIngredienteService } from '../../../../services/grupo-ingrediente.service';
 
-import { InputComponent } from '../../../../shared/ui/input/input.component';
+import { InputComponent } from '../../../../shared/ui/fields/input/input.component';
 import { SectionContainerComponent } from '../../../../shared/ui/section-container/section-container.component';
-import { AppSelectComponent } from '../../../../shared/ui/select/select.component';
+import { AppSelectComponent } from '../../../../shared/ui/fields/select/select.component';
 import { SaveCancelComponent } from '../../../../shared';
 import { GrupoIngredienteCreate, GrupoIngredienteUpdate } from '../../../../interfaces/grupo-ingrediente.interface';
 

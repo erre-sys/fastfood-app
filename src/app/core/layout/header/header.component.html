@@ -2,27 +2,27 @@
   <div class="app-header__in">
     <!-- Hamburguesa (móvil) -->
     <button class="icon-btn md:hidden" (click)="openMobile.emit()" aria-label="Abrir menú">
-      <lucide-icon [img]="Menu" size="18"></lucide-icon>
+      <lucide-icon [img]="Menu" size="20"></lucide-icon>
     </button>
 
     <!-- Colapsar (desktop) -->
     <button class="icon-btn hidden md:inline-flex" (click)="toggleCollapse.emit()" aria-label="Colapsar menú">
-      <lucide-icon [img]="Blinds" size="18"></lucide-icon>
+      <lucide-icon [img]="Blinds" size="20"></lucide-icon>
     </button>
 
     <div class="ml-auto"></div>
 
     <!-- Toggle claro/oscuro -->
-    <button class="icon-btn" (click)="theme.toggle()" [attr.aria-pressed]="theme.isDark()"
+    <button class="btn btn--outline" (click)="theme.toggle()" [attr.aria-pressed]="theme.isDark()"
       [attr.aria-label]="theme.isDark() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'">
-      <lucide-icon [img]="theme.isDark() ? Sun : Moon" size="18"></lucide-icon>
+      <lucide-icon [img]="theme.isDark() ? Sun : Moon" size="20"></lucide-icon>
     </button>
 
     <!-- Menú de usuario -->
     <ui-dropdown>
-      <span trigger class="btn btn--secondary">
+      <span trigger class="btn btn--outline">
         <span class="icon-btn border-0">
-          <lucide-icon [img]="UserCog" size="18"></lucide-icon>
+          <lucide-icon [img]="UserCog" size="20"></lucide-icon>
         </span>
         <span class="hidden md:inline">{{ username() || 'Usuario' }}</span>
       </span>

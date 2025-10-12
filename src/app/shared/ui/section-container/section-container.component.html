@@ -1,7 +1,8 @@
-<div *ngIf="heading || description || actionsTpl" class="card-header">
-  <div>
-    <h2 class="section-title" [id]="headingId" *ngIf="heading">{{ heading }}</h2>
-    <p class="section-desc" *ngIf="description">{{ description }}</p>
+<!-- Header (opcional) -->
+<div *ngIf="heading || description || actionsTpl" class="card-header section__head" [class.is-sticky]="sticky">
+  <div class="section__titlewrap">
+    <h2 *ngIf="heading" class="section-title" [id]="headingId">{{ heading }}</h2>
+    <p *ngIf="description" class="section-desc">{{ description }}</p>
   </div>
 
   <div class="section-actions" *ngIf="actionsTpl">
@@ -9,6 +10,7 @@
   </div>
 </div>
 
-<div class="card-body">
+<!-- Body -->
+<div class="card-body section__body">
   <ng-content></ng-content>
 </div>

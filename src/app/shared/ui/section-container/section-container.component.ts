@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, TemplateRef, HostBinding } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding, Input, TemplateRef } from '@angular/core';
 import { NgIf, NgTemplateOutlet } from '@angular/common';
 
 type Accent = 'brand' | 'success' | 'warn' | 'danger' | 'info';
@@ -8,42 +8,38 @@ let SEC_ID = 0;
 @Component({
   selector: 'app-section-container',
   standalone: true,
-  imports: [NgIf, NgTemplateOutlet], 
+  imports: [NgIf, NgTemplateOutlet],
   templateUrl: './section-container.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SectionContainerComponent {
-  /** Título de la sección (opcional) */
+  /** Título y descripción (opcionales) */
   @Input() heading?: string;
-
-  /** Descripción bajo el título (opcional) */
   @Input() description?: string;
 
-  /** Acento visual (opcional): brand | success | warn | danger | info */
+  /** Acento visual (opcional) */
   @Input() accent?: Accent | null = null;
 
-  /** Variantes de densidad/separadores (opcionales) */
+  /** Densidad/separadores (opcionales) */
   @Input() compact = false;
   @Input() inset = false;
   @Input() divider = false;
 
-  /** Slot opcional de acciones en el header */
-  @Input() actionsTpl?: TemplateRef<any>; // <- TemplateRef<any> para evitar fricciones
+  /** Cabecera sticky dentro de la página (opcional) */
+  @Input() sticky = false;
 
-  /** id accesible para el título */
+  /** Slot de acciones (botones, filtros…) */
+  @Input() actionsTpl?: TemplateRef<any>;
+
+  /** Accesibilidad */
   headingId = `sec-${++SEC_ID}`;
+  @HostBinding('attr.aria-labelledby') get ariaLabelledby() { return this.heading ? this.headingId : null; }
+  @HostBinding('attr.role') role = 'region';
 
-  // ---- Host bindings para no forzar clases desde el uso
+  /** Host classes y data-accent */
   @HostBinding('class') hostClass = 'card section';
   @HostBinding('class.section--compact') get isCompact() { return this.compact; }
   @HostBinding('class.section--inset')   get isInset()   { return this.inset; }
   @HostBinding('class.section--divider') get isDivider() { return this.divider; }
-
   @HostBinding('attr.data-accent') get dataAccent() { return this.accent ?? null; }
-
-  @HostBinding('attr.aria-labelledby') get ariaLabelledby() {
-    return this.heading ? this.headingId : null;
-  }
-
-  @HostBinding('attr.role') role = 'region';
 }

@@ -1,0 +1,17 @@
+<form role="search" class="search" [class.is-busy]="busy" (submit)="$event.preventDefault()">
+  <label class="sr-only" [attr.for]="id">{{ ariaLabel }}</label>
+
+  <lucide-icon [img]="SearchIco" size="16" aria-hidden="true"></lucide-icon>
+
+  <input [id]="id" type="search" class="search__input" [attr.aria-label]="ariaLabel" [placeholder]="placeholder"
+    [value]="value" [disabled]="disabled" (input)="onInput(($any($event.target).value) ?? '')"
+    (keydown.escape)="clear()" />
+
+  <button *ngIf="value" type="button" class="search__clear" aria-label="Limpiar búsqueda" (click)="clear()"
+    [disabled]="disabled">
+    <lucide-icon [img]="XIcon" size="14" aria-hidden="true"></lucide-icon>
+  </button>
+
+  <!-- spinner opcional cuando busy=true (no interfiere con lectura de pantalla) -->
+  <span *ngIf="busy" class="search__spinner" aria-hidden="true"></span>
+</form>

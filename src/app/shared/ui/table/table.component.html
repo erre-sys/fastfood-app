@@ -1,29 +1,42 @@
 <div class="table-wrap">
   <table class="table table--zebra table--hover" role="table">
-    <caption class="sr-only">Listado</caption>
+    <caption class="sr-only">{{ ariaLabel }}</caption>
+
+    <colgroup>
+      <ng-container *ngFor="let c of columns; trackBy: trackByCol">
+        <col [style.width.px]="c.widthPx || null">
+      </ng-container>
+      <col *ngIf="actionsTpl">
+    </colgroup>
 
     <thead>
       <tr>
-        <th *ngFor="let c of columns; trackBy: trackByCol" scope="col" [style.width.px]="c.widthPx"
+        <th *ngFor="let c of columns; trackBy: trackByCol" scope="col" role="columnheader"
+          [attr.aria-sort]="ariaSort(c)"
           [ngClass]="{'text-right': c.align==='right','text-center': c.align==='center'}">
 
-          <button *ngIf="c.sortable; else plain" type="button" class="sort-btn" [attr.aria-sort]="ariaSort(c)"
+          <button *ngIf="c.sortable; else plain" type="button" class="sort-btn" [attr.aria-label]="sortBtnAria(c)"
             (click)="onSort(c)">
             <span>{{ c.header }}</span>
             <span class="sort-indicator" [class.is-active]="sort?.key===c.key"
               [class.asc]="sort?.key===c.key && sort?.dir==='asc'">
               <lucide-icon [img]="ChevronDown" size="16" aria-hidden="true"></lucide-icon>
             </span>
+            <span class="sr-only" *ngIf="sort?.key===c.key">
+              {{ sort?.dir==='asc' ? '(ascendente)' : '(descendente)' }}
+            </span>
           </button>
 
           <ng-template #plain>{{ c.header }}</ng-template>
         </th>
 
-        <th *ngIf="actionsTpl" scope="col" class="text-right">Acciones</th>
+        <th *ngIf="actionsTpl" scope="col" role="columnheader" class="text-right">
+          Acciones
+        </th>
       </tr>
     </thead>
 
-    <tbody>
+    <tbody [attr.aria-busy]="loading ? 'true' : null">
       <!-- vacío -->
       <tr *ngIf="rows.length===0 && !loading">
         <td class="py-16 text-center text-slate-600" [attr.colspan]="columns.length + (actionsTpl?1:0)">
@@ -33,11 +46,10 @@
 
       <!-- filas -->
       <ng-container *ngFor="let r of rows; trackBy: rowTrackBy">
-        <tr class="row-hover">
-          <td *ngFor="let c of columns; trackBy: trackByCol"
-            [ngClass]="{'text-right': c.align==='right','text-center': c.align==='center'}">
-
+        <tr>
+          <td *ngFor="let c of columns; trackBy: trackByCol" [ngClass]="cellAlignClass(c)">
             <ng-container [ngSwitch]="c.type || 'text'">
+              <!-- Badge simple por mapas -->
               <ng-container *ngSwitchCase="'badge'">
                 <span class="pill" [class.pill--success]="c.badgeMap && c.badgeMap[r[c.key]]==='ok'"
                   [class.pill--warning]="c.badgeMap && c.badgeMap[r[c.key]]==='warn'"
@@ -47,29 +59,28 @@
                 </span>
               </ng-container>
 
+              <!-- Status genérico (fallback) -->
               <ng-container *ngSwitchCase="'status'">
                 <span class="pill" [ngClass]="statusTone(c, r).cls">
                   {{ statusTone(c, r).label }}
                 </span>
               </ng-container>
 
-              <!-- fecha -->
+              <!-- Fecha -->
               <ng-container *ngSwitchCase="'date'">
                 {{ r[c.key] | date:(c.format || 'dd/MM/yyyy HH:mm'):(undefined):(c.locale || 'es-EC') }}
               </ng-container>
 
-              <!-- dinero -->
+              <!-- Dinero -->
               <ng-container *ngSwitchCase="'money'">
                 {{ r[c.key] | currency:(c.currency || 'USD'):'symbol':'1.2-2':(c.locale || 'es-EC') }}
               </ng-container>
 
-
+              <!-- Texto -->
               <ng-container *ngSwitchDefault>
                 {{ r[c.key] }}
               </ng-container>
             </ng-container>
-
-
           </td>
 
           <td *ngIf="actionsTpl" class="td--actions">
@@ -78,8 +89,9 @@
         </tr>
       </ng-container>
 
+      <!-- loading -->
       <tr *ngIf="loading">
-        <td class="py-8" [attr.colspan]="columns.length + (actionsTpl?1:0)">
+        <td class="py-8" [attr.colspan]="columns.length + (actionsTpl?1:0)" aria-hidden="true">
           <div class="space-y-2">
             <div class="skeleton h-10"></div>
             <div class="skeleton h-10"></div>
@@ -89,4 +101,7 @@
       </tr>
     </tbody>
   </table>
+
+  <!-- Live region para lectores de pantalla -->
+  <p class="sr-only" aria-live="polite">{{ sortAnnouncement }}</p>
 </div>

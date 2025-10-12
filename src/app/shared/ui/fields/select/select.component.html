@@ -2,17 +2,19 @@
   <span *ngIf="label" class="form-label" [class.req]="required">{{ label }}</span>
 
   <select class="field" [class.field--soft]="soft" [class.is-invalid]="invalid" [id]="id"
-    [formControlName]="controlName" [attr.aria-invalid]="invalid || null" [attr.aria-disabled]="ctrl?.disabled || null"
+    [formControlName]="controlName" [disabled]="disabled" 
+    [attr.aria-invalid]="invalid || null" [attr.aria-required]="required || null"
     [attr.aria-describedby]="joinIds(helpId, invalid ? errId : null)">
-    <option *ngIf="includeNull" [ngValue]="null" disabled>{{ nullLabel }}</option>
+
+    <option *ngIf="includeNull" [ngValue]="null" disabled>
+      {{ nullLabel }}
+    </option>
 
     <ng-container *ngFor="let it of items">
       <option [ngValue]="valueOf(it)">{{ labelOf(it) }}</option>
     </ng-container>
   </select>
 
-
-
   <small *ngIf="hint" class="form-help" [id]="helpId">{{ hint }}</small>
-  <small *ngIf="invalid" class="form-error" [id]="errId">{{ msgForError() }}</small>
+  <small *ngIf="invalid" class="form-error" [id]="errId" aria-live="polite">{{ msgForError() }}</small>
 </label>

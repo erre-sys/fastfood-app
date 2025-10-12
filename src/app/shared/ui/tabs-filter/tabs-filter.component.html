@@ -1,11 +1,10 @@
-<nav class="tabs">
-  <button class="tab tab--all"      [class.is-active]="active==='all'"      (click)="setTab('all')">
-    Todos <span *ngIf="counters?.all" class="tab__count">({{ counters?.all }})</span>
-  </button>
-  <button class="tab tab--active"   [class.is-active]="active==='active'"   (click)="setTab('active')">
-    Activos <span *ngIf="counters?.active" class="tab__count">({{ counters?.active }})</span>
-  </button>
-  <button class="tab tab--inactive" [class.is-active]="active==='inactive'" (click)="setTab('inactive')">
-    Inactivos <span *ngIf="counters?.inactive" class="tab__count">({{ counters?.inactive }})</span>
+<!-- tabs-filter.component.html -->
+<nav class="tabs" role="tablist" aria-label="Filtros" (keydown)="onKeydown($event)">
+  <button #tabBtn *ngFor="let t of items; trackBy: trackByKey" class="tab" type="button" role="tab"
+    [class.is-active]="active === t.key" [class.tab--sm]="size === 'sm'" [attr.aria-selected]="active === t.key"
+    [attr.tabindex]="active === t.key ? 0 : -1" [disabled]="t.disabled" [style.--tab-color]="colorForTone(t.tone)"
+    (click)="setTab(t.key)">
+    <span class="tab__label">{{ t.label }}</span>
+    <span *ngIf="t.count != null" class="tab__count tab__count--paren">{{ t.count }}</span>
   </button>
 </nav>

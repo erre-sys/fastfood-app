@@ -6,7 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Proveedor, ProveedorCreate } from '../../../../interfaces/proveedor.interface';
 import { ProveedoresService } from '../../../../services/proveedores.service';
 import { SaveCancelComponent, InputComponent, SectionContainerComponent } from '../../../../shared';
-import { AppSelectComponent } from '../../../../shared/ui/select/select.component';
+import { AppSelectComponent } from '../../../../shared/ui/fields/select/select.component';
 
 @Component({
   selector: 'app-proveedor-form',

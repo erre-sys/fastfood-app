@@ -1,32 +1,31 @@
 /* src/assets/styles/tokens.css */
-/* Light (por defecto) */
 :root {
-  /* superficies y tipografía */
-  --bg-rgb:        248 250 252;   /* #f8fafc */
-  --surface-rgb:   255 255 255;   /* #ffffff */
-  --surface2-rgb:  246 248 251;   /* #f6f8fb */
-  --surface3-rgb:  238 242 247;   /* #eef2f7 */
-  --line-rgb:      226 232 240;   /* #e2e8f0 */
-  --fg-rgb:         15  23  42;   /* #0f172a */
+  /* superficies y texto (LIGHT) */
+  --bg-rgb: 248 250 252;           /* #f8fafc */
+  --surface-rgb: 255 255 255;      /* #ffffff */
+  --surface2-rgb: 246 248 251;     /* #f6f8fb */
+  --surface3-rgb: 238 242 247;     /* #eef2f7 */
+  --line-rgb: 226 232 240;         /* #e2e8f0 */
+  --fg-rgb: 15 23 42;              /* #0f172a */
 
-  /* brand Warm Autumn Glow */
-  --brand-rgb:       0  48  73;   /* #003049  navy */
-  --accent-rgb:    247 127   0;   /* #F77F00  orange */
-  --danger-rgb:    214  40  40;   /* #D62828  red */
-  --warning-rgb:   252 191  73;   /* #FCBF49  amber */
-  --success-rgb:    34 197  94;   /* tailwind green-500 (coherente con UI) */
-  --info-rgb:       56 189 248;   /* sky-400 */
-  --muted-rgb:     148 163 184;   /* slate-400 */
+  /* paleta warm autumn glow */
+  --brand-rgb: 0 48 73;            /* #003049 navy */
+  --accent-rgb: 247 127 0;         /* #F77F00 orange */
+  --danger-rgb: 214 40 40;         /* #D62828 red */
+  --warning-rgb: 252 191 73;       /* #FCBF49 amber */
+  --success-rgb: 34 197 94;        /* green-500 */
+  --info-rgb: 56 189 248;          /* sky-400 */
+  --muted-rgb: 148 163 184;        /* slate-400 */
 
-  /* pares de texto sobre fondo de marca/acento */
-  --brand-ctr-rgb: 241 245 249;   /* #f1f5f9 (slate-100) */
-
-  /* intents (elige lo que quieras como primario/secundario) */
-  --primary-rgb:   var(--brand-rgb);
+  /* pares y semánticos */
+  --brand-ctr-rgb: 241 245 249;    /* texto sobre brand/accent */
+  --on-strong-rgb: 255 255 255;    /* texto sobre superficies intensas */
+  --primary-rgb: var(--brand-rgb);
   --secondary-rgb: var(--accent-rgb);
 
-  /* layout tokens */
+  /* layout */
   --radius: 12px;
+  --radius-2xl: 20px;
   --z-header: 40;
   --z-overlay: 50;
   --sidebar-w: 280px;
@@ -36,4 +35,92 @@
   /* sombras */
   --shadow-soft: 0 8px 24px rgba(2, 6, 23, 0.06);
   --shadow-lift: 0 12px 32px rgba(2, 6, 23, 0.09);
+
+  /* beige de la paleta */
+  --sand-rgb: 234 226 183;         /* #EAE2B7 */
+
+  /* tints “soft” para fondos de bloque */
+  --tint-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 7%, rgb(var(--surface-rgb)));
+  --tint-accent: color-mix(in oklab, rgb(var(--accent-rgb)) 7%, rgb(var(--surface-rgb)));
+  --tint-warn:  color-mix(in oklab, rgb(var(--warning-rgb)) 7%, rgb(var(--surface-rgb)));
+  --tint-ok:    color-mix(in oklab, rgb(var(--success-rgb)) 7%, rgb(var(--surface-rgb)));
+
+  /* bordes teñidos */
+  --border-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 28%, rgb(var(--line-rgb)));
+  --border-accent: color-mix(in oklab, rgb(var(--accent-rgb)) 28%, rgb(var(--line-rgb)));
+  --border-warn:  color-mix(in oklab, rgb(var(--warning-rgb)) 28%, rgb(var(--line-rgb)));
+  --border-ok:    color-mix(in oklab, rgb(var(--success-rgb)) 28%, rgb(var(--line-rgb)));
+
+  /* anillo de foco */
+  --ring-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 28%, transparent);
+
+  /* hovers leves */
+  --hover-surface: color-mix(in oklab, rgb(var(--surface2-rgb)) 85%, rgb(var(--surface-rgb)));
+
+  /* hero gradient cálido (arena → brand) */
+  --hero-start: rgb(var(--sand-rgb) / 0.55);
+  --hero-end:   rgb(var(--brand-rgb) / 0.22);
+
+  /* =========================
+     ALIAS DE COMPATIBILIDAD
+     ========================= */
+  --surface-2-rgb: var(--surface2-rgb);     /* NEW: alias bg-surface-2 */
+  --surface-3-rgb: var(--surface3-rgb);     /* NEW: alias bg-surface-3 */
+  --warn-rgb: var(--warning-rgb);           /* NEW: alias warn vs warning */
+  --on-brand-rgb: var(--brand-ctr-rgb);     /* NEW: texto sobre brand */
+}
+
+/* =========================================
+   DARK THEME (coherente con Warm Autumn)
+   Activa con .dark o [data-theme="dark"]
+   ========================================= */
+:root.dark,
+[data-theme="dark"] {
+  /* neutros */
+  --bg-rgb: 9 13 20;               /* navy/slate casi #0b0f14 */
+  --surface-rgb: 15 23 36;         /* petróleo profundo */
+  --surface2-rgb: 19 28 41;
+  --surface3-rgb: 30 41 59;
+  --line-rgb: 51 65 85;
+  --fg-rgb: 241 245 249;           /* texto claro */
+
+  /* acentos ajustados */
+  --brand-rgb: 0 48 73;            /* mismo ancla */
+  --accent-rgb: 232 121 0;         /* F77F00 suavizado */
+  --danger-rgb: 220 38 38;
+  --warning-rgb: 250 204 21;
+  --muted-rgb: 148 163 184;
+
+  /* tints/bordes recalibrados para dark */
+  --tint-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 18%, rgb(var(--surface-rgb)));
+  --tint-accent: color-mix(in oklab, rgb(var(--accent-rgb)) 18%, rgb(var(--surface-rgb)));
+  --tint-warn:  color-mix(in oklab, rgb(var(--warning-rgb)) 18%, rgb(var(--surface-rgb)));
+  --tint-ok:    color-mix(in oklab, rgb(var(--success-rgb)) 16%, rgb(var(--surface-rgb)));
+
+  --border-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 45%, rgb(var(--line-rgb)));
+  --border-accent: color-mix(in oklab, rgb(var(--accent-rgb)) 45%, rgb(var(--line-rgb)));
+  --border-warn:  color-mix(in oklab, rgb(var(--warning-rgb)) 45%, rgb(var(--line-rgb)));
+  --border-ok:    color-mix(in oklab, rgb(var(--success-rgb)) 45%, rgb(var(--line-rgb)));
+
+  --ring-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 45%, transparent);
+  --hover-surface: color-mix(in oklab, rgb(var(--surface3-rgb)) 70%, rgb(var(--surface2-rgb)));
+
+  /* arena oscura para héroes en dark */
+  --sand-rgb: 209 198 153;         /* CHANGED: versión más baja de #EAE2B7 */
+  --hero-start: rgb(var(--sand-rgb) / 0.18);
+  --hero-end:   rgb(var(--brand-rgb) / 0.28);
+
+  /* alias en dark también */
+  --surface-2-rgb: var(--surface2-rgb);     /* NEW */
+  --surface-3-rgb: var(--surface3-rgb);     /* NEW */
+  --warn-rgb: var(--warning-rgb);           /* NEW */
+  --on-brand-rgb: var(--brand-ctr-rgb);     /* NEW */
+}
+
+/* (Opcional) pequeñas utilidades si quieres usarlas directo en plantillas */
+@layer utilities {
+  .bg-tint-brand { background: var(--tint-brand); }       /* NEW */
+  .bg-tint-accent { background: var(--tint-accent); }     /* NEW */
+  .border-brand { border-color: var(--border-brand); }    /* NEW */
+  .border-accent { border-color: var(--border-accent); }  /* NEW */
 }

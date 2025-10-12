@@ -3,7 +3,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AppSelectComponent } from '../../../../shared/ui/select/select.component';
+import { AppSelectComponent } from '../../../../shared/ui/fields/select/select.component';
 import { InputComponent, SectionContainerComponent, SaveCancelComponent } from '../../../../shared';
 import { ProveedoresService } from '../../../../services/proveedores.service';
 import { PagosProveedorService } from '../../../../services/pago-proveedor.service';

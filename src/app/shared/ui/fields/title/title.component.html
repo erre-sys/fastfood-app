@@ -1,7 +1,7 @@
 <header class="title">
     <div class="title__left">
-        <button type="button" class="back-btn" (click)="cancel.emit()" aria-label="Volver">
-            <lucide-icon [img]="ArrowLeft" size="16" aria-hidden="true"></lucide-icon>
+        <button *ngIf="showBack" type="button" (click)="cancel.emit()" aria-label="Volver">
+            <lucide-icon [img]="ArrowLeft" size="30" aria-hidden="true"></lucide-icon>
         </button>
 
         <div class="title__text">

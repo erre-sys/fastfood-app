@@ -1,10 +1,9 @@
 <footer class="actions" [class.actions--end]="align==='end'" [class.actions--between]="align==='between'"
     [class.actions--sticky]="sticky">
-    <!-- espacio fantasma para el modo between -->
     <div *ngIf="align==='between'"></div>
 
     <div class="actions__right">
-        <button type="button" class="btn btn--ghost" (click)="cancel.emit()" [disabled]="loading">
+        <button type="button" class="btn btn--warning" (click)="cancel.emit()" [disabled]="loading">
             {{ cancelLabel }}
         </button>
 

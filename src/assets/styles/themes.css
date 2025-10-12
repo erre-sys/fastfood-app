@@ -1,63 +1,30 @@
-/* ========== DARK THEME OVERRIDES ========== */
-.dark,
-[data-theme="dark"] {
-  --bg: #071521;
-  --surface: #0c1f2e;
-  --surface-2: #0a1a27;
-  --surface-3: #0e2433;
-  --line: #1e3141;
-  --foreground: #e6edf5;
+/* src/assets/styles/themes.css */
+.dark, [data-theme="dark"] {
+  /* superficies oscuras */
+  --bg-rgb:         11  18  32;  /* #0b1220 */
+  --surface-rgb:    15  23  42;  /* #0f172a */
+  --surface2-rgb:   14  21  39;  /* #0e1527 */
+  --surface3-rgb:   18  27  46;
+  --line-rgb:       31  42  68;  /* #1f2a44 */
+  --fg-rgb:        226 232 240;  /* slate-200 */
 
-  /* RGB que Tailwind usa (coherentes con lo de arriba) */
-  --bg-rgb:        7 21 33;
-  --surface-rgb:  12 31 46;
-  --surface2-rgb: 10 26 39;
-  --surface3-rgb: 14 36 51;
-  --line-rgb:     30 49 65;
-  --fg-rgb:      230 237 245;
+  /* paleta (mantenemos la misma) */
+  --brand-rgb:      0  48  73;
+  --accent-rgb:   247 127   0;
+  --danger-rgb:   214  40  40;
+  --warning-rgb:  252 191  73;
+  --success-rgb:   34 197  94;
+  --info-rgb:      56 189 248;
+  --muted-rgb:    148 163 184;
 
-  /* === Warm Autumn Glow + intents (DARK) === */
-  /* Marca/acento (misma paleta en dark; sube contraste del texto-encima) */
-  --brand-rgb:    0 48 73;    /* #003049 */
-  --accent-rgb: 247 127 0;    /* #F77F00 */
-  --danger-rgb: 214  40 40;   /* #D62828 */
-  --warning-rgb:252 191 73;   /* #FCBF49 */
-  --success-rgb: 34 197 94;   /* #22C55E */
-  --info-rgb:    56 189 248;  /* #38BDF8 */
-  --muted-rgb:  148 163 184;  /* slate-400 */
+  /* texto sobre fondos de marca en dark (más claro) */
+  --brand-ctr-rgb: 236 253 245;
 
-  /* Texto sobre fondos de marca/acento (más claro en dark) */
-  --brand-ctr-rgb: 236 253 245; /* muy claro para botones brand */
-
-  /* Si mapeaste primary/secondary en Tailwind */
-  --primary-rgb:   var(--brand-rgb);
-  --secondary-rgb: var(--accent-rgb);
-
-  /* (Opcional) también en HEX si algún CSS usa --brand directo */
-  --brand:   #003049;
-  --accent:  #F77F00;
-  --danger:  #D62828;
-  --warning: #FCBF49;
-  --success: #22C55E;
-  --info:    #38BDF8;
-  --muted:   #94A3B8;
+  /* sombras en dark */
+  --shadow-soft: 0 10px 28px rgba(0,0,0,.35);
+  --shadow-lift: 0 16px 40px rgba(0,0,0,.45);
 }
 
-/* color-scheme para pintar scrollbars/form controls nativos */
+/* hint para controles nativos */
 :root { color-scheme: light; }
 .dark, [data-theme="dark"] { color-scheme: dark; }
-
-/* Fallback por preferencia del sistema (si no agregas la clase .dark) */
-@media (prefers-color-scheme: dark) {
-  :root:not(.dark, [data-theme="light"]) {
-    /* duplica el bloque de arriba (mismas variables) */
-    --bg: #071521; --surface: #0c1f2e; --surface-2: #0a1a27; --surface-3: #0e2433;
-    --line: #1e3141; --foreground: #e6edf5;
-    --bg-rgb: 7 21 33; --surface-rgb: 12 31 46; --surface2-rgb: 10 26 39;
-    --surface3-rgb: 14 36 51; --line-rgb: 30 49 65; --fg-rgb: 230 237 245;
-    --brand-rgb: 0 48 73; --accent-rgb: 247 127 0; --danger-rgb: 214 40 40;
-    --warning-rgb: 252 191 73; --success-rgb: 34 197 94; --info-rgb: 56 189 248; --muted-rgb: 148 163 184;
-    --brand-ctr-rgb: 236 253 245; --primary-rgb: var(--brand-rgb); --secondary-rgb: var(--accent-rgb);
-    --brand: #003049; --accent: #F77F00; --danger: #D62828; --warning: #FCBF49; --success: #22C55E; --info: #38BDF8; --muted: #94A3B8;
-  }
-}

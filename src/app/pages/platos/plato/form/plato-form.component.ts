@@ -6,8 +6,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PlatoService, SN, Estado } from '../../../../services/plato.service';
 import { GrupoPlatoService } from '../../../../services/grupo-plato.service';
 
-import { InputComponent } from '../../../../shared/ui/input/input.component';
-import { AppSelectComponent } from '../../../../shared/ui/select/select.component';
+import { InputComponent } from '../../../../shared/ui/fields/input/input.component';
+import { AppSelectComponent } from '../../../../shared/ui/fields/select/select.component';
 import { SectionContainerComponent } from '../../../../shared/ui/section-container/section-container.component';
 import { SaveCancelComponent } from '../../../../shared';
 

@@ -8,7 +8,7 @@ type InputType = 'text' | 'number' | 'email' | 'password' | 'textarea';
 @Component({
   selector: 'app-input',
   standalone: true,
-  imports: [ReactiveFormsModule, NgIf, NgTemplateOutlet, NgSwitch, NgSwitchCase, NgSwitchDefault],
+  imports: [ReactiveFormsModule, NgIf, NgTemplateOutlet, NgSwitch, NgSwitchCase, NgSwitchDefault, NgSwitchDefault],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './input.component.html',
 })

@@ -1,30 +1,48 @@
-<nav class="pager" role="navigation" aria-label="Paginación">
-    <!-- Info (announce para lectores de pantalla) -->
-    <p class="pager__info" aria-live="polite">
+<nav [ngClass]="['pager', 'pager--' + size, infoOnly ? 'pager--infoonly' : '']" role="navigation"
+    [attr.aria-label]="ariaLabel" [attr.aria-controls]="controlsId" *ngIf="!hideOnSinglePage || totalPages > 1">
+
+    <!-- Info izquierda -->
+    <p *ngIf="showInfo" class="pager__info" aria-live="polite">
         Mostrando <strong>{{ from }}</strong>–<strong>{{ to }}</strong> de <strong>{{ total }}</strong>
     </p>
 
-    <div class="pager__controls">
-        <!-- tamaño de página -->
-        <label class="pager__size">
-            <span>Por página</span>
-            <select #sel class="field h-9 w-24" [value]="pageSize" (change)="onSizeChange(sel.value)">
+    <!-- Controles derecha -->
+    <div *ngIf="showSize || showNav" class="pager__controls" role="group" aria-label="Controles de página" tabindex="0"
+        (keydown)="onKeydown($event)">
+
+        <!-- Tamaño de página -->
+        <label *ngIf="showSize" class="pager__size">
+            <span class="sr-only">{{ sizeLabel }}</span>
+            <span aria-hidden="true">{{ sizeLabel }}</span>
+            <select #sel class="field h-9 w-20" [value]="pageSize" (change)="onSizeChange(sel.value)">
                 <option *ngFor="let n of pageSizeOptions" [value]="n">{{ n }}</option>
             </select>
         </label>
 
-        <!-- navegación -->
-        <div class="pager__nav" role="group" aria-label="Controles de página">
-            <button type="button" class="pager__btn" [disabled]="pageIndex===0" (click)="goPrev()"
+        <!-- Navegación -->
+        <div *ngIf="showNav" class="pager__nav" role="group" aria-label="Ir a página">
+            <button *ngIf="showEdges" type="button" class="icon-btn" [disabled]="!canPrev" (click)="goFirst()"
+                aria-label="Primera página">
+                <lucide-icon [img]="ChevronsLeft" size="16" aria-hidden="true"></lucide-icon>
+            </button>
+
+            <button type="button" class="icon-btn" [disabled]="!canPrev" (click)="goPrev()"
                 aria-label="Página anterior">
                 <lucide-icon [img]="ChevronLeft" size="16" aria-hidden="true"></lucide-icon>
             </button>
 
-            <span class="pager__page">Página {{ pageIndex + 1 }} / {{ maxPage }}</span>
+            <span class="pager__page" aria-live="polite">
+                {{ pageText }} {{ pageIndex + 1 }} {{ ofText }} {{ totalPages }}
+            </span>
 
-            <button type="button" class="pager__btn" [disabled]="(pageIndex + 1) >= maxPage" (click)="goNext()"
+            <button type="button" class="icon-btn" [disabled]="!canNext" (click)="goNext()"
                 aria-label="Página siguiente">
                 <lucide-icon [img]="ChevronRight" size="16" aria-hidden="true"></lucide-icon>
+            </button>
+
+            <button *ngIf="showEdges" type="button" class="icon-btn" [disabled]="!canNext" (click)="goLast()"
+                aria-label="Última página">
+                <lucide-icon [img]="ChevronsRight" size="16" aria-hidden="true"></lucide-icon>
             </button>
         </div>
     </div>

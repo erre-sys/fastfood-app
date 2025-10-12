@@ -8,9 +8,9 @@ import { Ingrediente, IngredienteService } from '../../../../services/ingredient
 import { GrupoIngredienteService } from '../../../../services/grupo-ingrediente.service';
 
 import { PageLayoutComponent } from '../../../../shared/ui/page-layout/page-layout.component';
-import { TitleComponent } from '../../../../shared/ui/title/title.component';
+import { TitleComponent } from '../../../../shared/ui/fields/title/title.component';
 import { TableComponent } from '../../../../shared/ui/table/table.component';
-import { SearchComponent } from '../../../../shared/ui/searchbox/search.component';
+import { SearchComponent } from '../../../../shared/ui/fields/searchbox/search.component';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
 import { EditActionComponent } from '../../../../shared/ui/buttons/edit/edit.component';
 import { NewActionComponent } from '../../../../shared/ui/buttons/new/new.component';

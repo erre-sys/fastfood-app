@@ -1,13 +1,22 @@
-<div class="layout">
+<div class="layout" [class.layout--narrow]="width==='narrow'" [class.layout--wide]="width==='wide'" [class.layout--full]="width==='full'">
+  <!-- Header de página -->
   <header class="layout__header" [class.is-sticky]="stickyHeader">
-    <ng-container *ngIf="headerTemplate" [ngTemplateOutlet]="headerTemplate"></ng-container>
+    <div class="layout__in">
+      <ng-container *ngIf="headerTemplate" [ngTemplateOutlet]="headerTemplate"></ng-container>
+    </div>
   </header>
 
+  <!-- Contenido -->
   <main class="layout__content">
-    <ng-container *ngIf="contentTemplate" [ngTemplateOutlet]="contentTemplate"></ng-container>
+    <div class="layout__in">
+      <ng-container *ngIf="contentTemplate" [ngTemplateOutlet]="contentTemplate"></ng-container>
+    </div>
   </main>
 
+  <!-- Footer de página (opcional) -->
   <footer *ngIf="footerTemplate" class="layout__footer">
-    <ng-container [ngTemplateOutlet]="footerTemplate"></ng-container>
+    <div class="layout__in">
+      <ng-container [ngTemplateOutlet]="footerTemplate"></ng-container>
+    </div>
   </footer>
 </div>

@@ -1,154 +1,140 @@
+/* src/assets/styles/layout.css */
 @layer components {
-  /* Grid principal + collapsed */
-  .app-grid { display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: 100vh; background: var(--bg); }
+  /* ===========================
+     GRID PRINCIPAL
+     =========================== */
+  .app-grid {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) 1fr;
+    min-height: 100vh;                
+    background: rgb(var(--bg-rgb));
+  }
   .app-grid.is-collapsed { grid-template-columns: var(--sidebar-w-collapsed) 1fr; }
+  @media (max-width: 1000px) { .app-grid { grid-template-columns: 1fr; } }
 
-  /* Header */
+  /* ===========================
+     HEADER
+     =========================== */
   .app-header {
-    @apply sticky top-0 border-b;
-    z-index: var(--z-header);
-    border-color: var(--line);
-    background: color-mix(in oklab, var(--surface) 92%, transparent);
-    backdrop-filter: blur(8px);
-    height: var(--header-h);
-    display: flex; align-items: center;
+    position: sticky; top: 0; z-index: var(--z-header);
+    height: var(--header-h); display: flex; align-items: center;
+    border-bottom: 1px solid rgb(var(--line-rgb));
+    background: color-mix(in oklab, rgb(var(--surface-rgb)) 52%, transparent);
+    backdrop-filter: blur(10px);
   }
   .app-header__in { @apply mx-auto w-full max-w-7xl px-6 flex items-center gap-3; }
 
-  /* Sidebar desktop */
+  /* ===========================
+     COLUMNA PRINCIPAL + MAIN
+     =========================== */
+  .app-container {
+    @apply mx-auto w-full max-w-7xl px-4 md:px-6;
+    flex: 1 1 auto;           /* <-- empuja el footer */
+    min-height: 0;            /* <-- permite scroll interno bajo header sticky */
+    padding-top: 1rem;       
+    padding-bottom: 1rem;     
+  }
+
+  .app-panel { margin: 0; }   /* antes: margin: 1rem 0 */
+
+  /* ===========================
+     SIDEBAR DESKTOP
+     =========================== */
   .sidebar {
     position: sticky; top: 0; height: 100vh; width: var(--sidebar-w);
-    background: var(--surface); border-right: 1px solid var(--line);
+    background: rgb(var(--surface-rgb));
+    border-right: 1px solid rgb(var(--line-rgb));
     transition: width .2s ease;
   }
   .app-grid.is-collapsed .sidebar { width: var(--sidebar-w-collapsed); }
 
-  /* Sidebar móvil + overlay */
+  /* ===========================
+     SIDEBAR MÓVIL + OVERLAY
+     =========================== */
   @media (max-width: 1023px) {
     .sidebar {
-      position: fixed; left: 0; top: 0; height: 100dvh;
-      transform: translateX(-100%); box-shadow: 0 20px 40px rgba(0,0,0,.18);
-      z-index: var(--z-overlay);
+      position: fixed; left: 0; top: 0; height: 100dvh; transform: translateX(-100%);
+      box-shadow: 0 20px 40px rgba(0,0,0,.18); z-index: var(--z-overlay);
     }
     .sidebar.is-open { transform: translateX(0); }
     .sidebar-overlay {
       position: fixed; inset: 0; background: rgba(2,6,23,.4); backdrop-filter: blur(1px);
       z-index: calc(var(--z-overlay) - 1);
-      opacity: 0; pointer-events: none; transition: opacity .15s ease;
+      opacity: 0; pointer-events: none; transition: opacity .15s;
     }
     .sidebar-overlay.is-open { opacity: 1; pointer-events: auto; }
-    /* grid en móvil = una columna */
-    .app-grid { grid-template-columns: 1fr; }
   }
 
-  .dropdown__menu { /* usa si prefieres clase en vez de inline style */
-    z-index: var(--z-overlay);
-    background: var(--surface);
-    border: 1px solid var(--line);
-    box-shadow: var(--shadow-soft);
-  }
-
-  /* Brand + Nav */
+  /* ===========================
+     BRAND + NAV
+     =========================== */
   .brand { @apply flex items-center gap-3 px-4 py-4; }
-  .brand__logo { @apply inline-flex h-9 w-9 items-center justify-center rounded-md text-white; background: var(--brand); }
-  .brand__title { @apply text-[15px] font-semibold leading-none; }
-  .brand__subtitle { @apply text-xs text-slate-500; }
+  .brand__logo { @apply inline-flex h-9 w-9 items-center justify-center rounded-md text-white; background: rgb(var(--brand-rgb)); }
+  .brand__title { @apply text-[16px] font-semibold leading-none; }
+  .brand__subtitle { @apply text-xs text-muted; }
 
-  /* Base: tokeniza color (funciona en light/dark) */
+  .nav { @apply px-2; }
+  .nav__section { @apply px-4 pt-2 text-[9px] font-semibold uppercase tracking-wide text-muted; }
+  .nav__list { @apply flex flex-col gap-1; }
+
   .nav__link {
     position: relative;
-    @apply flex items-center gap-3 rounded-md px-3 py-2 text-[14px] transition-colors;
-    color: color-mix(in oklab, var(--foreground) 85%, transparent);
-    background: transparent;
-    border: 1px solid transparent;
+    @apply flex items-center gap-2 rounded-md px-3 py-2 text-[14px] transition-colors;
+    color: color-mix(in oklab, rgb(var(--fg-rgb)) 95%, transparent);
+    border: 1px solid transparent; background: transparent;
   }
   .nav__link svg { @apply shrink-0 h-4 w-4; }
-
-  /* Hover con tinte del brand (suave) */
   .nav__link:hover {
-    background: color-mix(in oklab, var(--brand) 7%, var(--surface));
-    color: var(--foreground);
+    background: color-mix(in oklab, rgb(var(--brand-rgb)) 70%, rgb(var(--surface-rgb)));
+    color: rgb(var(--fg-rgb));
   }
-
-  /* Indicador izquierdo (micro-interacción) */
   .nav__link::before {
-    content: "";
-    position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px;
-    background: transparent; border-radius: 2px;
-    transform: scaleY(.3); opacity: 0;
+    content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px;
+    background: transparent; border-radius: 2px; transform: scaleY(.3); opacity: 0;
     transition: transform .18s, opacity .18s, background-color .18s;
   }
   .nav__link:hover::before {
-    background: color-mix(in oklab, var(--brand) 45%, transparent);
+    background: color-mix(in oklab, rgb(var(--brand-rgb)) 15%, transparent);
     opacity: .7; transform: scaleY(1);
   }
-
-  /* Activo: se tiene que notar */
   .nav__link.is-active,
   .nav__link[aria-current="page"] {
-    color: var(--brand);
-    background: color-mix(in oklab, var(--brand) 12%, var(--surface));
-    border-color: color-mix(in oklab, var(--brand) 35%, transparent);
+    color: rgb(var(--brand-rgb));
+    background: color-mix(in oklab, rgb(var(--brand-rgb)) 1%, rgb(var(--surface-rgb)));
+    border-color: color-mix(in oklab, rgb(var(--brand-rgb)) 35%);
   }
   .nav__link.is-active::before,
   .nav__link[aria-current="page"]::before {
-    background: var(--brand);
-    opacity: 1; transform: scaleY(1);
+    background: rgb(var(--brand-rgb)); opacity: 1; transform: scaleY(1);
   }
+  .nav__section:has(+ .nav .is-active) { color: rgb(var(--brand-rgb)); }
 
-  /* “Active trail”: resalta el título de la sección si algún hijo está activo */
-  /* Soporta tu markup: <h2.nav__section> + <nav.nav> */
-  .nav__section { @apply px-4 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500; }
-  .nav__section:has(+ .nav .is-active) {
-    color: var(--brand);
-    text-shadow: 0 0 1px color-mix(in oklab, var(--brand) 30%, transparent);
-  }
-
-  /* Badge opcional a la derecha */
-  .nav__badge {
-    margin-left: auto;
-    display: inline-flex; align-items: center; height: 1.25rem; padding: 0 .5rem;
-    font-size: 11px; border-radius: 9999px;
-    background: color-mix(in oklab, var(--brand) 12%, var(--surface));
-    color: var(--brand);
-    border: 1px solid color-mix(in oklab, var(--brand) 30%, transparent);
-  }
-
-  /* Colapsado: oculta textos y muestra tooltip con data-tip */
   .app-grid.is-collapsed .brand { @apply justify-center; }
   .app-grid.is-collapsed .nav__link span,
   .app-grid.is-collapsed .brand__title,
   .app-grid.is-collapsed .brand__subtitle { display: none; }
   .app-grid.is-collapsed .nav__link { justify-content: center; padding-inline: .5rem; }
-
   .app-grid.is-collapsed .nav__link[data-tip]::after {
-    content: attr(data-tip);
-    position: absolute; left: calc(100% + 8px); top: 50%;
+    content: attr(data-tip); position: absolute; left: calc(100% + 8px); top: 50%;
     transform: translateY(-50%) translateX(4px);
-    white-space: nowrap; font-size: 12px; line-height: 1;
-    padding: .375rem .5rem; border-radius: .375rem;
-    background: var(--surface); color: var(--foreground);
-    border: 1px solid var(--line); box-shadow: var(--shadow-soft);
-    opacity: 0; pointer-events: none; transition: opacity .15s, transform .15s;
-    z-index: var(--z-overlay);
+    white-space: nowrap; font-size: 12px; padding: .375rem .5rem; border-radius: .375rem;
+    background: rgb(var(--surface-rgb)); color: rgb(var(--fg-rgb));
+    border: 1px solid rgb(var(--line-rgb)); box-shadow: var(--shadow-soft);
+    opacity: 0; pointer-events: none; transition: opacity .15s, transform .15s; z-index: var(--z-overlay);
   }
-  .app-grid.is-collapsed .nav__link:hover[data-tip]::after {
-    opacity: 1; transform: translateY(-50%) translateX(0);
+  .app-grid.is-collapsed .nav__link:hover[data-tip]::after { opacity: 1; transform: translateY(-50%) translateX(0); }
+
+  /* ===========================
+     FOOTER
+     =========================== */
+  /* NEW: se queda pegado al fondo de la columna flex */
+  .app-footer {
+    border-top: 1px solid rgb(var(--line-rgb));
+    background: rgb(var(--surface-rgb));
+    margin-top: auto;                        /* <-- clave para “sticky footer” */
   }
-  
-  .app-grid.is-collapsed .nav__link span,
-  .app-grid.is-collapsed .brand__title,
-  .app-grid.is-collapsed .brand__subtitle { display: none; }
-  .app-grid.is-collapsed .brand { @apply justify-center; }
-
-  /* Footer */
-  .app-footer { @apply border-t; border-color: var(--line); background: var(--surface); }
-  .app-footer__in { @apply mx-auto w-full max-w-7xl px-6 py-3 text-sm text-slate-500 flex items-center; }
-
-  /* Layout de página */
-  .layout { min-height: 100vh; display: flex; flex-direction: column; }
-  .layout__header { padding: .75rem 1rem; border-bottom: 1px solid var(--line); background: var(--surface); }
-  .layout__header.is-sticky { position: sticky; top: 0; z-index: var(--z-header); backdrop-filter: blur(6px); }
-  .layout__content { flex: 1 1 auto; padding: 1rem; }
-  .layout__footer { margin-top: auto; padding: .75rem 1rem; border-top: 1px solid var(--line); background: var(--surface); }
+  .app-footer__in {
+    @apply mx-auto w-full max-w-7xl px-6 py-3 text-sm text-muted flex items-center;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom)); /* cómodo en móvil */
+  }
 }

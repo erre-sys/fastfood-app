@@ -13,8 +13,13 @@ export class SearchComponent {
   @Input() placeholder = 'Buscar...';
   @Input() value = '';
   @Output() valueChange = new EventEmitter<string>();
+  @Output() cleared = new EventEmitter<void>();    
 
   @Input() id = `srch-${Math.random().toString(36).slice(2, 8)}`;
+
+  // estados opcionales
+  @Input() disabled = false;
+  @Input() busy = false;
 
   SearchIco = SearchIcon;
   XIcon = XIcon;
@@ -24,7 +29,9 @@ export class SearchComponent {
     this.valueChange.emit(this.value);
   }
   clear() {
+    if (!this.value) return;
     this.value = '';
     this.valueChange.emit('');
+    this.cleared.emit();
   }
 }

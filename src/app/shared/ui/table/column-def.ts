@@ -2,7 +2,7 @@ export type Align = 'left' | 'right' | 'center';
 export type Dir = 'asc' | 'desc';
 export type TableSort = { key: string; dir: Dir };
 export type TabYesNo = 'all' | 'yes' | 'no';
-export type TabStatus = 'all' | 'active' | 'inactive';
+export type TabStatus = 'all' | 'active' | 'inactive' | 'efectivo' | 'transfer';
 
 export interface ColumnDef<Row = any> {
   key: string;

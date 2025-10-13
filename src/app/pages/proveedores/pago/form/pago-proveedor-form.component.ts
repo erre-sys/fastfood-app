@@ -8,6 +8,7 @@ import { InputComponent, SectionContainerComponent, SaveCancelComponent } from '
 import { ProveedoresService } from '../../../../services/proveedores.service';
 import { PagosProveedorService } from '../../../../services/pago-proveedor.service';
 import { MetodoPago, PagoProveedorCreate } from '../../../../interfaces/pago-proveedor.interface';
+import { decimalDot } from '../../../../shared/ui/fields/input/decimal-dot.validator';
 
 @Component({
   standalone: true,
@@ -33,7 +34,7 @@ export default class PagoProveedorFormPage implements OnInit {
     proveedorId: this.fb.control<number | null>(null, { validators: [Validators.required] }),
     metodo:      this.fb.control<MetodoPago>('TRANSFERENCIA', { validators: [Validators.required] }),
     referencia:  this.fb.control<string | null>(null),
-    montoTotal:  this.fb.control<number | null>(null, { validators: [Validators.required, Validators.min(0.01)] }),
+    montoTotal:  this.fb.control<number | null>(null, { validators: [Validators.required, Validators.min(0.01), decimalDot(2)] }),
     observaciones: this.fb.control<string | null>(null),
   });
 

@@ -5,8 +5,8 @@ export interface Toast { id: string; type: ToastType; text: string; timeout?: nu
 
 @Injectable({ providedIn: 'root' })
 export class NotifyService {
-  private _items = signal<Toast[]>([]);
-  items = this._items.asReadonly();
+  private list = signal<Toast[]>([]);
+  items = this.list.asReadonly();
 
   private genId() {
     return (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
@@ -15,13 +15,14 @@ export class NotifyService {
   }
   private push(t: Omit<Toast, 'id'>) {
     const toast: Toast = { id: this.genId(), timeout: 4000, ...t };
-    this._items.update(arr => [...arr, toast]);
+    this.list.update(arr => [toast, ...arr]);
     if (toast.timeout && toast.timeout > 0) {
       setTimeout(() => this.dismiss(toast.id), toast.timeout);
     }
   }
 
-  dismiss(id: string) { this._items.update(arr => arr.filter(x => x.id !== id)); }
+  dismiss(id: string) { this.list.update(arr => arr.filter(x => x.id !== id)); }
+  clear()             { this.list.set([]); }
 
   success(text: string, timeout = 3000) { this.push({ type: 'success', text, timeout }); }
   error(text: string, timeout = 6000)   { this.push({ type: 'error', text, timeout }); }

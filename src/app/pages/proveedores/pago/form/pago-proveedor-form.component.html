@@ -13,16 +13,17 @@
             </app-select>
 
             <app-input label="Referencia" [formGroup]="form" controlName="referencia" [soft]="true"
-                [attr.disabled]="loading() ? true : null">
+                [disabled]="loading()">
             </app-input>
 
-            <app-input label="Monto (USD)" type="number" [formGroup]="form" controlName="montoTotal" [required]="true"
-                [soft]="true" [attr.disabled]="loading() ? true : null" [errors]="{ min: 'Debe ser mayor a 0' }"
-                [step]="0.01">
+            <app-input label="Monto (USD)" type="numeric" [formGroup]="form" controlName="montoTotal" [required]="true"
+                [soft]="true" [disabled]="loading()" [errors]="{ min: 'Debe ser mayor a 0' }" 
+                [errors]="{ decimalDot: 'Usa punto (.) como separador decimal' }" [step]="0.01">
             </app-input>
+
 
             <app-input label="Observaciones" type="textarea" [formGroup]="form" controlName="observaciones"
-                [soft]="true" [attr.disabled]="loading() ? true : null">
+                [soft]="true" [disabled]="loading()">
             </app-input>
         </div>
     </app-section-container>

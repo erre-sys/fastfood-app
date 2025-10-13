@@ -8,4 +8,4 @@ export * from './ui/paginator/paginator.component';
 export * from './ui/page-layout/page-layout.component';
 export * from './ui/fields/title/title.component';
 export * from './ui/section-container/section-container.component';
-export * from './ui/buttons/save-cancel/save-cancel.component';
+export * from './ui/buttons/ui-button-save-cancel/save-cancel.component';

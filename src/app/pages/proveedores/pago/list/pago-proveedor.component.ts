@@ -49,7 +49,6 @@ export default class PagosProveedorListPage implements OnInit, OnDestroy {
 
   // columnas
   columns: ColumnDef<PagoProveedor>[] = [
-    { key: 'id', header: 'ID', widthPx: 90, sortable: true },
     { key: 'proveedorNombre', header: 'Proveedor', sortable: true },
     { key: 'fecha', header: 'Fecha', widthPx: 160, sortable: true, type: 'date',  format: 'dd/MM/yyyy HH:mm' },
     { key: 'metodo', header: 'Método', widthPx: 130, type: 'badge' },
@@ -77,8 +76,8 @@ export default class PagosProveedorListPage implements OnInit, OnDestroy {
     this.cdr.markForCheck(); 
 
     const filtros: any[] = [];
-    if (this.tab === 'active') filtros.push({ llave: 'metodo', operacion: '=', valor: 'EFECTIVO' });
-    if (this.tab === 'inactive') filtros.push({ llave: 'metodo', operacion: '=', valor: 'TRANSFERENCIA' });
+    if (this.tab === 'efectivo') filtros.push({ llave: 'metodo', operacion: '=', valor: 'EFECTIVO' });
+    if (this.tab === 'transfer') filtros.push({ llave: 'metodo', operacion: '=', valor: 'TRANSFERENCIA' });
     
     const term = this.searchForm.controls.q.value.trim();
     if (term) {

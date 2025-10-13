@@ -1,5 +1,9 @@
-<label class="form-field" [formGroup]="formGroup" [attr.for]="id">
-  <span *ngIf="label" class="form-label" [class.req]="required">{{ label }}</span>
+<!-- input.component.html -->
+<div class="form-field" [formGroup]="formGroup">
+  <!-- label semántico, no envuelve otros bloques -->
+  <label *ngIf="label" class="form-label" [attr.for]="id" [class.req]="required">
+    {{ label }}
+  </label>
 
   <div class="input-affix">
     <ng-container *ngIf="prefixTpl">
@@ -16,7 +20,7 @@
         [autocomplete]="autocomplete || null" [formControlName]="controlName" rows="3">
       </textarea>
 
-      <!-- input -->
+      <!-- input “normal” -->
       <input *ngSwitchDefault class="field" [class.field--soft]="soft" [class.is-invalid]="invalid" [id]="id"
         [attr.type]="type" [formControlName]="controlName" [attr.aria-invalid]="invalid || null"
         [attr.aria-describedby]="joinIds(helpId, invalid ? errId : null)" [readonly]="readonly || null"
@@ -35,4 +39,4 @@
   <small *ngIf="invalid" class="form-error" [id]="errId" aria-live="polite">
     {{ msgForError() }}
   </small>
-</label>
+</div>

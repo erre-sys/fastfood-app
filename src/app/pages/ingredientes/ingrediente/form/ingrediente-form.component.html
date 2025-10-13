@@ -17,10 +17,10 @@
             <app-select label="¿Es extra?" [formGroup]="form" controlName="esExtra"
                 [items]="[{label:'Sí', value:'S'}, {label:'No', value:'N'}]" [soft]="true"></app-select>
 
-            <app-input label="Precio extra" type="number" [formGroup]="form" controlName="precioExtra"
+            <app-input label="Precio extra" type="numeric" [formGroup]="form" controlName="precioExtra"
                 [soft]="true"></app-input>
 
-            <app-input label="Stock mínimo" type="number" [formGroup]="form" controlName="stockMinimo"
+            <app-input label="Stock mínimo" type="numeric" [formGroup]="form" controlName="stockMinimo"
                 [soft]="true"></app-input>
 
             <app-select label="Aplica comida" [formGroup]="form" controlName="aplicaComida"

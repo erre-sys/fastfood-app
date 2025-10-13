@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, Input, TemplateRef, OnChanges, Simp
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NgIf, NgTemplateOutlet, NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
 
-type InputType = 'text' | 'number' | 'email' | 'password' | 'textarea';
+type InputType = 'text'|'numeric'|'decimal'|'mail'|'tel'|'search'|'url'|'textarea';
 
 @Component({
   selector: 'app-input',
@@ -74,6 +74,7 @@ export class InputComponent implements OnInit, OnChanges {
       pattern: 'Formato inválido.',
       min: `Debe ser ≥ ${c.getError('min')?.min}.`,
       max: `Debe ser ≤ ${c.getError('max')?.max}.`,
+      decimalDot: 'Usa punto (.) como separador decimal.',
       ...this.errors,
     };
     const key = Object.keys(c.errors)[0];

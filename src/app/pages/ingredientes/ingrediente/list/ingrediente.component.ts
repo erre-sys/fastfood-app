@@ -12,7 +12,6 @@ import { TitleComponent } from '../../../../shared/ui/fields/title/title.compone
 import { TableComponent } from '../../../../shared/ui/table/table.component';
 import { SearchComponent } from '../../../../shared/ui/fields/searchbox/search.component';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
-import { EditActionComponent } from '../../../../shared/ui/buttons/edit/edit.component';
 import { TabsFilterComponent } from '../../../../shared/ui/tabs-filter/tabs-filter.component';
 import { UiButtonComponent } from '../../../../shared/ui/buttons/ui-button/ui-button.component';
 import { LucideAngularModule, Pencil, Plus } from 'lucide-angular';
@@ -23,7 +22,7 @@ import { TabStatus, Dir, ColumnDef, TableSort } from '../../../../shared/ui/tabl
   selector: 'app-ingredientes-list',
   standalone: true,
   imports: [CommonModule, RouterLink, ReactiveFormsModule, PageLayoutComponent,
-    TitleComponent, TableComponent, SearchComponent, PaginatorComponent, EditActionComponent, 
+    TitleComponent, TableComponent, SearchComponent, PaginatorComponent, 
     LucideAngularModule, UiButtonComponent, TabsFilterComponent],
   templateUrl: './ingrediente.component.html',
 })

@@ -2,17 +2,19 @@
     <app-section-container [heading]="'Información del proveedor'" [compact]="true" [divider]="true" [inset]="true">
 
         <div class="fg">
-            <app-input [formGroup]="form" controlName="nombre" label="Nombre" [required]="true"
-                hint="Nombre comercial o razón social">
+            <app-input label="Nombre" [formGroup]="form" controlName="nombre" [soft]="true" [disabled]="loading()"
+                hint="Nombre comercial o razón social" [required]="true">
             </app-input>
 
-            <app-input [formGroup]="form" controlName="ruc" label="RUC" [required]="true">
+            <app-input label="RUC/Cédula" [formGroup]="form" controlName="ruc" [required]="true" [soft]="true"
+                [disabled]="loading()">
             </app-input>
 
-            <app-input [formGroup]="form" controlName="telefono" label="Teléfono" placeholder="+593...">
+            <app-input label="Teléfono" type="numeric" [formGroup]="form" controlName="telefono">
             </app-input>
 
-            <app-input [formGroup]="form" controlName="email" label="Email" type="email">
+            <app-input label="Correo" type="mail" [formGroup]="form" controlName="mail" [soft]="true"
+                [disabled]="loading()">
             </app-input>
 
             <app-select label="Estado" [formGroup]="form" controlName="estado"

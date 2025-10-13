@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgFor, NgClass } from '@angular/common';
 import { NotifyService } from './notify.service';
 
 @Component({
-  selector: 'app-toasts',
+  selector: 'app-toast-host',
   standalone: true,
-  imports: [CommonModule],
+  imports: [NgFor, NgClass],
   templateUrl: './toasts-host.component.html',
 })
-export class ToastsHostComponent {
+export class ToastHostComponent {
   constructor(public notify: NotifyService) {}
   track = (_: number, t: any) => t.id;
 }

@@ -1,29 +1,34 @@
 /* src/assets/styles/tokens.css */
 :root {
-  /* superficies y texto (LIGHT) */
-  --bg-rgb: 248 250 252;           /* #f8fafc */
-  --surface-rgb: 255 255 255;      /* #ffffff */
-  --surface2-rgb: 246 248 251;     /* #f6f8fb */
-  --surface3-rgb: 238 242 247;     /* #eef2f7 */
-  --line-rgb: 226 232 240;         /* #e2e8f0 */
-  --fg-rgb: 15 23 42;              /* #0f172a */
+  /* ===================================
+     TEMA LIGHT - Paleta Mirage
+     =================================== */
 
-  /* paleta warm autumn glow */
-  --brand-rgb: 0 48 73;            /* #003049 navy */
-  --accent-rgb: 247 127 0;         /* #F77F00 orange */
-  --danger-rgb: 214 40 40;         /* #D62828 red */
-  --warning-rgb: 252 191 73;       /* #FCBF49 amber */
-  --success-rgb: 34 197 94;        /* green-500 */
-  --info-rgb: 56 189 248;          /* sky-400 */
-  --muted-rgb: 148 163 184;        /* slate-400 */
+  /* Superficies - Paleta Mirage */
+  --bg-rgb: 228 238 240;           /* #e4eef0 - Wild Sand (fondo principal) */
+  --surface-rgb: 255 255 255;      /* #ffffff - blanco puro para tarjetas */
+  --surface2-rgb: 244 249 250;     /* #f4f9fa - Wild Sand más claro */
+  --surface3-rgb: 234 243 245;     /* #eaf3f5 - tono intermedio */
+  --line-rgb: 207 222 226;         /* #cfdee2 - bordes sutiles */
+  --fg-rgb: 22 35 42;              /* #16232a - Mirage (texto principal) */
+  --fg-muted-rgb: 75 105 115;      /* #4b6973 - texto secundario */
 
-  /* pares y semánticos */
-  --brand-ctr-rgb: 241 245 249;    /* texto sobre brand/accent */
-  --on-strong-rgb: 255 255 255;    /* texto sobre superficies intensas */
+  /* Paleta de Marca - Mirage */
+  --brand-rgb: 7 80 86;            /* #075056 - Deep Sea Green (marca principal) */
+  --accent-rgb: 255 91 4;          /* #ff5b04 - Blaze Orange (naranja energético) */
+  --danger-rgb: 220 38 38;         /* #dc2626 - red-600 */
+  --warning-rgb: 245 158 11;       /* #f59e0b - amber-500 */
+  --success-rgb: 22 163 74;        /* #16a34a - green-600 */
+  --info-rgb: 14 116 144;          /* #0e7490 - cyan-700 (cohesivo con paleta) */
+  --muted-rgb: 100 116 139;        /* #64748b - slate-500 */
+
+  /* Texto sobre colores */
+  --brand-ctr-rgb: 255 255 255;    /* texto blanco sobre brand */
+  --on-strong-rgb: 255 255 255;    /* texto blanco sobre colores intensos */
   --primary-rgb: var(--brand-rgb);
   --secondary-rgb: var(--accent-rgb);
 
-  /* layout */
+  /* Layout */
   --radius: 12px;
   --radius-2xl: 20px;
   --z-header: 40;
@@ -32,95 +37,123 @@
   --sidebar-w-collapsed: 80px;
   --header-h: 64px;
 
-  /* sombras */
-  --shadow-soft: 0 8px 24px rgba(2, 6, 23, 0.06);
-  --shadow-lift: 0 12px 32px rgba(2, 6, 23, 0.09);
+  /* Sombras - Sutiles y profesionales */
+  --shadow-soft: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-lift: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 
-  /* beige de la paleta */
-  --sand-rgb: 234 226 183;         /* #EAE2B7 */
+  /* Fondos teñidos suaves para badges/alerts */
+  --tint-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 8%, rgb(var(--surface-rgb)));
+  --tint-accent: color-mix(in oklab, rgb(var(--accent-rgb)) 8%, rgb(var(--surface-rgb)));
+  --tint-warn: color-mix(in oklab, rgb(var(--warning-rgb)) 8%, rgb(var(--surface-rgb)));
+  --tint-ok: color-mix(in oklab, rgb(var(--success-rgb)) 8%, rgb(var(--surface-rgb)));
+  --tint-danger: color-mix(in oklab, rgb(var(--danger-rgb)) 8%, rgb(var(--surface-rgb)));
+  --tint-info: color-mix(in oklab, rgb(var(--info-rgb)) 8%, rgb(var(--surface-rgb)));
 
-  /* tints “soft” para fondos de bloque */
-  --tint-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 7%, rgb(var(--surface-rgb)));
-  --tint-accent: color-mix(in oklab, rgb(var(--accent-rgb)) 7%, rgb(var(--surface-rgb)));
-  --tint-warn:  color-mix(in oklab, rgb(var(--warning-rgb)) 7%, rgb(var(--surface-rgb)));
-  --tint-ok:    color-mix(in oklab, rgb(var(--success-rgb)) 7%, rgb(var(--surface-rgb)));
+  /* Bordes teñidos */
+  --border-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 40%, rgb(var(--line-rgb)));
+  --border-accent: color-mix(in oklab, rgb(var(--accent-rgb)) 40%, rgb(var(--line-rgb)));
+  --border-warn: color-mix(in oklab, rgb(var(--warning-rgb)) 40%, rgb(var(--line-rgb)));
+  --border-ok: color-mix(in oklab, rgb(var(--success-rgb)) 40%, rgb(var(--line-rgb)));
+  --border-danger: color-mix(in oklab, rgb(var(--danger-rgb)) 40%, rgb(var(--line-rgb)));
+  --border-info: color-mix(in oklab, rgb(var(--info-rgb)) 40%, rgb(var(--line-rgb)));
 
-  /* bordes teñidos */
-  --border-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 28%, rgb(var(--line-rgb)));
-  --border-accent: color-mix(in oklab, rgb(var(--accent-rgb)) 28%, rgb(var(--line-rgb)));
-  --border-warn:  color-mix(in oklab, rgb(var(--warning-rgb)) 28%, rgb(var(--line-rgb)));
-  --border-ok:    color-mix(in oklab, rgb(var(--success-rgb)) 28%, rgb(var(--line-rgb)));
+  /* Focus ring */
+  --ring-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 30%, transparent);
 
-  /* anillo de foco */
-  --ring-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 28%, transparent);
+  /* Hover states */
+  --hover-surface: rgb(var(--surface3-rgb));
+  --hover-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 90%, #000);
+  --hover-accent: color-mix(in oklab, rgb(var(--accent-rgb)) 90%, #000);
 
-  /* hovers leves */
-  --hover-surface: color-mix(in oklab, rgb(var(--surface2-rgb)) 85%, rgb(var(--surface-rgb)));
-
-  /* hero gradient cálido (arena → brand) */
-  --hero-start: rgb(var(--sand-rgb) / 0.55);
-  --hero-end:   rgb(var(--brand-rgb) / 0.22);
-
-  /* =========================
-     ALIAS DE COMPATIBILIDAD
-     ========================= */
-  --surface-2-rgb: var(--surface2-rgb);     /* NEW: alias bg-surface-2 */
-  --surface-3-rgb: var(--surface3-rgb);     /* NEW: alias bg-surface-3 */
-  --warn-rgb: var(--warning-rgb);           /* NEW: alias warn vs warning */
-  --on-brand-rgb: var(--brand-ctr-rgb);     /* NEW: texto sobre brand */
+  /* Alias de compatibilidad */
+  --surface-2-rgb: var(--surface2-rgb);
+  --surface-3-rgb: var(--surface3-rgb);
+  --warn-rgb: var(--warning-rgb);
+  --on-brand-rgb: var(--brand-ctr-rgb);
 }
 
-/* =========================================
-   DARK THEME (coherente con Warm Autumn)
+/* =====================================
+   TEMA DARK - Paleta Mirage Oscura
    Activa con .dark o [data-theme="dark"]
-   ========================================= */
+   ===================================== */
 :root.dark,
 [data-theme="dark"] {
-  /* neutros */
-  --bg-rgb: 9 13 20;               /* navy/slate casi #0b0f14 */
-  --surface-rgb: 15 23 36;         /* petróleo profundo */
-  --surface2-rgb: 19 28 41;
-  --surface3-rgb: 30 41 59;
-  --line-rgb: 51 65 85;
-  --fg-rgb: 241 245 249;           /* texto claro */
+  /* Superficies - Mirage oscuro */
+  --bg-rgb: 22 35 42;              /* #16232a - Mirage (fondo principal) */
+  --surface-rgb: 30 46 54;         /* #1e2e36 - Mirage más claro para tarjetas */
+  --surface2-rgb: 40 58 68;        /* #283a44 - nivel intermedio */
+  --surface3-rgb: 52 73 84;        /* #344954 - nivel más claro */
+  --line-rgb: 75 105 115;          /* #4b6973 - bordes */
+  --fg-rgb: 228 238 240;           /* #e4eef0 - Wild Sand (texto principal) */
+  --fg-muted-rgb: 164 184 192;     /* #a4b8c0 - texto secundario */
 
-  /* acentos ajustados */
-  --brand-rgb: 0 48 73;            /* mismo ancla */
-  --accent-rgb: 232 121 0;         /* F77F00 suavizado */
-  --danger-rgb: 220 38 38;
-  --warning-rgb: 250 204 21;
-  --muted-rgb: 148 163 184;
+  /* Paleta de Marca - Versiones más brillantes para dark */
+  --brand-rgb: 10 134 145;         /* #0a8691 - Deep Sea Green brillante */
+  --accent-rgb: 255 107 53;        /* #ff6b35 - Blaze Orange más suave */
+  --danger-rgb: 248 113 113;       /* #f87171 - red-400 */
+  --warning-rgb: 251 191 36;       /* #fbbf24 - amber-400 */
+  --success-rgb: 74 222 128;       /* #4ade80 - green-400 */
+  --info-rgb: 34 211 238;          /* #22d3ee - cyan-400 */
+  --muted-rgb: 148 163 184;        /* #94a3b8 - slate-400 */
 
-  /* tints/bordes recalibrados para dark */
-  --tint-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 18%, rgb(var(--surface-rgb)));
-  --tint-accent: color-mix(in oklab, rgb(var(--accent-rgb)) 18%, rgb(var(--surface-rgb)));
-  --tint-warn:  color-mix(in oklab, rgb(var(--warning-rgb)) 18%, rgb(var(--surface-rgb)));
-  --tint-ok:    color-mix(in oklab, rgb(var(--success-rgb)) 16%, rgb(var(--surface-rgb)));
+  /* Texto sobre colores en dark */
+  --brand-ctr-rgb: 22 35 42;       /* texto oscuro sobre colores brillantes */
+  --on-strong-rgb: 22 35 42;       /* texto oscuro sobre colores intensos */
+  --primary-rgb: var(--brand-rgb);
+  --secondary-rgb: var(--accent-rgb);
 
-  --border-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 45%, rgb(var(--line-rgb)));
-  --border-accent: color-mix(in oklab, rgb(var(--accent-rgb)) 45%, rgb(var(--line-rgb)));
-  --border-warn:  color-mix(in oklab, rgb(var(--warning-rgb)) 45%, rgb(var(--line-rgb)));
-  --border-ok:    color-mix(in oklab, rgb(var(--success-rgb)) 45%, rgb(var(--line-rgb)));
+  /* Sombras más pronunciadas en dark */
+  --shadow-soft: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+  --shadow-lift: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
 
-  --ring-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 45%, transparent);
-  --hover-surface: color-mix(in oklab, rgb(var(--surface3-rgb)) 70%, rgb(var(--surface2-rgb)));
+  /* Fondos teñidos para dark */
+  --tint-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 12%, rgb(var(--surface-rgb)));
+  --tint-accent: color-mix(in oklab, rgb(var(--accent-rgb)) 12%, rgb(var(--surface-rgb)));
+  --tint-warn: color-mix(in oklab, rgb(var(--warning-rgb)) 12%, rgb(var(--surface-rgb)));
+  --tint-ok: color-mix(in oklab, rgb(var(--success-rgb)) 12%, rgb(var(--surface-rgb)));
+  --tint-danger: color-mix(in oklab, rgb(var(--danger-rgb)) 12%, rgb(var(--surface-rgb)));
+  --tint-info: color-mix(in oklab, rgb(var(--info-rgb)) 12%, rgb(var(--surface-rgb)));
 
-  /* arena oscura para héroes en dark */
-  --sand-rgb: 209 198 153;         /* CHANGED: versión más baja de #EAE2B7 */
-  --hero-start: rgb(var(--sand-rgb) / 0.18);
-  --hero-end:   rgb(var(--brand-rgb) / 0.28);
+  /* Bordes teñidos para dark */
+  --border-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 50%, rgb(var(--line-rgb)));
+  --border-accent: color-mix(in oklab, rgb(var(--accent-rgb)) 50%, rgb(var(--line-rgb)));
+  --border-warn: color-mix(in oklab, rgb(var(--warning-rgb)) 50%, rgb(var(--line-rgb)));
+  --border-ok: color-mix(in oklab, rgb(var(--success-rgb)) 50%, rgb(var(--line-rgb)));
+  --border-danger: color-mix(in oklab, rgb(var(--danger-rgb)) 50%, rgb(var(--line-rgb)));
+  --border-info: color-mix(in oklab, rgb(var(--info-rgb)) 50%, rgb(var(--line-rgb)));
 
-  /* alias en dark también */
-  --surface-2-rgb: var(--surface2-rgb);     /* NEW */
-  --surface-3-rgb: var(--surface3-rgb);     /* NEW */
-  --warn-rgb: var(--warning-rgb);           /* NEW */
-  --on-brand-rgb: var(--brand-ctr-rgb);     /* NEW */
+  /* Focus ring */
+  --ring-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 40%, transparent);
+
+  /* Hover states */
+  --hover-surface: rgb(var(--surface2-rgb));
+  --hover-brand: color-mix(in oklab, rgb(var(--brand-rgb)) 110%, #fff);
+  --hover-accent: color-mix(in oklab, rgb(var(--accent-rgb)) 110%, #fff);
+
+  /* Alias de compatibilidad */
+  --surface-2-rgb: var(--surface2-rgb);
+  --surface-3-rgb: var(--surface3-rgb);
+  --warn-rgb: var(--warning-rgb);
+  --on-brand-rgb: var(--brand-ctr-rgb);
 }
 
-/* (Opcional) pequeñas utilidades si quieres usarlas directo en plantillas */
+/* ==================
+   UTILIDADES CSS
+   ================== */
 @layer utilities {
-  .bg-tint-brand { background: var(--tint-brand); }       /* NEW */
-  .bg-tint-accent { background: var(--tint-accent); }     /* NEW */
-  .border-brand { border-color: var(--border-brand); }    /* NEW */
-  .border-accent { border-color: var(--border-accent); }  /* NEW */
+  /* Fondos teñidos */
+  .bg-tint-brand { background: var(--tint-brand); }
+  .bg-tint-accent { background: var(--tint-accent); }
+  .bg-tint-warn { background: var(--tint-warn); }
+  .bg-tint-ok { background: var(--tint-ok); }
+  .bg-tint-danger { background: var(--tint-danger); }
+  .bg-tint-info { background: var(--tint-info); }
+
+  /* Bordes teñidos */
+  .border-brand { border-color: var(--border-brand); }
+  .border-accent { border-color: var(--border-accent); }
+  .border-warn { border-color: var(--border-warn); }
+  .border-ok { border-color: var(--border-ok); }
+  .border-danger { border-color: var(--border-danger); }
+  .border-info { border-color: var(--border-info); }
 }

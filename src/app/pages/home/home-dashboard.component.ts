@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { NgIf, NgFor, DatePipe, DecimalPipe, CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, Square, List, ShoppingBag, CalendarClock, DollarSign } from 'lucide-angular';
@@ -41,6 +41,18 @@ export default class HomeDashboardComponent implements OnInit {
   pedidosHoy = signal<Pedido[]>([]);
 
   loading = signal(true);
+
+  // ---- Computed signals ----
+  ventasDelDia = computed(() => {
+    const pedidos = this.pedidosHoy();
+    return pedidos
+      .filter(p => p.estado === 'E') // Solo pedidos entregados
+      .reduce((sum, p) => sum + p.totalNeto, 0);
+  });
+
+  pedidosListosCount = computed(() => {
+    return this.pedidosHoy().filter(p => p.estado === 'L').length;
+  });
 
   // ---- Iconos ----
   Square = Square;
@@ -89,15 +101,21 @@ export default class HomeDashboardComponent implements OnInit {
   cargarPedidosDelDia(): void {
     console.log('📅 [HOME] Cargando pedidos del día');
 
-    // Obtener fecha de hoy en formato yyyy-MM-dd
+    // Obtener fecha de hoy - inicio y fin del día
     const hoy = new Date();
-    const fechaHoy = hoy.toISOString().split('T')[0];
+    const inicioDelDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), 0, 0, 0);
+    const finDelDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), 23, 59, 59);
 
-    console.log('📅 [HOME] Fecha del día:', fechaHoy);
+    // Formato: yyyy-MM-dd HH:mm:ss (como espera el backend)
+    const fechaInicio = this.formatDateTimeForBackend(inicioDelDia);
+    const fechaFin = this.formatDateTimeForBackend(finDelDia);
 
-    // Filtro para pedidos creados hoy
+    console.log('📅 [HOME] Rango de fechas:', fechaInicio, 'a', fechaFin);
+
+    // Filtros para pedidos creados hoy (rango de fechas)
     const filtros = [
-      { llave: 'creadoEn', operacion: 'LIKE', valor: fechaHoy }
+      { llave: 'creadoEn', operacion: '>=', valor: fechaInicio },
+      { llave: 'creadoEn', operacion: '<=', valor: fechaFin }
     ];
 
     const pager = { page: 0, size: 100, sortBy: 'id', direction: 'desc' as 'desc' | 'asc' };
@@ -138,6 +156,10 @@ export default class HomeDashboardComponent implements OnInit {
     });
   }
 
+  contarPorEstado(estado: string): number {
+    return this.pedidosHoy().filter(p => p.estado === estado).length;
+  }
+
   getEstadoLabel(estado: string): string {
     const map: Record<string, string> = {
       C: 'Creado',
@@ -161,8 +183,22 @@ export default class HomeDashboardComponent implements OnInit {
   now(): Date {
     return new Date();
   }
-  navegarA(ruta: string): void {
-       this.router.navigate([ruta]);
-}
 
+  navegarA(ruta: string): void {
+    this.router.navigate([ruta]);
+  }
+
+  /**
+   * Formatea una fecha al formato esperado por el backend: yyyy-MM-dd HH:mm:ss
+   */
+  private formatDateTimeForBackend(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  }
 }

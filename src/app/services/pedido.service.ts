@@ -62,7 +62,7 @@ export class PedidoService {
    * Marcar como listo (C -> L) - NO descuenta inventario
    */
   marcarListo(pedidoId: number): Observable<any> {
-    console.log('📤 [PEDIDO-SERVICE] Marcando pedido como listo:', pedidoId);
+    console.log('[PEDIDO-SERVICE] Marcando pedido como listo:', pedidoId);
     return this.http.post(`${this.apiUrl}/${pedidoId}/marcar-listo`, {});
   }
 
@@ -70,7 +70,7 @@ export class PedidoService {
    * Entregar pedido (L -> E) - SÍ descuenta inventario, valida stock
    */
   entregar(pedidoId: number): Observable<any> {
-    console.log('📤 [PEDIDO-SERVICE] Entregando pedido:', pedidoId);
+    console.log(' [PEDIDO-SERVICE] Entregando pedido:', pedidoId);
     return this.http.post(`${this.apiUrl}/${pedidoId}/entregar`, {});
   }
 
@@ -78,7 +78,7 @@ export class PedidoService {
    * Anular pedido (C o L -> A)
    */
   anular(pedidoId: number): Observable<any> {
-    console.log('📤 [PEDIDO-SERVICE] Anulando pedido:', pedidoId);
+    console.log('[PEDIDO-SERVICE] Anulando pedido:', pedidoId);
     return this.http.post(`${this.apiUrl}/${pedidoId}/anular`, {});
   }
 
@@ -86,7 +86,7 @@ export class PedidoService {
    * Agregar extras a un item del pedido (solo en estado C)
    */
   agregarExtras(pedidoId: number, itemId: number, extras: PedidoItemExtraCreate[]): Observable<any> {
-    console.log('📤 [PEDIDO-SERVICE] Agregando extras al item:', { pedidoId, itemId, extras });
+    console.log('[PEDIDO-SERVICE] Agregando extras al item:', { pedidoId, itemId, extras });
     return this.http.post(`${this.apiUrl}/${pedidoId}/items/${itemId}/extras`, extras);
   }
 

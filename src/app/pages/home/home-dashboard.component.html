@@ -1,91 +1,224 @@
-<!-- ===== Sección: Accesos rápidos ===== -->
-<section aria-labelledby="dash-quick" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    <!-- Grupos de ingredientes -->
-    <app-home-card
-        [title]="'Grupos de ingredientes'"
-        [total]="gruposCount()"
-        [icon]="List"
-        variant="success"
-        [buttonText]="'Ver Grupos'"
-        buttonVariant="primary"
-        (navigate)="navegarA('/grupo-ingredientes')"
-    />
+<!-- ===== Header del Dashboard ===== -->
+<header class="mb-6">
+  <h1 class="text-2xl font-bold text-fg mb-1">Dashboard</h1>
+  <p class="text-sm text-muted">Resumen de operaciones - {{ now() | date:'EEEE, d \'de\' MMMM \'de\' y' }}</p>
+</header>
 
-    <!-- Ingredientes -->
-    <app-home-card
-        [title]="'Ingredientes'"
-        [total]="ingredientesCount()"
-        [icon]="Square"
-        variant="success"
-        [buttonText]="'Ver Ingredientes'"
-        buttonVariant="primary"
-        (navigate)="navegarA('/ingredientes')"
-    />
+<!-- ===== Métricas Principales ===== -->
+<section aria-labelledby="dash-metrics" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  <!-- Pedidos del Día -->
+  <app-home-card
+    [title]="'Pedidos del Día'"
+    [total]="pedidosHoyCount()"
+    [icon]="ShoppingBag"
+    variant="primary"
+    [buttonText]="'Ver Pedidos'"
+    buttonVariant="outline"
+    (navigate)="navegarA('/pedidos')"
+  />
 
-    <!-- Pedidos del día -->
-    <app-home-card
-        [title]="'Pedidos del Día'"
-        [total]="pedidosHoyCount()"
-        [icon]="ShoppingBag"
-        variant="success"
-        [buttonText]="'Ver Todos los Pedidos'"
-        buttonVariant="primary"
-        (navigate)="navegarA('/pedidos')"
-    />
+  <!-- Ventas del Día -->
+  <app-home-card
+    [title]="'Ventas del Día'"
+    [total]="ventasDelDia()"
+    [icon]="DollarSign"
+    variant="success"
+    [buttonText]="'Ver Pagos'"
+    buttonVariant="outline"
+    (navigate)="navegarA('/pagos-cliente')"
+  />
+
+  <!-- Pedidos Listos -->
+  <app-home-card
+    [title]="'Pedidos Listos'"
+    [total]="pedidosListosCount()"
+    [icon]="CalendarClock"
+    variant="warning"
+    [buttonText]="'Ver Listos'"
+    buttonVariant="outline"
+    (navigate)="navegarA('/pedidos')"
+  />
+
+  <!-- Ingredientes -->
+  <app-home-card
+    [title]="'Ingredientes'"
+    [total]="ingredientesCount()"
+    [icon]="List"
+    variant="secondary"
+    [buttonText]="'Ver Inventario'"
+    buttonVariant="outline"
+    (navigate)="navegarA('/inventario')"
+  />
 </section>
 
-<!-- ===== Sección: Pedidos de Hoy ===== -->
-<section aria-labelledby="dash-pedidos-hoy" class="card-soft mt-4">
-    <header class="card-head">
-        <h2 id="dash-pedidos-hoy" class="card-title">Pedidos de Hoy ({{ now() | date:'dd/MM/yyyy' }})</h2>
-        <nav class="card-actions" aria-label="Acciones de pedidos">
-            <a routerLink="/pedidos/nuevo" class="btn btn--success">Nuevo Pedido</a>
-            <a routerLink="/pedidos" class="btn btn--primary">Ver Todos</a>
-        </nav>
+<!-- ===== Grid de Tablas ===== -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+  <!-- ===== Pedidos Recientes ===== -->
+  <section class="card overflow-hidden">
+    <header class="px-6 py-4 border-b border-line bg-surface2">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-semibold text-fg">Pedidos Recientes</h2>
+          <p class="text-xs text-muted mt-1">Últimos 10 pedidos del día</p>
+        </div>
+        <button
+          class="btn btn--sm btn--outline"
+          data-variant="outline"
+          data-size="sm"
+          (click)="navegarA('/pedidos')">
+          Ver todos
+        </button>
+      </div>
     </header>
 
-    <div class="w-full overflow-x-auto">
-        <div *ngIf="loading()" class="p-8 text-center text-slate-500">
-            Cargando pedidos...
-        </div>
+    <div class="overflow-x-auto">
+      <div *ngIf="loading()" class="p-8 text-center text-muted">
+        <div class="skeleton skeleton-line mx-auto" style="width: 200px;"></div>
+      </div>
 
-        <div *ngIf="!loading() && pedidosHoy().length === 0" class="p-8 text-center text-slate-500">
-            No hay pedidos registrados hoy
-        </div>
+      <div *ngIf="!loading() && pedidosHoy().length === 0" class="p-8 text-center text-muted">
+        <lucide-icon [img]="ShoppingBag" [size]="48" class="mx-auto opacity-30 mb-3"></lucide-icon>
+        <p class="font-medium">No hay pedidos registrados hoy</p>
+        <button class="btn btn--primary btn--sm mt-4" (click)="navegarA('/pedidos/nuevo')">
+          Crear Primer Pedido
+        </button>
+      </div>
 
-        <table *ngIf="!loading() && pedidosHoy().length > 0" class="table w-full">
-            <thead>
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Estado</th>
-                    <th scope="col">Hora</th>
-                    <th scope="col" class="text-right">Total</th>
-                    <th scope="col" class="text-center">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let pedido of pedidosHoy()">
-                    <td class="font-semibold">#{{ pedido.id }}</td>
-                    <td>
-                        <span [ngClass]="getEstadoBadgeClass(pedido.estado)">
-                            {{ getEstadoLabel(pedido.estado) }}
-                        </span>
-                    </td>
-                    <td>
-                        <time [dateTime]="pedido.creadoEn">
-                            {{ pedido.creadoEn | date:'HH:mm' }}
-                        </time>
-                    </td>
-                    <td class="text-right font-bold text-orange-600">
-                        ${{ pedido.totalNeto.toFixed(2) }}
-                    </td>
-                    <td class="text-center">
-                        <a [routerLink]="['/pedidos', pedido.id, 'detalle']" class="btn btn--sm btn--outline">
-                            Ver detalle
-                        </a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+      <table *ngIf="!loading() && pedidosHoy().length > 0" class="table table--dense w-full">
+        <thead>
+          <tr>
+            <th scope="col" class="w-20">ID</th>
+            <th scope="col" class="w-32">Estado</th>
+            <th scope="col" class="w-24">Hora</th>
+            <th scope="col" class="text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let pedido of pedidosHoy().slice(0, 10)" class="row-hover">
+            <td class="font-semibold text-brand">#{{ pedido.id }}</td>
+            <td>
+              <span class="pill" [ngClass]="getEstadoBadgeClass(pedido.estado)">
+                {{ getEstadoLabel(pedido.estado) }}
+              </span>
+            </td>
+            <td class="text-muted text-xs">
+              {{ pedido.creadoEn | date:'HH:mm' }}
+            </td>
+            <td class="text-right font-bold text-accent">
+              ${{ pedido.totalNeto.toFixed(2) }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+
+    <footer *ngIf="!loading() && pedidosHoy().length > 10" class="px-6 py-3 bg-surface2 border-t border-line text-center">
+      <button class="text-sm text-brand font-medium hover:underline" (click)="navegarA('/pedidos')">
+        Ver todos los pedidos ({{ pedidosHoyCount() }})
+      </button>
+    </footer>
+  </section>
+
+  <!-- ===== Resumen por Estado ===== -->
+  <section class="card overflow-hidden">
+    <header class="px-6 py-4 border-b border-line bg-surface2">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-semibold text-fg">Estado de Pedidos</h2>
+          <p class="text-xs text-muted mt-1">Distribución por estado actual</p>
+        </div>
+      </div>
+    </header>
+
+    <div class="p-6">
+      <div *ngIf="loading()" class="space-y-3">
+        <div class="skeleton skeleton-line"></div>
+        <div class="skeleton skeleton-line"></div>
+        <div class="skeleton skeleton-line"></div>
+      </div>
+
+      <div *ngIf="!loading()" class="space-y-4">
+        <!-- Creados -->
+        <div class="flex items-center justify-between p-4 rounded-lg bg-tint-warn border border-border-warn">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center">
+              <lucide-icon [img]="CalendarClock" [size]="20" class="text-warning"></lucide-icon>
+            </div>
+            <div>
+              <p class="font-semibold text-fg">Creados</p>
+              <p class="text-xs text-muted">Pendientes de preparar</p>
+            </div>
+          </div>
+          <span class="text-2xl font-bold text-warning">{{ contarPorEstado('C') }}</span>
+        </div>
+
+        <!-- Listos -->
+        <div class="flex items-center justify-between p-4 rounded-lg bg-tint-info border border-border-info">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-info/20 flex items-center justify-center">
+              <lucide-icon [img]="CalendarClock" [size]="20" class="text-info"></lucide-icon>
+            </div>
+            <div>
+              <p class="font-semibold text-fg">Listos</p>
+              <p class="text-xs text-muted">Para entregar</p>
+            </div>
+          </div>
+          <span class="text-2xl font-bold text-info">{{ contarPorEstado('L') }}</span>
+        </div>
+
+        <!-- Entregados -->
+        <div class="flex items-center justify-between p-4 rounded-lg bg-tint-ok border border-border-ok">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center">
+              <lucide-icon [img]="ShoppingBag" [size]="20" class="text-success"></lucide-icon>
+            </div>
+            <div>
+              <p class="font-semibold text-fg">Entregados</p>
+              <p class="text-xs text-muted">Completados hoy</p>
+            </div>
+          </div>
+          <span class="text-2xl font-bold text-success">{{ contarPorEstado('E') }}</span>
+        </div>
+
+        <!-- Anulados -->
+        <div *ngIf="contarPorEstado('A') > 0" class="flex items-center justify-between p-4 rounded-lg bg-tint-danger border border-border-danger">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-danger/20 flex items-center justify-center">
+              <lucide-icon [img]="Square" [size]="20" class="text-danger"></lucide-icon>
+            </div>
+            <div>
+              <p class="font-semibold text-fg">Anulados</p>
+              <p class="text-xs text-muted">Cancelados</p>
+            </div>
+          </div>
+          <span class="text-2xl font-bold text-danger">{{ contarPorEstado('A') }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ===== Acciones Rápidas ===== -->
+<section class="mt-6 card p-6">
+  <h2 class="text-lg font-semibold text-fg mb-4">Acciones Rápidas</h2>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <button class="btn btn--outline" data-variant="outline" (click)="navegarA('/pedidos/nuevo')">
+      <lucide-icon [img]="ShoppingBag" [size]="18"></lucide-icon>
+      <span>Nuevo Pedido</span>
+    </button>
+    <button class="btn btn--outline" data-variant="outline" (click)="navegarA('/inventario')">
+      <lucide-icon [img]="List" [size]="18"></lucide-icon>
+      <span>Ver Stock</span>
+    </button>
+    <button class="btn btn--outline" data-variant="outline" (click)="navegarA('/kardex')">
+      <lucide-icon [img]="Square" [size]="18"></lucide-icon>
+      <span>Ver Kardex</span>
+    </button>
+    <button class="btn btn--outline" data-variant="outline" (click)="navegarA('/platos')">
+      <lucide-icon [img]="ShoppingBag" [size]="18"></lucide-icon>
+      <span>Ver Platos</span>
+    </button>
+  </div>
 </section>

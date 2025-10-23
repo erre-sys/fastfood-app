@@ -31,6 +31,9 @@ export class AppSelectComponent implements OnInit, OnChanges {
   // Comparador opcional para objetos (si value es objeto)
   @Input() compareWith?: (o1: any, o2: any) => boolean;
 
+  /** Optimizar para pantallas táctiles */
+  @Input() touchOptimized = false;
+
   // Errores
   @Input() errors?: Record<string, string>;
   @Input() showErrorsOn: 'touched' | 'dirty' | 'always' = 'touched';

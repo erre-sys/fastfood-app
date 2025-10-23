@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -22,11 +21,11 @@ import { Plato } from '../../../../interfaces/plato.interface';
 @Component({
   selector: 'app-platos-list',
   standalone: true,
-  imports: [ CommonModule, RouterLink, ReactiveFormsModule, 
-    PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, PaginatorComponent, 
+  imports: [ CommonModule, ReactiveFormsModule,
+    PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, PaginatorComponent,
     LucideAngularModule, UiButtonComponent, TabsFilterComponent],
   templateUrl: './plato.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush  
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export default class PlatosListPage implements OnInit, OnDestroy {
@@ -60,11 +59,10 @@ export default class PlatosListPage implements OnInit, OnDestroy {
 
   columns: ColumnDef<Plato>[] = [
     { key: 'nombre', header: 'Nombre', sortable: true },
-    { key: 'grupoNombre', header: 'Grupo', sortable: true },
-    { key: 'precioBase', header: 'Precio',  align: 'right' },
-    { key: 'descuentoPct', header: 'Descuento', widthPx: 100, align: 'right' },
-    { key: 'enPromocion', header: 'Promoción',widthPx: 120, align: 'center', 
-      type: 'badge', badgeMap: { S: 'ok', N: 'warn' }, valueMap: { S: 'Sí', N: 'No' } },
+    { key: 'grupoNombre', header: 'Grupo', sortable: true, widthPx: 180 },
+    { key: 'precioBase', header: 'Precio', widthPx: 100, align: 'right', type: 'money' },
+    { key: 'enPromocion', header: 'Promoción', widthPx: 120, align: 'center',
+      type: 'badge', badgeMap: { S: 'ok', N: 'muted' }, valueMap: { S: 'Sí', N: 'No' } },
     { key: 'estado', header: 'Estado', widthPx: 120, align: 'center',
       type: 'badge', badgeMap: { A: 'ok', I: 'warn' }, valueMap: { A: 'Activo', I: 'Inactivo' } },
   ];
@@ -88,7 +86,7 @@ export default class PlatosListPage implements OnInit, OnDestroy {
 
   private load(): void {
     this.loading = true;
-    this.cdr.markForCheck(); 
+    this.cdr.markForCheck();
 
     const filtros: any[] = [];
     if (this.tab === 'active')   filtros.push({ llave: 'estado', operacion: '=', valor: 'A' });
@@ -108,17 +106,18 @@ export default class PlatosListPage implements OnInit, OnDestroy {
               next: p => {
                 const contenido = (p?.contenido ?? []) as any[];
                 console.log('contenido', contenido);
-                this.rows = contenido.map(r => ({
-                  id: (r?.id ?? r?.proveedorId ?? r?.proveedor_id) ?? -1,
-                  codigo: r?.codigo ?? '',
-                  nombre: r?.nombre ?? '',
-                  grupoPlatoId: r?.grupoPlatoId ?? r?.grupo_plato_id,
-                  precioBase: Number(r?.precioBase ?? r?.precio_base ?? r?.monto ?? 0),
-                  descuentoPct: Number(r?.descuentoPct ?? r?.descuento_pct ?? r?.monto ?? 0),
-                  enPromocion: (r?.enPromocion ?? r?.en_promocion ?? 'N') as 'S' | 'N',
-                  estado: (r?.estado ?? 'A') as 'A' | 'I',
-                  grupoNombre: this.nombreGrupo?.get(r?.grupoPlatoId ?? r?.grupo_plato_id ?? -1) ?? '',
-                })) as Plato[];
+                this.rows = contenido.map(r => {
+                  return {
+                    id: (r?.id ?? r?.proveedorId ?? r?.proveedor_id) ?? -1,
+                    codigo: r?.codigo ?? '',
+                    nombre: r?.nombre ?? '',
+                    grupoPlatoId: r?.grupoPlatoId ?? r?.grupo_plato_id,
+                    precioBase: Number(r?.precioBase ?? r?.precio_base ?? r?.monto ?? 0),
+                    enPromocion: (r?.enPromocion ?? r?.en_promocion ?? 'N') as 'S' | 'N',
+                    estado: (r?.estado ?? 'A') as 'A' | 'I',
+                    grupoNombre: this.nombreGrupo?.get(r?.grupoPlatoId ?? r?.grupo_plato_id ?? -1) ?? '',
+                  } as any;
+                }) as Plato[];
                 this.total = Number(p?.totalRegistros ?? this.rows.length);
                 this.counters.all = this.total;
                 this.cdr.markForCheck();
@@ -126,11 +125,11 @@ export default class PlatosListPage implements OnInit, OnDestroy {
           error: () => {
             this.rows = []; this.total = 0;
             this.loading = false;
-            this.cdr.markForCheck();   
+            this.cdr.markForCheck();
           },
           complete: () => {
             this.loading = false;
-            this.cdr.markForCheck();   
+            this.cdr.markForCheck();
           },
         });
       }
@@ -168,6 +167,4 @@ export default class PlatosListPage implements OnInit, OnDestroy {
 
   goBack() { history.back(); }
   onSearch(term: string) { this.searchForm.controls.q.setValue(term, { emitEvent: true }); }
-
-  onEdit(row: Plato) { }
 }

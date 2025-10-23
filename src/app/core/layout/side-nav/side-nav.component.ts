@@ -16,6 +16,7 @@ import {
   ArrowLeftRight,
   ClipboardList,
   CreditCard,
+  X as XIcon,
 } from 'lucide-angular';
 
 interface NavSection {
@@ -39,6 +40,9 @@ interface NavItem {
 })
 export class SideNavComponent {
   @Output() close = new EventEmitter<void>();
+
+  // Iconos
+  XIcon = XIcon;
 
   navSections: NavSection[] = [
     {

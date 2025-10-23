@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { PlatoService} from '../../../../services/plato.service';
 import { GrupoPlatoService } from '../../../../services/grupo-plato.service';
+import { NotifyService } from '../../../../core/notify/notify.service';
 
 import { InputComponent } from '../../../../shared/ui/fields/input/input.component';
 import { AppSelectComponent } from '../../../../shared/ui/fields/select/select.component';
@@ -24,6 +25,7 @@ export default class PlatoFormPage implements OnInit {
   private router = inject(Router);
   private api = inject(PlatoService);
   private gruposApi = inject(GrupoPlatoService);
+  private notify = inject(NotifyService);
 
   id?: number;
   loading = signal(false);
@@ -33,11 +35,19 @@ export default class PlatoFormPage implements OnInit {
   form = this.fb.group({
     codigo: ['', [Validators.required, Validators.minLength(1)]],
     nombre: ['', [Validators.required, Validators.minLength(2)]],
-    grupoPlatoId: <number | null>null,
-    estado: <Estado>'A',
-    precioBase: <number | null>null,
-    enPromocion: <SN>'N',
-    descuentoPct: <number | null>null,
+    grupoPlatoId: [<number | null>null],
+    estado: [<Estado>'A'],
+    precioBase: [<number | null>null, [
+      Validators.required,
+      Validators.min(0.01),
+      Validators.pattern(/^\d+(\.\d{1,2})?$/)
+    ]],
+    enPromocion: [<SN>'N'],
+    descuentoPct: [<number | null>null, [
+      Validators.min(0),
+      Validators.max(100),
+      Validators.pattern(/^\d+(\.\d{1,2})?$/)
+    ]],
   });
 
   get titleLabel() {
@@ -45,14 +55,22 @@ export default class PlatoFormPage implements OnInit {
   }
 
   ngOnInit(): void {
-    this.gruposApi.listar().subscribe({
-      next: (gs) => (this.grupos = (gs ?? []).map(g => ({ label: g.nombre, value: g.id })) ),
-      error: () => (this.grupos = []),
-    });
+    console.log('🔍 [PLATO-FORM] Inicializando formulario');
 
+    this.gruposApi.listar().subscribe({
+      next: (gs) => {
+        this.grupos = (gs ?? []).map(g => ({ label: g.nombre, value: g.id }));
+        console.log('✅ [PLATO-FORM] Grupos cargados:', this.grupos.length);
+      },
+      error: (err) => {
+        console.error('❌ [PLATO-FORM] Error al cargar grupos:', err);
+        this.grupos = [];
+      },
+    });
 
     const raw = this.route.snapshot.paramMap.get('id');
     this.id = raw ? Number(raw) : undefined;
+    console.log('📝 [PLATO-FORM] Modo:', this.id ? `Edición (ID: ${this.id})` : 'Creación');
 
     this.form.get('enPromocion')!.valueChanges.subscribe((v) => {
       const ctrl = this.form.get('descuentoPct')!;
@@ -91,23 +109,52 @@ export default class PlatoFormPage implements OnInit {
   }
 
   onSubmit(): void {
+    console.log('💾 [PLATO-FORM] Iniciando envío de formulario');
     this.form.markAllAsTouched();
-    if (this.form.invalid) return;
+
+    if (this.form.invalid) {
+      console.warn('⚠️ [PLATO-FORM] Formulario inválido');
+      this.notify.warning('Por favor, complete todos los campos requeridos correctamente');
+      return;
+    }
 
     // coherencia antes de enviar
-    if (this.form.value.enPromocion !== 'S') this.form.patchValue({ descuentoPct: null }, { emitEvent: false });
+    if (this.form.value.enPromocion !== 'S') {
+      this.form.patchValue({ descuentoPct: null }, { emitEvent: false });
+    }
+
+    const data = this.form.getRawValue();
+    console.log('📤 [PLATO-FORM] Datos a enviar:', data);
 
     this.loading.set(true);
 
     if (!this.id) {
-      this.api.crear(this.form.getRawValue() as any).subscribe({
-        next: () => this.router.navigate(['/platos']),
-        error: () => this.loading.set(false),
+      console.log('➕ [PLATO-FORM] Creando nuevo plato');
+      this.api.crear(data as any).subscribe({
+        next: (response) => {
+          console.log('✅ [PLATO-FORM] Plato creado exitosamente:', response);
+          this.notify.success('Plato creado correctamente');
+          this.router.navigate(['/platos']);
+        },
+        error: (err) => {
+          console.error('❌ [PLATO-FORM] Error al crear plato:', err);
+          this.notify.handleError(err, 'Error al crear plato');
+          this.loading.set(false);
+        },
       });
     } else {
-      this.api.actualizar({ id: this.id, ...(this.form.getRawValue() as any) }).subscribe({
-        next: () => this.router.navigate(['/platos']),
-        error: () => this.loading.set(false),
+      console.log('✏️ [PLATO-FORM] Actualizando plato ID:', this.id);
+      this.api.actualizar({ id: this.id, ...(data as any) }).subscribe({
+        next: (response) => {
+          console.log('✅ [PLATO-FORM] Plato actualizado exitosamente:', response);
+          this.notify.success('Plato actualizado correctamente');
+          this.router.navigate(['/platos']);
+        },
+        error: (err) => {
+          console.error('❌ [PLATO-FORM] Error al actualizar plato:', err);
+          this.notify.handleError(err, 'Error al actualizar plato');
+          this.loading.set(false);
+        },
       });
     }
   }

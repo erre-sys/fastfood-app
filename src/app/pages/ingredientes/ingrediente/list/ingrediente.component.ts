@@ -1,6 +1,5 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
@@ -15,15 +14,14 @@ import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.co
 import { TabsFilterComponent } from '../../../../shared/ui/tabs-filter/tabs-filter.component';
 import { UiButtonComponent } from '../../../../shared/ui/buttons/ui-button/ui-button.component';
 import { LucideAngularModule, Pencil, Plus } from 'lucide-angular';
-import { Proveedor } from '../../../../interfaces/proveedor.interface';
 import { TabStatus, Dir, ColumnDef, TableSort } from '../../../../shared/ui/table/column-def';
 import { Ingrediente } from '../../../../interfaces/ingrediente.interface';
 
 @Component({
   selector: 'app-ingredientes-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, PageLayoutComponent,
-    TitleComponent, TableComponent, SearchComponent, PaginatorComponent, 
+  imports: [CommonModule, ReactiveFormsModule, PageLayoutComponent,
+    TitleComponent, TableComponent, SearchComponent, PaginatorComponent,
     LucideAngularModule, UiButtonComponent, TabsFilterComponent],
   templateUrl: './ingrediente.component.html',
 })
@@ -56,10 +54,22 @@ export default class IngredientesListPage implements OnInit, OnDestroy {
     q: new FormControl<string>('', { nonNullable: true }),
   });
 
+  // Map de unidades para mostrar nombres completos
+  unidadMap: Record<string, string> = {
+    'PORC': 'Porcentaje',
+    'G': 'Gramos',
+    'LT': 'Litros',
+    'UND': 'Unidad',
+    'KG': 'Kilogramos',
+    'PACK': 'Paquete',
+    'ML': 'Mililitros'
+  };
+
   columns: ColumnDef<Ingrediente>[] = [
     { key: 'nombre', header: 'Nombre', sortable: true },
     { key: 'grupoNombre', header: 'Grupo', widthPx: 220 },
-    { key: 'unidad', header: 'Unidad', widthPx: 120, align: 'center' },
+    { key: 'unidad', header: 'Unidad', widthPx: 140, align: 'center',
+      valueMap: this.unidadMap },
     {key: 'esExtra', header: 'Extra', widthPx: 110, align: 'center',
       type: 'badge', badgeMap: { S: 'ok', N: 'muted' }, valueMap: { S: 'Sí', N: 'No' } },
     {key: 'aplicaComida', header: 'Aplica Comida', widthPx: 150, align: 'center',
@@ -169,6 +179,4 @@ export default class IngredientesListPage implements OnInit, OnDestroy {
 
   goBack() { history.back(); }
   onSearch(term: string) { this.searchForm.controls.q.setValue(term, { emitEvent: true }); }
-
-  onEdit(row: Proveedor) { }
 }

@@ -21,10 +21,32 @@
   ]" [active]="tab" (activeChange)="setTab($any($event))">
   </app-tabs-filter>
 
-  <!-- Search -->
-  <app-search class="w-full max-w-md" placeholder="Buscar por ID de pedido" [value]="searchForm.controls.q.value"
-    (valueChange)="onSearch($event)">
-  </app-search>
+  <!-- Filtros de Búsqueda -->
+  <app-section-container [heading]="'Filtros de Búsqueda'" [compact]="true" [inset]="true">
+    <div class="fg">
+      <!-- Búsqueda por ID -->
+      <div class="form-field">
+        <label class="form-label">Buscar por ID</label>
+        <input type="text" class="field field--soft" placeholder="ID del pedido"
+          [formControl]="searchForm.controls.q">
+        <p class="form-help text-xs">Buscar por número de pedido</p>
+      </div>
+
+      <!-- Fecha Desde -->
+      <div class="form-field">
+        <label class="form-label">Fecha Desde</label>
+        <input type="date" class="field field--soft" [formControl]="searchForm.controls.fechaDesde">
+        <p class="form-help text-xs">Inicio del rango</p>
+      </div>
+
+      <!-- Fecha Hasta -->
+      <div class="form-field">
+        <label class="form-label">Fecha Hasta</label>
+        <input type="date" class="field field--soft" [formControl]="searchForm.controls.fechaHasta">
+        <p class="form-help text-xs">Fin del rango</p>
+      </div>
+    </div>
+  </app-section-container>
 
   <!-- Tabla -->
   <div class="card overflow-hidden">
@@ -36,25 +58,19 @@
         </ui-button>
 
         <!-- C -> L (Creado a Listo) - NO descuenta inventario -->
-        <button *ngIf="r.estado === 'C'" type="button" class="btn btn--sm btn--outline" (click)="onMarcarListo(r)"
-          title="Marcar como Listo (NO descuenta inventario)">
-          <lucide-icon [img]="Check" [size]="16"></lucide-icon>
-          <span>Listo</span>
-        </button>
+        <ui-button *ngIf="r.estado === 'C'" [icon]="Check" label="Listo" variant="outline" size="sm" type="button"
+          (clicked)="onMarcarListo(r)" [title]="'Marcar como Listo (NO descuenta inventario)'">
+        </ui-button>
 
         <!-- L -> E (Listo a Entregado) - SÍ descuenta inventario -->
-        <button *ngIf="r.estado === 'L'" type="button" class="btn btn--sm btn--outline" (click)="onEntregar(r)"
-          title="Entregar pedido (SÍ descuenta inventario)">
-          <lucide-icon [img]="Check" [size]="16"></lucide-icon>
-          <span>Entregar</span>
-        </button>
+        <ui-button *ngIf="r.estado === 'L'" [icon]="Check" label="Entregar" variant="outline" size="sm" type="button"
+          (clicked)="onEntregar(r)" [title]="'Entregar pedido (SÍ descuenta inventario)'">
+        </ui-button>
 
         <!-- C, L -> A (Anular) -->
-        <button *ngIf="r.estado === 'C' || r.estado === 'L'" type="button" class="btn btn--sm btn--outline" (click)="onAnular(r)"
-          title="Anular pedido">
-          <lucide-icon [img]="XIcon" [size]="16"></lucide-icon>
-          <span>Anular</span>
-        </button>
+        <ui-button *ngIf="r.estado === 'C' || r.estado === 'L'" [icon]="XIcon" label="Anular" variant="outline"
+          size="sm" type="button" (clicked)="onAnular(r)" [title]="'Anular pedido'">
+        </ui-button>
       </ng-template>
     </app-table>
 

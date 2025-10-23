@@ -4,6 +4,7 @@
 <ng-template #headerT>
   <app-title [titleLabel]="titleLabel" [subtitle]="subTitleLabel" [showBack]="true" variant="tinted" tone="brand"
     (cancel)="goBack()">
+    <ui-button [icon]="Package" label="Ajuste Manual" variant="primary" size="md" [to]="['/inventario/ajuste']"></ui-button>
     <ui-button [icon]="ArrowLeftRight" label="Ver Kardex" variant="outline" size="md" [to]="['/kardex']"></ui-button>
   </app-title>
 </ng-template>
@@ -13,7 +14,7 @@
   <!-- Tabs -->
   <app-tabs-filter [items]="[
     { key:'all',        label:'Todos',       count:counters.all,        tone:'brand'   },
-    { key:'bajoMinimo', label:'Bajo Mínimo', count:counters.bajoMinimo, tone:'danger'  }
+    { key:'bajoMinimo', label:'Stock Bajo', count:counters.bajoMinimo, tone:'danger'  }
   ]" [active]="tab" (activeChange)="setTab($any($event))">
   </app-tabs-filter>
 

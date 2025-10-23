@@ -1,12 +1,12 @@
 <header class="app-header">
   <div class="app-header__in">
     <!-- Hamburguesa (móvil) -->
-    <button class="icon-btn md:hidden" (click)="openMobile.emit()" aria-label="Abrir menú">
+    <button class="icon-btn lg:hidden" (click)="openMobile.emit()" aria-label="Abrir menú">
       <lucide-icon [img]="Menu" size="20"></lucide-icon>
     </button>
 
     <!-- Colapsar (desktop) -->
-    <button class="icon-btn hidden md:inline-flex" (click)="toggleCollapse.emit()" aria-label="Colapsar menú">
+    <button class="icon-btn hidden lg:inline-flex" (click)="toggleCollapse.emit()" aria-label="Colapsar menú">
       <lucide-icon [img]="Blinds" size="20"></lucide-icon>
     </button>
 
@@ -24,7 +24,7 @@
         <span class="icon-btn border-0">
           <lucide-icon [img]="UserCog" size="20"></lucide-icon>
         </span>
-        <span class="hidden md:inline">{{ username() || 'Usuario' }}</span>
+        <span class="hidden lg:inline">{{ username() || 'Usuario' }}</span>
       </span>
 
       <div content class="flex flex-col">

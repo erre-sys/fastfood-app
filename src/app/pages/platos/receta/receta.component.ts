@@ -14,18 +14,14 @@ import { InputComponent } from '../../../shared/ui/fields/input/input.component'
 import { AppSelectComponent } from '../../../shared/ui/fields/select/select.component';
 import { SaveCancelComponent } from '../../../shared/ui/buttons/ui-button-save-cancel/save-cancel.component';
 import { LucideAngularModule, X, Plus } from 'lucide-angular';
+import { TitleComponent } from '../../../shared/ui/fields/title/title.component';
 
 @Component({
   selector: 'app-receta',
   standalone: true,
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    SectionContainerComponent,
-    InputComponent,
-    AppSelectComponent,
-    SaveCancelComponent,
-    LucideAngularModule,
+    CommonModule, TitleComponent, ReactiveFormsModule,  SectionContainerComponent,
+    InputComponent, AppSelectComponent, SaveCancelComponent, LucideAngularModule
   ],
   templateUrl: './receta.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,6 +35,9 @@ export default class RecetaPage implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private notify = inject(NotifyService);
 
+  titleLabel = 'Receta';
+  subTitleLabel = 'Define los ingredientes y cantidades necesarias para preparar este plato.';
+
   // Íconos
   X = X;
   Plus = Plus;
@@ -46,9 +45,20 @@ export default class RecetaPage implements OnInit {
   loading = false;
   platoId!: number;
   platoNombre = '';
-  ingredientes: Array<{ id: number; nombre: string; codigo: string; aplicaComida: string; estado: string }> = [];
+  ingredientes: Array<{ id: number; nombre: string; codigo: string; aplicaComida: string; estado: string; unidad: string | null }> = [];
   // Solo ingredientes activos que apliquen para comida
-  ingredientesValidos: Array<{ id: number; nombre: string; codigo: string }> = [];
+  ingredientesValidos: Array<{ id: number; nombre: string; codigo: string; unidad: string | null }> = [];
+
+  // Map de unidades para mostrar nombres completos
+  unidadMap: Record<string, string> = {
+    'PORC': 'Porcentaje',
+    'G': 'Gramos',
+    'LT': 'Litros',
+    'UND': 'Unidad',
+    'KG': 'Kilogramos',
+    'PACK': 'Paquete',
+    'ML': 'Mililitros'
+  };
 
   form = new FormGroup({
     items: new FormArray<FormGroup>([]),
@@ -106,6 +116,7 @@ export default class RecetaPage implements OnInit {
           codigo: ing?.codigo ?? '',
           aplicaComida: ing?.aplicaComida ?? ing?.aplica_comida ?? 'N',
           estado: ing?.estado ?? 'I',
+          unidad: ing?.unidad ?? null,
         }));
 
         // Filtrar solo ingredientes válidos: activos Y que apliquen para comida
@@ -115,6 +126,7 @@ export default class RecetaPage implements OnInit {
             id: ing.id,
             nombre: ing.nombre,
             codigo: ing.codigo,
+            unidad: ing.unidad,
           }));
 
         console.log('📊 [RECETA] Total ingredientes:', this.ingredientes.length);
@@ -290,5 +302,40 @@ export default class RecetaPage implements OnInit {
   getIngredienteNombre(ingredienteId: number): string {
     const ing = this.ingredientes.find((i) => i.id === ingredienteId);
     return ing ? `${ing.codigo} - ${ing.nombre}` : '';
+  }
+
+  // Obtener la unidad del ingrediente seleccionado
+  getUnidadIngrediente(ingredienteId: number | null): string {
+    if (!ingredienteId) return '';
+    const ing = this.ingredientesValidos.find((i) => i.id === ingredienteId);
+    if (!ing || !ing.unidad) return '';
+    return this.unidadMap[ing.unidad] || ing.unidad;
+  }
+
+  // Calcular total de ingredientes
+  getTotalIngredientes(): number {
+    return this.items.controls.filter(control => {
+      const ingredienteId = control.get('ingredienteId')?.value;
+      return ingredienteId != null;
+    }).length;
+  }
+
+  // Obtener resumen de ingredientes
+  getResumenIngredientes(): Array<{ nombre: string; cantidad: number; unidad: string }> {
+    return this.items.controls
+      .filter(control => {
+        const ingredienteId = control.get('ingredienteId')?.value;
+        return ingredienteId != null;
+      })
+      .map(control => {
+        const ingredienteId = control.get('ingredienteId')?.value;
+        const cantidad = control.get('cantidad')?.value || 0;
+        const ing = this.ingredientesValidos.find(i => i.id === ingredienteId);
+        return {
+          nombre: ing?.nombre || 'Ingrediente desconocido',
+          cantidad: Number(cantidad),
+          unidad: this.getUnidadIngrediente(ingredienteId) || 'Sin unidad'
+        };
+      });
   }
 }

@@ -13,6 +13,9 @@ import { PageLayoutComponent } from '../../../shared/ui/page-layout/page-layout.
 import { TitleComponent } from '../../../shared/ui/fields/title/title.component';
 import { TableComponent } from '../../../shared/ui/table/table.component';
 import { PaginatorComponent } from '../../../shared/ui/paginator/paginator.component';
+import { SectionContainerComponent } from '../../../shared/ui/section-container/section-container.component';
+import { InputComponent } from '../../../shared/ui/fields/input/input.component';
+import { AppSelectComponent } from '../../../shared/ui/fields/select/select.component';
 import { LucideAngularModule, ArrowLeftRight } from 'lucide-angular';
 import { UiButtonComponent } from '../../../shared/ui/buttons/ui-button/ui-button.component';
 import { TabsFilterComponent } from '../../../shared/ui/tabs-filter/tabs-filter.component';
@@ -31,6 +34,9 @@ type TipoMovTab = 'all' | 'COMPRA' | 'CONSUMO' | 'AJUSTE';
     TitleComponent,
     TableComponent,
     PaginatorComponent,
+    SectionContainerComponent,
+    InputComponent,
+    AppSelectComponent,
     LucideAngularModule,
     UiButtonComponent,
     TabsFilterComponent,
@@ -89,6 +95,9 @@ export default class InventarioMovimientosPage implements OnInit, OnDestroy {
   counters = { all: 0, COMPRA: undefined as number | undefined, CONSUMO: undefined as number | undefined, AJUSTE: undefined as number | undefined };
 
   ngOnInit(): void {
+    console.log('[KARDEX] Inicializando componente de movimientos');
+
+    // Cargar ingredientes primero
     this.loadIngredientes();
 
     // Set default date range (last 30 days)
@@ -98,6 +107,11 @@ export default class InventarioMovimientosPage implements OnInit, OnDestroy {
 
     this.searchForm.controls.fechaDesde.setValue(this.formatDateForInput(thirtyDaysAgo));
     this.searchForm.controls.fechaHasta.setValue(this.formatDateForInput(today));
+
+    console.log('[KARDEX] Rango de fechas por defecto:', {
+      desde: this.formatDateForInput(thirtyDaysAgo),
+      hasta: this.formatDateForInput(today)
+    });
 
     this.searchForm.valueChanges
       .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroyed$))
@@ -124,8 +138,12 @@ export default class InventarioMovimientosPage implements OnInit, OnDestroy {
   private load(): void {
     const ingredienteId = this.searchForm.controls.ingredienteId.value;
 
+    console.log('[KARDEX] Iniciando carga de movimientos');
+    console.log('[KARDEX] Ingrediente seleccionado:', ingredienteId);
+
     // El backend requiere ingredienteId obligatorio
     if (!ingredienteId) {
+      console.log('[KARDEX] No hay ingrediente seleccionado, limpiando tabla');
       this.rows = [];
       this.total = 0;
       this.loading = false;
@@ -143,6 +161,8 @@ export default class InventarioMovimientosPage implements OnInit, OnDestroy {
     const hasta = fechaHasta ? this.formatDateTimeForBackend(fechaHasta) : undefined;
     const tipo = this.tab === 'all' ? null : this.tab;
 
+    console.log('[KARDEX] Parámetros de búsqueda:', { ingredienteId, desde, hasta, tipo, page: this.page, size: this.pageSize });
+
     this.api
       .buscarKardexPaginado(
         { page: this.page, size: this.pageSize, sortBy: this.sortKey, direction: this.sortDir },
@@ -154,6 +174,8 @@ export default class InventarioMovimientosPage implements OnInit, OnDestroy {
       .subscribe({
         next: (p) => {
           const contenido = (p?.contenido ?? p?.content ?? []) as any[];
+          console.log('[KARDEX] Movimientos recibidos:', contenido.length, 'items');
+
           this.rows = contenido.map((r) => {
             const ingId = Number(r?.ingredienteId ?? r?.ingrediente_id ?? -1);
             return {
@@ -169,11 +191,15 @@ export default class InventarioMovimientosPage implements OnInit, OnDestroy {
               ingredienteNombre: this.getIngredienteNombre(ingId),
             };
           }) as InventarioMov[];
+
           this.total = Number(p?.totalRegistros ?? p?.totalElements ?? this.rows.length);
           this.counters.all = this.total;
+
+          console.log('[KARDEX] Filas procesadas:', this.rows.length, 'Total:', this.total);
           this.cdr.markForCheck();
         },
-        error: () => {
+        error: (err) => {
+          console.error('[KARDEX] Error al cargar movimientos:', err);
           this.rows = [];
           this.total = 0;
           this.loading = false;
@@ -187,15 +213,21 @@ export default class InventarioMovimientosPage implements OnInit, OnDestroy {
   }
 
   private loadIngredientes(): void {
+    console.log('[KARDEX] Cargando lista de ingredientes');
+
     this.ingredientesApi.listar().subscribe({
       next: (arr) => {
         this.ingredientes = (arr ?? []).map((ing: any) => ({
           id: Number(ing?.id ?? ing?.ingredienteId),
           nombre: ing?.nombre ?? '',
         }));
+
+        console.log('[KARDEX] Ingredientes cargados:', this.ingredientes.length);
         this.cdr.markForCheck();
       },
-      error: () => {},
+      error: (err) => {
+        console.error('[KARDEX] Error al cargar ingredientes:', err);
+      },
     });
   }
 

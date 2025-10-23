@@ -9,10 +9,8 @@
             <app-select label="Grupo" [formGroup]="form" controlName="grupoIngredienteId" [items]="grupos" [soft]="true"
                 [errors]="{ required: 'Selecciona un grupo.' }"></app-select>
 
-            <app-select label="Unidad" [formGroup]="form" controlName="unidad" [items]="[{label:'Porcentaje', value:'PORC'}, {label:'Gramos', value:'G'}
-                    , {label:'Litros', value:'LT'}, {label:'Unidad', value:'UND'}, {label:'Kilogramos', value:'KG'}
-                    , {label:'Paquete', value:'PACK'}, {label:'Mililitros', value:'ML'}
-                ]" [soft]="true"></app-select>
+            <app-select label="Unidad" [formGroup]="form" controlName="unidad" [items]="unidades"
+                [soft]="true" [includeNull]="true" nullLabel="Seleccione una unidad"></app-select>
 
             <app-select label="¿Es extra?" [formGroup]="form" controlName="esExtra"
                 [items]="[{label:'Sí', value:'S'}, {label:'No', value:'N'}]" [soft]="true"></app-select>

@@ -10,24 +10,12 @@ import { PedidoCreate, PedidoItemCreate, PedidoItemExtraCreate } from '../../../
 import { NotifyService } from '../../../core/notify/notify.service';
 
 import { SectionContainerComponent } from '../../../shared/ui/section-container/section-container.component';
+import { AppSelectComponent } from '../../../shared/ui/fields/select/select.component';
 import { InputComponent } from '../../../shared/ui/fields/input/input.component';
 import { SaveCancelComponent } from '../../../shared/ui/buttons/ui-button-save-cancel/save-cancel.component';
-import { LucideAngularModule, Plus, Trash2, Minus } from 'lucide-angular';
-
-interface CartItem {
-  platoId: number;
-  platoNombre: string;
-  precioBas: number;
-  cantidad: number;
-  extras: CartExtra[];
-}
-
-interface CartExtra {
-  ingredienteId: number;
-  ingredienteNombre: string;
-  cantidad: number;
-  precioExtra: number;
-}
+import { SummaryComponent } from '../../../shared/ui/summary/summary.component';
+import { PedidoCartComponent, CartItem, CartExtra } from '../../../shared/ui/pedido-cart/pedido-cart.component';
+import { LucideAngularModule, Plus, Trash2, Minus, ShoppingCart } from 'lucide-angular';
 
 @Component({
   selector: 'app-pedido-form',
@@ -37,8 +25,11 @@ interface CartExtra {
     ReactiveFormsModule,
     FormsModule,
     SectionContainerComponent,
+    AppSelectComponent,
     InputComponent,
     SaveCancelComponent,
+    SummaryComponent,
+    PedidoCartComponent,
     LucideAngularModule,
   ],
   templateUrl: './pedido-form.component.html',
@@ -56,6 +47,7 @@ export default class PedidoFormPage implements OnInit {
   Plus = Plus;
   Trash2 = Trash2;
   Minus = Minus;
+  ShoppingCart = ShoppingCart;
 
   loading = false;
   platos: Array<{ id: number; nombre: string; precioBase: number; grupoPlatoId: number }> = [];
@@ -64,16 +56,20 @@ export default class PedidoFormPage implements OnInit {
   // Carrito de compras
   carrito: CartItem[] = [];
 
-  // Plato seleccionado para agregar
-  platoSeleccionado: number | null = null;
-  cantidadPlato = 1;
-
   // Extras para el plato actual
   extrasTemp: CartExtra[] = [];
-  ingredienteSeleccionado: number | null = null;
-  cantidadExtra = 1;
 
-  form = new FormGroup({});
+  // Form para selección de plato
+  platoForm = new FormGroup({
+    platoId: new FormControl<number | null>(null),
+    cantidad: new FormControl<number>(1, { nonNullable: true }),
+  });
+
+  // Form para extras
+  extraForm = new FormGroup({
+    ingredienteId: new FormControl<number | null>(null),
+    cantidad: new FormControl<number>(1, { nonNullable: true }),
+  });
 
   ngOnInit(): void {
     this.loadPlatos();
@@ -81,11 +77,11 @@ export default class PedidoFormPage implements OnInit {
   }
 
   private loadPlatos(): void {
-    console.log('🔍 [PEDIDO-FORM] Consultando lista de platos');
+    console.log('[PEDIDO-FORM] Consultando lista de platos');
 
     this.platosApi.listar().subscribe({
       next: (arr) => {
-        console.log('✅ [PEDIDO-FORM] Platos recibidos:', arr);
+        console.log('[PEDIDO-FORM] Platos recibidos:', arr?.length);
 
         this.platos = (arr ?? []).map((p: any) => ({
           id: Number(p?.id ?? p?.platoId ?? -1),
@@ -94,21 +90,21 @@ export default class PedidoFormPage implements OnInit {
           grupoPlatoId: Number(p?.grupoPlatoId ?? p?.grupo_plato_id ?? -1),
         }));
 
-        console.log('📊 [PEDIDO-FORM] Platos procesados:', this.platos);
+        console.log('[PEDIDO-FORM] Platos procesados:', this.platos.length);
         this.cdr.markForCheck();
       },
       error: (err) => {
-        console.error('❌ [PEDIDO-FORM] Error al consultar platos:', err);
+        console.error('[PEDIDO-FORM] Error al consultar platos:', err);
       },
     });
   }
 
   private loadIngredientes(): void {
-    console.log('🔍 [PEDIDO-FORM] Consultando lista de ingredientes extras');
+    console.log('[PEDIDO-FORM] Consultando lista de ingredientes extras');
 
     this.ingredientesApi.listar().subscribe({
       next: (arr) => {
-        console.log('✅ [PEDIDO-FORM] Ingredientes recibidos:', arr);
+        console.log('[PEDIDO-FORM] Ingredientes recibidos:', arr?.length);
 
         this.ingredientes = (arr ?? [])
           .filter((ing: any) => ing?.esExtra === 'S')
@@ -119,98 +115,102 @@ export default class PedidoFormPage implements OnInit {
             precioExtra: Number(ing?.precioExtra ?? ing?.precio_extra ?? 0),
           }));
 
-        console.log('📊 [PEDIDO-FORM] Ingredientes extras procesados:', this.ingredientes);
+        console.log('[PEDIDO-FORM] Ingredientes extras procesados:', this.ingredientes.length);
         this.cdr.markForCheck();
       },
       error: (err) => {
-        console.error('❌ [PEDIDO-FORM] Error al consultar ingredientes:', err);
+        console.error('[PEDIDO-FORM] Error al consultar ingredientes:', err);
       },
     });
   }
 
   // Agregar extra temporal (antes de agregar el plato al carrito)
   agregarExtraTemp(): void {
-    console.log('➕ [PEDIDO-FORM] Agregando extra temporal');
-    console.log('🔸 Ingrediente seleccionado:', this.ingredienteSeleccionado);
-    console.log('🔸 Cantidad:', this.cantidadExtra);
+    const ingredienteId = this.extraForm.controls.ingredienteId.value;
+    const cantidad = this.extraForm.controls.cantidad.value;
 
-    if (!this.ingredienteSeleccionado || this.cantidadExtra <= 0) return;
+    console.log('[PEDIDO-FORM] Agregando extra temporal');
+    console.log('[PEDIDO-FORM] Ingrediente seleccionado:', ingredienteId);
+    console.log('[PEDIDO-FORM] Cantidad:', cantidad);
 
-    const ingrediente = this.ingredientes.find((i) => i.id === this.ingredienteSeleccionado);
+    if (!ingredienteId || cantidad <= 0) return;
+
+    const ingrediente = this.ingredientes.find((i) => i.id === ingredienteId);
     if (!ingrediente) return;
 
     // Verificar si ya existe
-    const existe = this.extrasTemp.find((e) => e.ingredienteId === this.ingredienteSeleccionado);
+    const existe = this.extrasTemp.find((e) => e.ingredienteId === ingredienteId);
     if (existe) {
-      console.log('🔄 [PEDIDO-FORM] Extra ya existe, aumentando cantidad');
-      existe.cantidad += this.cantidadExtra;
+      console.log('[PEDIDO-FORM] Extra ya existe, aumentando cantidad');
+      existe.cantidad += cantidad;
     } else {
-      console.log('✨ [PEDIDO-FORM] Nuevo extra agregado');
+      console.log('[PEDIDO-FORM] Nuevo extra agregado');
       this.extrasTemp.push({
-        ingredienteId: this.ingredienteSeleccionado,
+        ingredienteId: ingredienteId,
         ingredienteNombre: ingrediente.nombre,
-        cantidad: this.cantidadExtra,
+        cantidad: cantidad,
         precioExtra: ingrediente.precioExtra,
       });
     }
 
-    console.log('📋 [PEDIDO-FORM] Extras temporales actuales:', this.extrasTemp);
+    console.log('[PEDIDO-FORM] Extras temporales actuales:', this.extrasTemp);
 
     // Reset
-    this.ingredienteSeleccionado = null;
-    this.cantidadExtra = 1;
+    this.extraForm.reset({ ingredienteId: null, cantidad: 1 });
     this.cdr.markForCheck();
   }
 
   removerExtraTemp(index: number): void {
-    console.log('🗑️ [PEDIDO-FORM] Removiendo extra temporal en índice:', index);
-    console.log('🔸 Extra a remover:', this.extrasTemp[index]);
+    console.log('[PEDIDO-FORM] Removiendo extra temporal en índice:', index);
+    console.log('[PEDIDO-FORM] Extra a remover:', this.extrasTemp[index]);
 
     this.extrasTemp.splice(index, 1);
 
-    console.log('📋 [PEDIDO-FORM] Extras temporales restantes:', this.extrasTemp);
+    console.log('[PEDIDO-FORM] Extras temporales restantes:', this.extrasTemp);
     this.cdr.markForCheck();
   }
 
   // Agregar plato al carrito
   agregarPlatoAlCarrito(): void {
-    console.log('🛒 [PEDIDO-FORM] Agregando plato al carrito');
-    console.log('🍽️ Plato seleccionado:', this.platoSeleccionado);
-    console.log('🔢 Cantidad:', this.cantidadPlato);
-    console.log('➕ Extras:', this.extrasTemp);
+    const platoId = this.platoForm.controls.platoId.value;
+    const cantidad = this.platoForm.controls.cantidad.value;
 
-    if (!this.platoSeleccionado || this.cantidadPlato <= 0) return;
+    console.log('[PEDIDO-FORM] Agregando plato al carrito');
+    console.log('[PEDIDO-FORM] Plato seleccionado:', platoId);
+    console.log('[PEDIDO-FORM] Cantidad:', cantidad);
+    console.log('[PEDIDO-FORM] Extras:', this.extrasTemp);
 
-    const plato = this.platos.find((p) => p.id === this.platoSeleccionado);
+    if (!platoId || cantidad <= 0) return;
+
+    const plato = this.platos.find((p) => p.id === platoId);
     if (!plato) return;
 
     // Verificar si ya existe en el carrito (mismo plato y mismos extras)
     const existe = this.carrito.find(
       (item) =>
-        item.platoId === this.platoSeleccionado &&
+        item.platoId === platoId &&
         this.extrasIguales(item.extras, this.extrasTemp)
     );
 
     if (existe) {
-      console.log('🔄 [PEDIDO-FORM] Item ya existe en carrito, aumentando cantidad');
-      existe.cantidad += this.cantidadPlato;
+      console.log('[PEDIDO-FORM] Item ya existe en carrito, aumentando cantidad');
+      existe.cantidad += cantidad;
     } else {
-      console.log('✨ [PEDIDO-FORM] Nuevo item agregado al carrito');
+      console.log('[PEDIDO-FORM] Nuevo item agregado al carrito');
       this.carrito.push({
-        platoId: this.platoSeleccionado,
+        platoId: platoId,
         platoNombre: plato.nombre,
         precioBas: plato.precioBase,
-        cantidad: this.cantidadPlato,
+        cantidad: cantidad,
         extras: [...this.extrasTemp],
       });
     }
 
-    console.log('🛒 [PEDIDO-FORM] Carrito actualizado:', this.carrito);
-    console.log('💰 [PEDIDO-FORM] Total actual:', this.calcularTotal());
+    console.log('[PEDIDO-FORM] Carrito actualizado:', this.carrito);
+    console.log('[PEDIDO-FORM] Total actual:', this.calcularTotal());
 
     // Reset
-    this.platoSeleccionado = null;
-    this.cantidadPlato = 1;
+    this.platoForm.reset({ platoId: null, cantidad: 1 });
     this.extrasTemp = [];
     this.cdr.markForCheck();
   }
@@ -229,30 +229,30 @@ export default class PedidoFormPage implements OnInit {
   }
 
   removerDelCarrito(index: number): void {
-    console.log('🗑️ [PEDIDO-FORM] Removiendo item del carrito en índice:', index);
-    console.log('🔸 Item a remover:', this.carrito[index]);
+    console.log('[PEDIDO-FORM] Removiendo item del carrito en índice:', index);
+    console.log('[PEDIDO-FORM] Item a remover:', this.carrito[index]);
 
     this.carrito.splice(index, 1);
 
-    console.log('🛒 [PEDIDO-FORM] Carrito actualizado:', this.carrito);
-    console.log('💰 [PEDIDO-FORM] Total actual:', this.calcularTotal());
+    console.log('[PEDIDO-FORM] Carrito actualizado:', this.carrito);
+    console.log('[PEDIDO-FORM] Total actual:', this.calcularTotal());
     this.cdr.markForCheck();
   }
 
   aumentarCantidad(item: CartItem): void {
-    console.log('➕ [PEDIDO-FORM] Aumentando cantidad de:', item.platoNombre);
+    console.log('[PEDIDO-FORM] Aumentando cantidad de:', item.platoNombre);
     item.cantidad++;
-    console.log('🔢 [PEDIDO-FORM] Nueva cantidad:', item.cantidad);
-    console.log('💰 [PEDIDO-FORM] Total actual:', this.calcularTotal());
+    console.log('[PEDIDO-FORM] Nueva cantidad:', item.cantidad);
+    console.log('[PEDIDO-FORM] Total actual:', this.calcularTotal());
     this.cdr.markForCheck();
   }
 
   disminuirCantidad(item: CartItem): void {
     if (item.cantidad > 1) {
-      console.log('➖ [PEDIDO-FORM] Disminuyendo cantidad de:', item.platoNombre);
+      console.log('[PEDIDO-FORM] Disminuyendo cantidad de:', item.platoNombre);
       item.cantidad--;
-      console.log('🔢 [PEDIDO-FORM] Nueva cantidad:', item.cantidad);
-      console.log('💰 [PEDIDO-FORM] Total actual:', this.calcularTotal());
+      console.log('[PEDIDO-FORM] Nueva cantidad:', item.cantidad);
+      console.log('[PEDIDO-FORM] Total actual:', this.calcularTotal());
       this.cdr.markForCheck();
     }
   }
@@ -270,24 +270,28 @@ export default class PedidoFormPage implements OnInit {
   }
 
   calcularTotalExtrasTemp(): number {
+    const cantidadPlato = this.platoForm.controls.cantidad.value;
     return this.extrasTemp.reduce((sum, extra) => {
-      return sum + (extra.precioExtra * extra.cantidad * this.cantidadPlato);
+      return sum + (extra.precioExtra * extra.cantidad * cantidadPlato);
     }, 0);
   }
 
   calcularPrecioPreview(): number {
-    if (!this.platoSeleccionado) return 0;
-    const plato = this.platos.find(p => p.id === this.platoSeleccionado);
+    const platoId = this.platoForm.controls.platoId.value;
+    const cantidadPlato = this.platoForm.controls.cantidad.value;
+
+    if (!platoId) return 0;
+    const plato = this.platos.find(p => p.id === platoId);
     if (!plato) return 0;
-    return (plato.precioBase * this.cantidadPlato) + this.calcularTotalExtrasTemp();
+    return (plato.precioBase * cantidadPlato) + this.calcularTotalExtrasTemp();
   }
 
   onSubmit(): void {
-    console.log('💾 [PEDIDO-FORM] Iniciando envío de pedido');
-    console.log('🛒 [PEDIDO-FORM] Carrito actual:', this.carrito);
+    console.log('[PEDIDO-FORM] Iniciando envío de pedido');
+    console.log('[PEDIDO-FORM] Carrito actual:', this.carrito);
 
     if (this.carrito.length === 0) {
-      console.warn('⚠️ [PEDIDO-FORM] Carrito vacío, no se puede enviar');
+      console.warn('[PEDIDO-FORM] Carrito vacío, no se puede enviar');
       this.notify.warning('Agregue al menos un plato al pedido');
       return;
     }
@@ -306,20 +310,20 @@ export default class PedidoFormPage implements OnInit {
       })),
     };
 
-    console.log('📤 [PEDIDO-FORM] DTO a enviar:', dto);
-    console.log('💰 [PEDIDO-FORM] Total del pedido:', this.calcularTotal());
+    console.log('[PEDIDO-FORM] DTO a enviar:', dto);
+    console.log('[PEDIDO-FORM] Total del pedido:', this.calcularTotal());
 
     this.loading = true;
     this.cdr.markForCheck();
 
     this.api.crear(dto).subscribe({
       next: (response) => {
-        console.log('✅ [PEDIDO-FORM] Pedido creado exitosamente:', response);
+        console.log('[PEDIDO-FORM] Pedido creado exitosamente:', response);
         this.notify.success('Pedido creado correctamente');
         this.router.navigate(['/pedidos']);
       },
       error: (err) => {
-        console.error('❌ [PEDIDO-FORM] Error al crear pedido:', err);
+        console.error('[PEDIDO-FORM] Error al crear pedido:', err);
         this.notify.handleError(err, 'Error al crear pedido');
         this.loading = false;
         this.cdr.markForCheck();

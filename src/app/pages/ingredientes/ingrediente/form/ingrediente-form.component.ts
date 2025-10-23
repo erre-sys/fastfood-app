@@ -9,6 +9,7 @@ import { AppSelectComponent } from '../../../../shared/ui/fields/select/select.c
 import { SectionContainerComponent } from '../../../../shared/ui/section-container/section-container.component';
 import { SaveCancelComponent } from '../../../../shared';
 import { IngredienteService } from '../../../../services/ingrediente.service';
+import { NotifyService } from '../../../../core/notify/notify.service';
 import { Estado, SN } from '../../../../interfaces/ingrediente.interface';
 
 @Component({
@@ -23,11 +24,23 @@ export default class IngredienteFormPage implements OnInit {
   private router = inject(Router);
   private api = inject(IngredienteService);
   private gruposApi = inject(GrupoIngredienteService);
+  private notify = inject(NotifyService);
 
   id?: number;
   loading = signal(false);
 
   grupos: Array<{ label: string; value: number }> = [];
+
+  // Unidades disponibles
+  unidades = [
+    { label: 'Porcentaje', value: 'PORC' },
+    { label: 'Gramos', value: 'G' },
+    { label: 'Kilogramos', value: 'KG' },
+    { label: 'Litros', value: 'LT' },
+    { label: 'Mililitros', value: 'ML' },
+    { label: 'Unidad', value: 'UND' },
+    { label: 'Paquete', value: 'PACK' }
+  ];
 
   form = this.fb.group({
     codigo: ['', [Validators.required, Validators.minLength(1)]],
@@ -46,13 +59,22 @@ export default class IngredienteFormPage implements OnInit {
   }
 
   ngOnInit(): void {
+    console.log('🔍 [INGREDIENTE-FORM] Inicializando formulario');
+
     this.gruposApi.listar().subscribe({
-      next: (gs) => (this.grupos = (gs ?? []).map(g => ({ label: g.nombre, value: g.id })) ),
-      error: () => (this.grupos = []),
+      next: (gs) => {
+        this.grupos = (gs ?? []).map(g => ({ label: g.nombre, value: g.id }));
+        console.log('✅ [INGREDIENTE-FORM] Grupos cargados:', this.grupos.length);
+      },
+      error: (err) => {
+        console.error('❌ [INGREDIENTE-FORM] Error al cargar grupos:', err);
+        this.grupos = [];
+      },
     });
 
     const raw = this.route.snapshot.paramMap.get('id');
     this.id = raw ? Number(raw) : undefined;
+    console.log('📝 [INGREDIENTE-FORM] Modo:', this.id ? `Edición (ID: ${this.id})` : 'Creación');
 
     this.form.get('esExtra')!.valueChanges.subscribe((v) => {
       const ctrl = this.form.get('precioExtra')!;
@@ -94,23 +116,52 @@ export default class IngredienteFormPage implements OnInit {
   }
 
   onSubmit(): void {
+    console.log('💾 [INGREDIENTE-FORM] Iniciando envío de formulario');
     this.form.markAllAsTouched();
-    if (this.form.invalid) return;
+
+    if (this.form.invalid) {
+      console.warn('⚠️ [INGREDIENTE-FORM] Formulario inválido');
+      this.notify.warning('Por favor, complete todos los campos requeridos correctamente');
+      return;
+    }
 
     // coherencia antes de enviar
-    if (this.form.value.esExtra !== 'S') this.form.patchValue({ precioExtra: null }, { emitEvent: false });
+    if (this.form.value.esExtra !== 'S') {
+      this.form.patchValue({ precioExtra: null }, { emitEvent: false });
+    }
+
+    const data = this.form.getRawValue();
+    console.log('📤 [INGREDIENTE-FORM] Datos a enviar:', data);
 
     this.loading.set(true);
 
     if (!this.id) {
-      this.api.crear(this.form.getRawValue() as any).subscribe({
-        next: () => this.router.navigate(['/ingredientes']),
-        error: () => this.loading.set(false),
+      console.log('➕ [INGREDIENTE-FORM] Creando nuevo ingrediente');
+      this.api.crear(data as any).subscribe({
+        next: (response) => {
+          console.log('✅ [INGREDIENTE-FORM] Ingrediente creado exitosamente:', response);
+          this.notify.success('Ingrediente creado correctamente');
+          this.router.navigate(['/ingredientes']);
+        },
+        error: (err) => {
+          console.error('❌ [INGREDIENTE-FORM] Error al crear ingrediente:', err);
+          this.notify.handleError(err, 'Error al crear ingrediente');
+          this.loading.set(false);
+        },
       });
     } else {
-      this.api.actualizar({ id: this.id, ...(this.form.getRawValue() as any) }).subscribe({
-        next: () => this.router.navigate(['/ingredientes']),
-        error: () => this.loading.set(false),
+      console.log('✏️ [INGREDIENTE-FORM] Actualizando ingrediente ID:', this.id);
+      this.api.actualizar({ id: this.id, ...(data as any) }).subscribe({
+        next: (response) => {
+          console.log('✅ [INGREDIENTE-FORM] Ingrediente actualizado exitosamente:', response);
+          this.notify.success('Ingrediente actualizado correctamente');
+          this.router.navigate(['/ingredientes']);
+        },
+        error: (err) => {
+          console.error('❌ [INGREDIENTE-FORM] Error al actualizar ingrediente:', err);
+          this.notify.handleError(err, 'Error al actualizar ingrediente');
+          this.loading.set(false);
+        },
       });
     }
   }

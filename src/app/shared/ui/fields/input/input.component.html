@@ -20,11 +20,12 @@
         [autocomplete]="autocomplete || null" [formControlName]="controlName" rows="3">
       </textarea>
 
-      <!-- input “normal” -->
+      <!-- input "normal" -->
       <input *ngSwitchDefault class="field" [class.field--soft]="soft" [class.is-invalid]="invalid" [id]="id"
         [attr.type]="type" [formControlName]="controlName" [attr.aria-invalid]="invalid || null"
         [attr.aria-describedby]="joinIds(helpId, invalid ? errId : null)" [readonly]="readonly || null"
         [attr.min]="min ?? null" [attr.max]="max ?? null" [attr.step]="step ?? null"
+        [attr.placeholder]="placeholder || null"
         [autocomplete]="autocomplete || null" />
     </ng-container>
 

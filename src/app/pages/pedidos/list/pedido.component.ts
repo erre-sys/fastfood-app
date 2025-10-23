@@ -14,6 +14,7 @@ import { TableComponent } from '../../../shared/ui/table/table.component';
 import { SearchComponent } from '../../../shared/ui/fields/searchbox/search.component';
 import { PaginatorComponent } from '../../../shared/ui/paginator/paginator.component';
 import { TabsFilterComponent } from '../../../shared/ui/tabs-filter/tabs-filter.component';
+import { SectionContainerComponent } from '../../../shared/ui/section-container/section-container.component';
 import { LucideAngularModule, Eye, Plus, Check, X as XIcon } from 'lucide-angular';
 import { UiButtonComponent } from '../../../shared/ui/buttons/ui-button/ui-button.component';
 import { ColumnDef, Dir, TableSort, TabStatus } from '../../../shared/ui/table/column-def';
@@ -31,6 +32,7 @@ import { ColumnDef, Dir, TableSort, TabStatus } from '../../../shared/ui/table/c
     SearchComponent,
     PaginatorComponent,
     TabsFilterComponent,
+    SectionContainerComponent,
     LucideAngularModule,
     UiButtonComponent,
   ],
@@ -65,11 +67,13 @@ export default class PedidosListPage implements OnInit, OnDestroy {
 
   searchForm = new FormGroup({
     q: new FormControl<string>('', { nonNullable: true }),
+    fechaDesde: new FormControl<string>('', { nonNullable: true }),
+    fechaHasta: new FormControl<string>('', { nonNullable: true }),
   });
 
   columns: ColumnDef<Pedido>[] = [
     { key: 'id', header: 'ID', sortable: true, widthPx: 80 },
-    { key: 'creadoEn', header: 'Fecha', sortable: true, widthPx: 160 },
+    { key: 'creadoEn', header: 'Fecha', sortable: true, type: 'date', widthPx: 200 },
     { key: 'estado', header: 'Estado', widthPx: 120, align: 'center',
       type: 'badge',
       badgeMap: {
@@ -85,7 +89,7 @@ export default class PedidosListPage implements OnInit, OnDestroy {
         A: 'Anulado'
       }
     },
-    { key: 'totalNeto', header: 'Total', align: 'right', widthPx: 120 },
+    { key: 'totalNeto', header: 'Total', align: 'right', widthPx: 140, type: 'money' },
   ];
 
   counters = {
@@ -98,6 +102,20 @@ export default class PedidosListPage implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.searchForm.controls.q.valueChanges
+      .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroyed$))
+      .subscribe(() => {
+        this.page = 0;
+        this.load();
+      });
+
+    this.searchForm.controls.fechaDesde.valueChanges
+      .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroyed$))
+      .subscribe(() => {
+        this.page = 0;
+        this.load();
+      });
+
+    this.searchForm.controls.fechaHasta.valueChanges
       .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroyed$))
       .subscribe(() => {
         this.page = 0;
@@ -130,18 +148,28 @@ export default class PedidosListPage implements OnInit, OnDestroy {
       }
     }
 
+    const fechaDesde = this.searchForm.controls.fechaDesde.value.trim();
+    if (fechaDesde) {
+      filtros.push({ llave: 'creadoEn', operacion: '>=', valor: fechaDesde });
+    }
+
+    const fechaHasta = this.searchForm.controls.fechaHasta.value.trim();
+    if (fechaHasta) {
+      filtros.push({ llave: 'creadoEn', operacion: '<=', valor: fechaHasta });
+    }
+
     const pager = { page: this.page, size: this.pageSize, sortBy: this.sortKey, direction: this.sortDir };
 
-    console.log('🔍 [PEDIDOS] Consultando lista de pedidos');
-    console.log('📄 Paginación:', pager);
-    console.log('🔎 Filtros:', filtros);
-    console.log('📑 Tab actual:', this.tab);
+    console.log('[PEDIDOS] Consultando lista de pedidos');
+    console.log('[PEDIDOS] Paginación:', pager);
+    console.log('[PEDIDOS] Filtros:', filtros);
+    console.log('[PEDIDOS] Tab actual:', this.tab);
 
     this.api
       .buscarPaginado(pager, filtros)
       .subscribe({
         next: (p) => {
-          console.log('✅ [PEDIDOS] Respuesta del servidor:', p);
+          console.log('[PEDIDOS] Respuesta del servidor:', p);
 
           const contenido = (p?.contenido ?? []) as any[];
           this.rows = contenido.map((r: any) => ({
@@ -157,8 +185,8 @@ export default class PedidosListPage implements OnInit, OnDestroy {
             entregadoEn: r?.entregadoEn ?? r?.entregado_en ?? '',
           })) as Pedido[];
 
-          console.log('📊 [PEDIDOS] Pedidos procesados:', this.rows);
-          console.log('🔢 [PEDIDOS] Total de registros:', p?.totalRegistros);
+          console.log('[PEDIDOS] Pedidos procesados:', this.rows.length);
+          console.log('[PEDIDOS] Total de registros:', p?.totalRegistros);
 
           this.total = Number(p?.totalRegistros ?? this.rows.length);
           this.counters.all = this.total;
@@ -166,7 +194,7 @@ export default class PedidosListPage implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         },
         error: (err) => {
-          console.error('❌ [PEDIDOS] Error al consultar:', err);
+          console.error('[PEDIDOS] Error al consultar:', err);
           this.rows = [];
           this.total = 0;
           this.loading = false;
@@ -178,7 +206,7 @@ export default class PedidosListPage implements OnInit, OnDestroy {
   // Handlers UI
   setTab(k: TabStatus | 'C' | 'L' | 'E' | 'A') {
     if (this.tab !== k) {
-      console.log('📑 [PEDIDOS] Cambiando tab de', this.tab, 'a', k);
+      console.log('[PEDIDOS] Cambiando tab de', this.tab, 'a', k);
       this.tab = k;
       this.page = 0;
       this.load();
@@ -187,7 +215,7 @@ export default class PedidosListPage implements OnInit, OnDestroy {
 
   onSort(s: TableSort) {
     if (!s?.key) return;
-    console.log('🔃 [PEDIDOS] Ordenando por:', s.key, 'dirección:', s.dir);
+    console.log('[PEDIDOS] Ordenando por:', s.key, 'dirección:', s.dir);
     this.sortKey = s.key;
     this.sortDir = s.dir as Dir;
     this.page = 0;
@@ -196,7 +224,7 @@ export default class PedidosListPage implements OnInit, OnDestroy {
 
   setPageSize(n: number) {
     if (n > 0 && n !== this.pageSize) {
-      console.log('📏 [PEDIDOS] Cambiando tamaño de página de', this.pageSize, 'a', n);
+      console.log('[PEDIDOS] Cambiando tamaño de página de', this.pageSize, 'a', n);
       this.pageSize = n;
       this.page = 0;
       this.load();
@@ -205,7 +233,7 @@ export default class PedidosListPage implements OnInit, OnDestroy {
 
   prev() {
     if (this.page > 0) {
-      console.log('⬅️ [PEDIDOS] Página anterior:', this.page - 1);
+      console.log('[PEDIDOS] Página anterior:', this.page - 1);
       this.page--;
       this.load();
     }
@@ -213,7 +241,7 @@ export default class PedidosListPage implements OnInit, OnDestroy {
 
   next() {
     if (this.page + 1 < this.maxPage()) {
-      console.log('➡️ [PEDIDOS] Página siguiente:', this.page + 1);
+      console.log('[PEDIDOS] Página siguiente:', this.page + 1);
       this.page++;
       this.load();
     }
@@ -236,7 +264,7 @@ export default class PedidosListPage implements OnInit, OnDestroy {
   }
 
   onSearch(term: string) {
-    console.log('🔎 [PEDIDOS] Buscando:', term);
+    console.log('[PEDIDOS] Buscando:', term);
     this.searchForm.controls.q.setValue(term, { emitEvent: true });
   }
 
@@ -244,33 +272,31 @@ export default class PedidosListPage implements OnInit, OnDestroy {
    * Marcar pedido como listo (C -> L) - NO descuenta inventario
    */
   onMarcarListo(pedido: Pedido) {
-    console.log('🔄 [PEDIDOS] Marcar como listo solicitado');
-    console.log('📦 Pedido:', pedido);
-    console.log('🏷️ Estado actual:', pedido.estado);
+    console.log('[PEDIDOS] Marcar como listo solicitado');
+    console.log('[PEDIDOS] Pedido:', pedido.id, 'Estado:', pedido.estado);
 
     if (pedido.estado !== 'C') {
-      console.warn('⚠️ [PEDIDOS] Solo se puede marcar como listo pedidos en estado C');
+      console.warn('[PEDIDOS] Solo se puede marcar como listo pedidos en estado C');
       this.notify.warning('Solo se puede marcar como listo pedidos en estado Creado');
       return;
     }
 
-    // TODO: Implementar servicio de confirmación
     if (confirm(`¿Marcar pedido #${pedido.id} como Listo?`)) {
-      console.log('✅ [PEDIDOS] Usuario confirmó marcar como listo');
+      console.log('[PEDIDOS] Usuario confirmó marcar como listo');
 
       this.api.marcarListo(pedido.id).subscribe({
         next: (response) => {
-          console.log('✅ [PEDIDOS] Pedido marcado como listo exitosamente:', response);
+          console.log('[PEDIDOS] Pedido marcado como listo exitosamente');
           this.notify.success(`Pedido #${pedido.id} marcado como Listo`);
           this.load();
         },
         error: (err) => {
-          console.error('❌ [PEDIDOS] Error al marcar como listo:', err);
+          console.error('[PEDIDOS] Error al marcar como listo:', err);
           this.notify.handleError(err, 'Error al marcar como listo');
         },
       });
     } else {
-      console.log('❌ [PEDIDOS] Usuario canceló');
+      console.log('[PEDIDOS] Usuario canceló');
     }
   }
 
@@ -278,33 +304,33 @@ export default class PedidosListPage implements OnInit, OnDestroy {
    * Entregar pedido (L -> E) - SÍ descuenta inventario, valida stock
    */
   onEntregar(pedido: Pedido) {
-    console.log('📦 [PEDIDOS] Entregar pedido solicitado');
-    console.log('📦 Pedido:', pedido);
-    console.log('🏷️ Estado actual:', pedido.estado);
+    console.log('[PEDIDOS] Entregar pedido solicitado');
+    console.log('Pedido:', pedido);
+    console.log('Estado actual:', pedido.estado);
 
     if (pedido.estado !== 'L') {
-      console.warn('⚠️ [PEDIDOS] Solo se puede entregar pedidos en estado L (Listo)');
+      console.warn('[PEDIDOS] Solo se puede entregar pedidos en estado L (Listo)');
       this.notify.warning('Solo se puede entregar pedidos que estén Listos');
       return;
     }
 
     // TODO: Implementar servicio de confirmación
     if (confirm(`¿Entregar pedido #${pedido.id}? Esto descontará el inventario.`)) {
-      console.log('✅ [PEDIDOS] Usuario confirmó entrega');
+      console.log('[PEDIDOS] Usuario confirmó entrega');
 
       this.api.entregar(pedido.id).subscribe({
         next: (response) => {
-          console.log('✅ [PEDIDOS] Pedido entregado exitosamente:', response);
+          console.log('[PEDIDOS] Pedido entregado exitosamente:', response);
           this.notify.success(`Pedido #${pedido.id} entregado correctamente`);
           this.load();
         },
         error: (err) => {
-          console.error('❌ [PEDIDOS] Error al entregar pedido:', err);
+          console.error('[PEDIDOS] Error al entregar pedido:', err);
           this.notify.handleError(err, 'Error al entregar pedido');
         },
       });
     } else {
-      console.log('❌ [PEDIDOS] Usuario canceló entrega');
+      console.log('[PEDIDOS] Usuario canceló entrega');
     }
   }
 
@@ -312,33 +338,31 @@ export default class PedidosListPage implements OnInit, OnDestroy {
    * Anular pedido (C o L -> A)
    */
   onAnular(pedido: Pedido) {
-    console.log('❌ [PEDIDOS] Anular pedido solicitado');
-    console.log('📦 Pedido:', pedido);
-    console.log('🏷️ Estado actual:', pedido.estado);
+    console.log('[PEDIDOS] Anular pedido solicitado');
+    console.log('[PEDIDOS] Pedido:', pedido.id, 'Estado:', pedido.estado);
 
     if (pedido.estado === 'E' || pedido.estado === 'A') {
-      console.warn('⚠️ [PEDIDOS] No se pueden anular pedidos en estado E o A');
+      console.warn('[PEDIDOS] No se pueden anular pedidos en estado E o A');
       this.notify.warning('No se pueden anular pedidos Entregados o ya Anulados');
       return;
     }
 
-    // TODO: Implementar servicio de confirmación
     if (confirm(`¿ANULAR pedido #${pedido.id}? Esta acción no se puede deshacer.`)) {
-      console.log('✅ [PEDIDOS] Usuario confirmó anulación');
+      console.log('[PEDIDOS] Usuario confirmó anulación');
 
       this.api.anular(pedido.id).subscribe({
         next: (response) => {
-          console.log('✅ [PEDIDOS] Pedido anulado exitosamente:', response);
+          console.log('[PEDIDOS] Pedido anulado exitosamente');
           this.notify.success(`Pedido #${pedido.id} anulado`);
           this.load();
         },
         error: (err) => {
-          console.error('❌ [PEDIDOS] Error al anular pedido:', err);
+          console.error('[PEDIDOS] Error al anular pedido:', err);
           this.notify.handleError(err, 'Error al anular pedido');
         },
       });
     } else {
-      console.log('❌ [PEDIDOS] Usuario canceló anulación');
+      console.log('[PEDIDOS] Usuario canceló anulación');
     }
   }
 }

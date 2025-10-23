@@ -1,8 +1,8 @@
-<label class="form-field" [formGroup]="formGroup" [attr.for]="id">
-  <span *ngIf="label" class="form-label" [class.req]="required">{{ label }}</span>
+<div class="form-field" [formGroup]="formGroup">
+  <label *ngIf="label" class="form-label" [attr.for]="id" [class.req]="required">{{ label }}</label>
 
   <select class="field" [class.field--soft]="soft" [class.is-invalid]="invalid" [id]="id"
-    [formControlName]="controlName" [disabled]="disabled" 
+    [formControlName]="controlName" [disabled]="disabled"
     [attr.aria-invalid]="invalid || null" [attr.aria-required]="required || null"
     [attr.aria-describedby]="joinIds(helpId, invalid ? errId : null)">
 
@@ -17,4 +17,4 @@
 
   <small *ngIf="hint" class="form-help" [id]="helpId">{{ hint }}</small>
   <small *ngIf="invalid" class="form-error" [id]="errId" aria-live="polite">{{ msgForError() }}</small>
-</label>
+</div>

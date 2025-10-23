@@ -4,5 +4,6 @@ export interface Inventario {
   nombre: string;
   stockActual: number;
   stockMinimo: number;
+  unidad: string;
   actualizadoEn: string;
 }

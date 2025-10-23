@@ -24,6 +24,9 @@ export class SaveCancelComponent {
   /** Diseño: end | between */
   @Input() align: 'end' | 'between' = 'end';
 
+  /** Optimizar para pantallas táctiles */
+  @Input() touchOptimized = false;
+
   /** Eventos (solo se usan si pones type="button") */
   @Output() save = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();

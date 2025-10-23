@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnIni
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, Subject, forkJoin } from 'rxjs';
+import { takeUntil, switchMap, tap } from 'rxjs/operators';
 
 import { InventarioService } from '../../../services/inventario.service';
 import { IngredienteService } from '../../../services/ingrediente.service';
@@ -25,17 +25,8 @@ type StockTab = 'all' | 'bajoMinimo';
   selector: 'app-inventario-stock',
   standalone: true,
   imports: [
-    CommonModule,
-    RouterLink,
-    ReactiveFormsModule,
-    PageLayoutComponent,
-    TitleComponent,
-    TableComponent,
-    SearchComponent,
-    PaginatorComponent,
-    LucideAngularModule,
-    UiButtonComponent,
-    TabsFilterComponent,
+    CommonModule, ReactiveFormsModule, PageLayoutComponent, TitleComponent, TabsFilterComponent,
+    TableComponent, SearchComponent, PaginatorComponent, LucideAngularModule, UiButtonComponent, 
   ],
   templateUrl: './inventario-stock.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -65,8 +56,20 @@ export default class InventarioStockPage implements OnInit, OnDestroy {
   AlertTriangle = AlertTriangle;
   ArrowLeftRight = ArrowLeftRight;
 
-  // Mapa de ingredientes
+  // Mapa de ingredientes con nombre y unidad
   ingredienteNombre: Map<number, string> = new Map();
+  ingredienteUnidad: Map<number, string> = new Map();
+
+  // Map de unidades para mostrar nombres completos
+  unidadMap: Record<string, string> = {
+    'PORC': 'Porcentaje',
+    'G': 'Gramos',
+    'LT': 'Litros',
+    'UND': 'Unidad',
+    'KG': 'Kilogramos',
+    'PACK': 'Paquete',
+    'ML': 'Mililitros'
+  };
 
   searchForm = new FormGroup({
     q: new FormControl<string>('', { nonNullable: true }),
@@ -74,15 +77,27 @@ export default class InventarioStockPage implements OnInit, OnDestroy {
 
   columns: ColumnDef<Inventario>[] = [
     { key: 'nombre', header: 'Ingrediente', sortable: true },
-    { key: 'stockActual', header: 'Stock Actual', sortable: true, align: 'right', widthPx: 140 },
-    { key: 'stockMinimo', header: 'Stock Mínimo', sortable: true, align: 'right', widthPx: 140 },
-    { key: 'actualizadoEn', header: 'Última Actualización', sortable: true, type: 'date', widthPx: 180 },
+    { key: 'stockActual', header: 'Stock Actual', sortable: true, align: 'right', widthPx: 150 },
+    { key: 'unidad', header: 'Unidad', align: 'left', widthPx: 120 },
+    { key: 'actualizadoEn', header: 'Última Actualización', sortable: true, align: 'right',type: 'date', widthPx: 220 },
   ];
 
   counters = { all: 0, bajoMinimo: undefined as number | undefined };
 
   ngOnInit(): void {
-    this.loadIngredientes();
+    console.log('🔍 [STOCK] Inicializando componente de inventario');
+
+    // Primero cargar ingredientes, luego el stock
+    this.loadIngredientes().subscribe({
+      next: () => {
+        console.log('[STOCK] Ingredientes cargados, cargando stock');
+        this.load();
+      },
+      error: (err) => {
+        console.error('[STOCK] Error al cargar ingredientes:', err);
+        this.load(); // Cargar stock de todos modos
+      }
+    });
 
     this.searchForm.controls.q.valueChanges
       .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroyed$))
@@ -90,8 +105,6 @@ export default class InventarioStockPage implements OnInit, OnDestroy {
         this.page = 0;
         this.load();
       });
-
-    this.load();
   }
 
   ngOnDestroy(): void {
@@ -100,6 +113,9 @@ export default class InventarioStockPage implements OnInit, OnDestroy {
   }
 
   private load(): void {
+    console.log('[STOCK] Cargando inventario');
+    console.log('[STOCK] Parámetros:', { page: this.page, size: this.pageSize, sort: this.sortKey, dir: this.sortDir, tab: this.tab });
+
     this.loading = true;
     this.cdr.markForCheck();
 
@@ -115,6 +131,8 @@ export default class InventarioStockPage implements OnInit, OnDestroy {
       .subscribe({
         next: (p) => {
           const contenido = (p?.contenido ?? p?.content ?? []) as any[];
+          console.log('[STOCK] Datos recibidos:', contenido.length, 'items');
+
           this.rows = contenido.map((r) => {
             const ingId = Number(r?.ingredienteId ?? r?.ingrediente_id ?? -1);
             return {
@@ -123,14 +141,19 @@ export default class InventarioStockPage implements OnInit, OnDestroy {
               nombre: this.getIngredienteNombre(ingId),
               stockActual: Number(r?.stockActual ?? r?.stock_actual ?? 0),
               stockMinimo: Number(r?.stockMinimo ?? r?.stock_minimo ?? 0),
+              unidad: this.getIngredienteUnidad(ingId),
               actualizadoEn: r?.actualizadoEn ?? r?.actualizado_en ?? '',
             };
           }) as Inventario[];
+
           this.total = Number(p?.totalRegistros ?? p?.totalElements ?? this.rows.length);
           this.counters.all = this.total;
+
+          console.log('[STOCK] Filas procesadas:', this.rows.length);
           this.cdr.markForCheck();
         },
-        error: () => {
+        error: (err) => {
+          console.error('[STOCK] Error al cargar inventario:', err);
           this.rows = [];
           this.total = 0;
           this.loading = false;
@@ -207,25 +230,39 @@ export default class InventarioStockPage implements OnInit, OnDestroy {
     return row.stockActual < row.stockMinimo;
   }
 
-  private loadIngredientes(): void {
-    this.ingredientesApi.listar().subscribe({
-      next: (arr) => {
+  private loadIngredientes() {
+    console.log('🔍 [STOCK] Cargando lista de ingredientes');
+
+    return this.ingredientesApi.listar().pipe(
+      tap((arr) => {
+        console.log('[STOCK] Ingredientes recibidos:', arr?.length);
+
+        // Mapear nombres
         this.ingredienteNombre = new Map(
-          (arr ?? []).map((ing: any) => [Number(ing?.id ?? ing?.ingredienteId), ing?.nombre ?? ''])
+          (arr ?? []).map((ing: any) => [
+            Number(ing?.id ?? ing?.ingredienteId),
+            ing?.nombre ?? ''
+          ])
         );
-        if (this.rows.length) {
-          this.rows = this.rows.map((r) => ({
-            ...r,
-            nombre: this.getIngredienteNombre(r.ingredienteId),
-          }));
-          this.cdr.markForCheck();
-        }
-      },
-      error: () => {},
-    });
+
+        this.ingredienteUnidad = new Map(
+          (arr ?? []).map((ing: any) => [
+            Number(ing?.id ?? ing?.ingredienteId),
+            ing?.unidad ?? ''
+          ])
+        );
+
+        console.log('[STOCK] Total ingredientes mapeados:', this.ingredienteNombre.size);
+      })
+    );
   }
 
   private getIngredienteNombre(id: number): string {
     return this.ingredienteNombre.get(id) ?? '';
+  }
+
+  private getIngredienteUnidad(id: number): string {
+    const unidadCodigo = this.ingredienteUnidad.get(id) ?? '';
+    return this.unidadMap[unidadCodigo] || unidadCodigo || '—';
   }
 }

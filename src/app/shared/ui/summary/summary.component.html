@@ -1,0 +1,23 @@
+<div class="card text-white rounded-xl" [ngClass]="[bgColorClass, paddingClass]">
+  <!-- Items opcionales (subtotales, descuentos, etc.) -->
+  <div *ngIf="items.length > 0" class="space-y-2 mb-4 pb-4 border-b border-white/20">
+    <div *ngFor="let item of items" class="flex justify-between items-center text-white/90">
+      <span [ngClass]="labelSizeClass" class="font-medium">{{ item.label }}</span>
+      <span [ngClass]="labelSizeClass" class="font-semibold">{{ item.value }}</span>
+    </div>
+  </div>
+
+  <!-- Total principal -->
+  <div class="flex items-center justify-between gap-4">
+    <!-- Icono opcional -->
+    <lucide-icon *ngIf="icon" [img]="icon" [size]="iconSize" class="flex-shrink-0"></lucide-icon>
+
+    <!-- Label -->
+    <span [ngClass]="labelSizeClass" class="font-semibold flex-1">{{ label }}</span>
+
+    <!-- Valor -->
+    <span [ngClass]="textSizeClass" class="font-bold whitespace-nowrap">
+      {{ value }}
+    </span>
+  </div>
+</div>

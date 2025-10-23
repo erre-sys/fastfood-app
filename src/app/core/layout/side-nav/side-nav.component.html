@@ -1,24 +1,27 @@
-<aside class="sidebar">
-  <header class="brand">
-    <span class="brand__logo" aria-hidden="true">🍔</span>
-    <div>
-      <a routerLink="/home" class="brand__title">Pa las papas</a>
-      <div class="brand__subtitle">Panel</div>
-    </div>
-  </header>
+<header class="brand">
+  <span class="brand__logo" aria-hidden="true">🍔</span>
+  <div class="flex-1">
+    <a routerLink="/home" class="brand__title">Pa las papas</a>
+    <div class="brand__subtitle">Panel</div>
+  </div>
+  <!-- Botón cerrar (solo móvil) -->
+  <button class="icon-btn lg:hidden" (click)="close.emit()" aria-label="Cerrar menú">
+    <lucide-icon [img]="XIcon" size="20"></lucide-icon>
+  </button>
+</header>
 
-  <ng-container *ngFor="let section of navSections">
-    <h2 class="nav__section">{{ section.title }}</h2>
-    <nav class="nav" [attr.aria-label]="section.ariaLabel">
-      <ul class="nav__list">
-        <li *ngFor="let item of section.items">
-          <a [routerLink]="item.route" class="nav__link" routerLinkActive="is-active"
-            [routerLinkActiveOptions]="{ exact: item.exactMatch ?? true }">
-            <lucide-icon [img]="item.icon" size="18"></lucide-icon>
-            <span>{{ item.label }}</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
-  </ng-container>
-</aside>
+<ng-container *ngFor="let section of navSections">
+  <h2 class="nav__section">{{ section.title }}</h2>
+  <nav class="nav" [attr.aria-label]="section.ariaLabel">
+    <ul class="nav__list">
+      <li *ngFor="let item of section.items">
+        <a [routerLink]="item.route" class="nav__link" routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: item.exactMatch ?? true }"
+          (click)="close.emit()">
+          <lucide-icon [img]="item.icon" size="18"></lucide-icon>
+          <span>{{ item.label }}</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</ng-container>

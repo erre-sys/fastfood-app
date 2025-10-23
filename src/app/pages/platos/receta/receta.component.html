@@ -1,10 +1,31 @@
 <form class="form" [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
   <!-- Información del Plato -->
   <app-section-container [heading]="'Receta: ' + platoNombre" [compact]="true" [divider]="true" [inset]="true">
-    <p class="text-slate-600 text-sm mb-4">
+    <p class="text-slate-600 dark:text-slate-400 text-sm mb-4">
       Define los ingredientes y cantidades necesarias para preparar este plato.
     </p>
   </app-section-container>
+
+  <!-- Resumen -->
+  <div *ngIf="getTotalIngredientes() > 0"
+    class="mt- card p-5 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+    <h3 class="section-title mb-3 flex items-center gap-2">
+      Total de ingredientes
+      <span class="pill pill--warning">{{ getTotalIngredientes() }}</span>
+    </h3>
+
+    <div class="space-y-1.5">
+      <div *ngFor="let r of getResumenIngredientes(); let i = index"
+        class="flex items-center justify-between py-2 px-3 rounded-lg bg-white/60 dark:bg-slate-800/60">
+        <span class="font-medium text-slate-700 dark:text-slate-200">
+          {{ i + 1 }}. {{ r.nombre }}
+        </span>
+        <span class="num font-semibold text-blue-600 dark:text-blue-400">
+          {{ r.cantidad }} {{ r.unidad }}
+        </span>
+      </div>
+    </div>
+  </div>
 
   <!-- Items de Receta -->
   <app-section-container [heading]="'Ingredientes'" [compact]="true" [divider]="true" [inset]="true"
@@ -16,33 +37,45 @@
       </button>
     </ng-template>
 
-    <div formArrayName="items" class="space-y-4">
+    <div formArrayName="items" class="space-y-3">
       <!-- Cada item -->
-      <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i"
-        class="card p-4 bg-slate-50 border-slate-200 relative">
+      <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i" class="card p-4 relative">
 
         <!-- Botón remover -->
-        <button type="button" (click)="removerItem(i)"
-          class="absolute top-3 right-3 btn-icon btn-icon--sm btn-icon--danger" title="Remover ingrediente"
-          [disabled]="loading">
+        <button type="button" (click)="removerItem(i)" class="absolute top-3 right-3 btn icon-only" data-variant="ghost"
+          data-size="sm" title="Remover ingrediente" [disabled]="loading">
           <lucide-icon [img]="X" [size]="16"></lucide-icon>
         </button>
 
-        <div class="fg">
-          <app-select [label]="'Ingrediente (solo activos que aplican para comida)'" [formGroup]="$any(item)" controlName="ingredienteId" [items]="ingredientesValidos"
-            labelKey="nombre" valueKey="id" [required]="true" [soft]="true" [disabled]="loading" [includeNull]="true"
-            nullLabel="Seleccionar ingrediente">
-          </app-select>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+          <!-- Ingrediente -->
+          <div class="lg:col-span-6">
+            <app-select [label]="'Ingrediente'" [formGroup]="$any(item)" controlName="ingredienteId"
+              [items]="ingredientesValidos" labelKey="nombre" valueKey="id" [required]="true" [soft]="true"
+              [disabled]="loading" [includeNull]="true" nullLabel="Seleccionar ingrediente">
+            </app-select>
+          </div>
 
-          <app-input [label]="'Cantidad'" type="numeric" [formGroup]="$any(item)" controlName="cantidad" [required]="true"
-            [soft]="true" [disabled]="loading" [step]="0.001" [min]="0.0001" placeholder="1.000"
-            hint="Cantidad necesaria (mínimo 0.0001, máximo 3 decimales)">
-          </app-input>
+          <!-- Cantidad -->
+          <div class="lg:col-span-3">
+            <app-input [label]="'Cantidad'" type="numeric" [formGroup]="$any(item)" controlName="cantidad"
+              [required]="true" [soft]="true" [disabled]="loading" [step]="0.001" [min]="0.0001" placeholder="1.000"
+              [errors]="{'required': 'Requerida', 'min': 'Mínimo 0.0001'}">
+            </app-input>
+          </div>
+
+          <!-- Unidad (informativa) -->
+          <div class="lg:col-span-3" *ngIf="item.get('ingredienteId')?.value">
+            <label class="form-label">Unidad</label>
+            <div class="field field--soft" style="cursor: not-allowed; user-select: none;" readonly>
+              {{ getUnidadIngrediente(item.get('ingredienteId')?.value) || '—' }}
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Mensaje vacío -->
-      <div *ngIf="items.length === 0" class="card p-8 text-center text-slate-500">
+      <div *ngIf="items.length === 0" class="card p-8 text-center text-slate-500 dark:text-slate-400">
         No hay ingredientes en la receta. Haga clic en "Agregar Ingrediente" para comenzar.
       </div>
     </div>

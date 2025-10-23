@@ -18,42 +18,33 @@
   ]" [active]="tab" (activeChange)="setTab($any($event))">
   </app-tabs-filter>
 
-  <!-- Filters -->
-  <div class="flex gap-4 mb-4 flex-wrap">
-    <div class="flex flex-col gap-1 min-w-[250px]">
-      <label for="ingredienteId" class="text-sm font-medium text-gray-700">Ingrediente *</label>
-      <select
-        id="ingredienteId"
-        [formControl]="searchForm.controls.ingredienteId"
-        class="input"
-      >
-        <option [value]="null">Seleccione un ingrediente</option>
-        <option *ngFor="let ing of ingredientes" [value]="ing.id">
-          {{ ing.nombre }}
-        </option>
-      </select>
-    </div>
+  <!-- Filtros de Búsqueda -->
+  <app-section-container [heading]="'Filtros de Búsqueda'" [compact]="true" [inset]="true">
+    <div class="fg">
+      <!-- Ingrediente -->
+      <div class="lg:col-span-1">
+        <app-select [label]="'Ingrediente'" [formGroup]="searchForm" controlName="ingredienteId"
+          [items]="ingredientes" labelKey="nombre" valueKey="id" [required]="true" [soft]="true"
+          [includeNull]="true" nullLabel="Seleccionar ingrediente"
+          hint="Requerido para ver movimientos">
+        </app-select>
+      </div>
 
-    <div class="flex flex-col gap-1">
-      <label for="fechaDesde" class="text-sm font-medium text-gray-700">Fecha Desde</label>
-      <input
-        type="date"
-        id="fechaDesde"
-        [formControl]="searchForm.controls.fechaDesde"
-        class="input"
-      />
-    </div>
+      <!-- Fecha Desde -->
+      <div class="form-field">
+        <label class="form-label">Fecha Desde</label>
+        <input type="date" class="field field--soft" [formControl]="searchForm.controls.fechaDesde">
+        <p class="form-help text-xs">Inicio del rango</p>
+      </div>
 
-    <div class="flex flex-col gap-1">
-      <label for="fechaHasta" class="text-sm font-medium text-gray-700">Fecha Hasta</label>
-      <input
-        type="date"
-        id="fechaHasta"
-        [formControl]="searchForm.controls.fechaHasta"
-        class="input"
-      />
+      <!-- Fecha Hasta -->
+      <div class="form-field">
+        <label class="form-label">Fecha Hasta</label>
+        <input type="date" class="field field--soft" [formControl]="searchForm.controls.fechaHasta">
+        <p class="form-help text-xs">Fin del rango</p>
+      </div>
     </div>
-  </div>
+  </app-section-container>
 
   <!-- Tabla -->
   <div class="card overflow-hidden">

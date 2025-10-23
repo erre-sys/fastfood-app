@@ -38,6 +38,9 @@ export class InputComponent implements OnInit, OnChanges {
   @Input() prefixTpl?: TemplateRef<unknown>;
   @Input() suffixTpl?: TemplateRef<unknown>;
 
+  /** Optimizar para pantallas táctiles */
+  @Input() touchOptimized = false;
+
   get id()       { return this.inputId ?? `${this.controlName}-input`; }
   get helpId()   { return this.hint ? `${this.id}-help` : null; }
   get errId()    { return `${this.id}-error`; }

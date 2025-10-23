@@ -1,11 +1,19 @@
+export type Estado = 'A' | 'I';
+export type SN = 'S' | 'N';
+
 export interface Ingrediente {
-  ingrediente_id: number;
+  id: number;
   codigo: string;
   nombre: string;
-  grupo_ingrediente_id: number;
-  unidad: string;           
-  es_extra: boolean;
-  precio_extra: number | null;
-  stock_minimo: number | null;
-  estado: string;
+  grupoIngredienteId: number;
+  unidad: string | null;
+  esExtra: SN;
+  aplicaComida: SN;
+  precioExtra: number | null;
+  stockMinimo: number | null;
+  estado: Estado;
+  grupoNombre?: string;
 }
+
+export interface IngredienteCreate extends Omit<Ingrediente, 'id'> {}
+export interface IngredienteUpdate extends Ingrediente {}

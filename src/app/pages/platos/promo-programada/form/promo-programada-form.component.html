@@ -1,0 +1,26 @@
+<form class="form" [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
+    <app-section-container [heading]="titleLabel" [compact]="true" [divider]="true" [inset]="true">
+        <div class="fg">
+            <app-select label="Plato" [required]="true" [formGroup]="form" controlName="platoId" [items]="platos"
+                [soft]="true" [errors]="{ required: 'Selecciona un plato.' }"></app-select>
+
+            <app-input label="Fecha Inicio" type="datetime-local" [required]="true" [formGroup]="form"
+                controlName="fechaInicio" [soft]="true"
+                [errors]="{ required: 'Ingresa la fecha de inicio.' }"></app-input>
+
+            <app-input label="Fecha Fin" type="datetime-local" [required]="true" [formGroup]="form"
+                controlName="fechaFin" [soft]="true" [errors]="{ required: 'Ingresa la fecha de fin.' }"></app-input>
+
+            <app-input label="Descuento (%)" type="decimal" [required]="true" [formGroup]="form"
+                controlName="descuentoPct" [soft]="true"
+                [errors]="{ required: 'Ingresa el descuento.', min: 'Mínimo 0.01%', max: 'Máximo 100%' }"></app-input>
+
+            <app-select label="Estado" [formGroup]="form" controlName="estado"
+                [items]="[{label:'Activo', value:'A'}, {label:'Inactivo', value:'I'}]" [soft]="true"></app-select>
+        </div>
+    </app-section-container>
+
+    <app-save-cancel [saveLabel]="id ? 'Guardar cambios' : 'Crear'" cancelLabel="Cancelar" [loading]="loading()"
+        [sticky]="true" (cancel)="onCancel()">
+    </app-save-cancel>
+</form>

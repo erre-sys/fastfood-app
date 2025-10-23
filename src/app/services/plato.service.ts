@@ -3,38 +3,9 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../environments/environments';
 import { withSuccess } from '../core/interceptors/toast-context';
+import { Filtro, Pager } from '../interfaces/pagination.interface';
+import { Plato, PlatoCreate, PlatoUpdate, SN, Estado } from '../interfaces/plato.interface';
 
-export type Estado = 'A' | 'I';
-export type SN = 'S' | 'N';
-
-export interface Plato {
-  id: number;
-  codigo: string;
-  nombre: string;
-  grupoPlatoId: number;
-  precioBase: number | null;
-  estado: Estado;
-  enPromocion: SN;
-  descuentoPct: number;
-  grupoNombre?: string;
-}
-
-export interface PlatoCreate extends Omit<Plato, 'id'> {}
-export interface PlatoUpdate extends Plato {}
-
-export interface Pager {
-  page: number;      
-  size: number;
-  sortBy: string;   
-  direction: 'asc' | 'desc';
-}
-
-export interface Filtro {
-  llave: string;           
-  operacion: 'EQ' | 'LIKE' | 'IN' | 'NE' | 'GT' | 'LT' | 'GE' | 'LE';
-  valor?: any;
-  valores?: any[];
-}
 
 @Injectable({ providedIn: 'root' })
 export class PlatoService {

@@ -61,6 +61,28 @@ export const routes: Routes = [
 
 
       {
+        path: 'compras',
+        loadComponent: () =>
+          import('./pages/compras/list/compra.component').then(
+            (m) => m.default
+          ),
+      },
+      {
+        path: 'compras/nuevo',
+        loadComponent: () =>
+          import('./pages/compras/form/compra-form.component').then(
+            (m) => m.default
+          ),
+      },
+      {
+        path: 'compras/:id/detalle',
+        loadComponent: () =>
+          import('./pages/compras/detail/compra-detail.component').then(
+            (m) => m.default
+          ),
+      },
+
+      {
         path: 'grupo-ingredientes',
         loadComponent: () =>
           import(
@@ -144,6 +166,101 @@ export const routes: Routes = [
         path: 'platos/:id/editar',
         loadComponent: () =>
           import('./pages/platos/plato/form/plato-form.component').then(
+            (m) => m.default
+          ),
+      },
+      {
+        path: 'platos/:id/receta',
+        loadComponent: () =>
+          import('./pages/platos/receta/receta.component').then(
+            (m) => m.default
+          ),
+      },
+
+      {
+        path: 'promo-programada',
+        loadComponent: () =>
+          import('./pages/platos/promo-programada/list/promo-programada-list.component').then(
+            (m) => m.default
+          ),
+      },
+      {
+        path: 'promo-programada/nuevo',
+        loadComponent: () =>
+          import('./pages/platos/promo-programada/form/promo-programada-form.component').then(
+            (m) => m.default
+          ),
+      },
+      {
+        path: 'promo-programada/:id/editar',
+        loadComponent: () =>
+          import('./pages/platos/promo-programada/form/promo-programada-form.component').then(
+            (m) => m.default
+          ),
+      },
+
+      {
+        path: 'inventario',
+        loadComponent: () =>
+          import('./pages/inventario/stock/inventario-stock.component').then(
+            (m) => m.default
+          ),
+      },
+      {
+        path: 'kardex',
+        loadComponent: () =>
+          import('./pages/inventario/movimientos/inventario-movimientos.component').then(
+            (m) => m.default
+          ),
+      },
+
+      {
+        path: 'pagos-cliente',
+        loadComponent: () =>
+          import('./pages/pagos-cliente/list/pago-cliente.component').then(
+            (m) => m.default
+          ),
+      },
+      {
+        path: 'pagos-cliente/nuevo',
+        loadComponent: () =>
+          import('./pages/pagos-cliente/form/pago-cliente-form.component').then(
+            (m) => m.default
+          ),
+      },
+      {
+        path: 'pagos-cliente/:pedidoId/nuevo',
+        loadComponent: () =>
+          import('./pages/pagos-cliente/form/pago-cliente-form.component').then(
+            (m) => m.default
+          ),
+      },
+      {
+        path: 'pagos-cliente/:id/detalle',
+        loadComponent: () =>
+          import('./pages/pagos-cliente/detail/pago-cliente-detail.component').then(
+            (m) => m.default
+          ),
+      },
+
+      {
+        path: 'pedidos',
+        loadComponent: () =>
+          import('./pages/pedidos/list/pedido.component').then(
+            (m) => m.default
+          ),
+      },
+      {
+        path: 'pedidos/nuevo',
+        loadComponent: () =>
+          import('./pages/pedidos/form/pedido-form.component').then(
+            (m) => m.default
+          ),
+      },
+      {
+        path: 'pedidos/:id/detalle',
+        loadComponent: () =>
+          import('./pages/pedidos/detail/pedido-detail.component').then(
             (m) => m.default
           ),
       },

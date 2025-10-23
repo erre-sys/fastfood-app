@@ -9,7 +9,7 @@ export class ProveedoresService {
   private http = inject(HttpClient);
   private base = `${environment.apiBaseUrl}/proveedores`; 
 
-  listarActivos(): Observable<Proveedor[]> {
+  listar(): Observable<Proveedor[]> {
     return this.http.get<Proveedor[]>(this.base);
   }
 

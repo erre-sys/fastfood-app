@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
-import { Ingrediente, IngredienteService } from '../../../../services/ingrediente.service';
+import { IngredienteService } from '../../../../services/ingrediente.service';
 import { GrupoIngredienteService } from '../../../../services/grupo-ingrediente.service';
 
 import { PageLayoutComponent } from '../../../../shared/ui/page-layout/page-layout.component';
@@ -17,6 +17,7 @@ import { UiButtonComponent } from '../../../../shared/ui/buttons/ui-button/ui-bu
 import { LucideAngularModule, Pencil, Plus } from 'lucide-angular';
 import { Proveedor } from '../../../../interfaces/proveedor.interface';
 import { TabStatus, Dir, ColumnDef, TableSort } from '../../../../shared/ui/table/column-def';
+import { Ingrediente } from '../../../../interfaces/ingrediente.interface';
 
 @Component({
   selector: 'app-ingredientes-list',

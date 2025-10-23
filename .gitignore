@@ -9,6 +9,7 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+package-lock.json
 
 # Angular cache
 /.angular/cache
@@ -27,6 +28,9 @@ testem.log
 *.launch
 .settings/
 *.sublime-workspace
+*.swp
+*.swo
+*~
 
 # Visual Studio Code
 .vscode/*
@@ -39,11 +43,36 @@ testem.log
 # OS junk
 .DS_Store
 Thumbs.db
+*.log
 
 # Env files (NO subir secretos locales)
 .env
 .env.*
 !.env.example
+# NOTE: Los archivos environment.ts sí se suben (con valores de desarrollo)
+# Solo ignorar si tiene datos de producción reales:
+# environments.production.ts
+
+# Archivos sensibles
+*.key
+*.pem
+*.p12
+*.pfx
+*.cer
+*.crt
+*.der
+*.jks
+*.keystore
+
+# Configuración local
+config.local.json
+secrets.json
+credentials.json
+
+# Backups
+*.backup
+*.bak
+*.old
 
 # Misc
 .sass-cache/

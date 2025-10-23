@@ -1,0 +1,55 @@
+<form class="form" [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
+  <!-- Información del Plato -->
+  <app-section-container [heading]="'Receta: ' + platoNombre" [compact]="true" [divider]="true" [inset]="true">
+    <p class="text-slate-600 text-sm mb-4">
+      Define los ingredientes y cantidades necesarias para preparar este plato.
+    </p>
+  </app-section-container>
+
+  <!-- Items de Receta -->
+  <app-section-container [heading]="'Ingredientes'" [compact]="true" [divider]="true" [inset]="true"
+    [actionsTpl]="headerActions">
+    <ng-template #headerActions>
+      <button type="button" class="btn btn--sm btn--primary" (click)="agregarItem()" [disabled]="loading">
+        <lucide-icon [img]="Plus" [size]="16"></lucide-icon>
+        <span>Agregar Ingrediente</span>
+      </button>
+    </ng-template>
+
+    <div formArrayName="items" class="space-y-4">
+      <!-- Cada item -->
+      <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i"
+        class="card p-4 bg-slate-50 border-slate-200 relative">
+
+        <!-- Botón remover -->
+        <button type="button" (click)="removerItem(i)"
+          class="absolute top-3 right-3 btn-icon btn-icon--sm btn-icon--danger" title="Remover ingrediente"
+          [disabled]="loading">
+          <lucide-icon [img]="X" [size]="16"></lucide-icon>
+        </button>
+
+        <div class="fg">
+          <app-select [label]="'Ingrediente (solo activos que aplican para comida)'" [formGroup]="$any(item)" controlName="ingredienteId" [items]="ingredientesValidos"
+            labelKey="nombre" valueKey="id" [required]="true" [soft]="true" [disabled]="loading" [includeNull]="true"
+            nullLabel="Seleccionar ingrediente">
+          </app-select>
+
+          <app-input [label]="'Cantidad'" type="numeric" [formGroup]="$any(item)" controlName="cantidad" [required]="true"
+            [soft]="true" [disabled]="loading" [step]="0.001" [min]="0.0001" placeholder="1.000"
+            hint="Cantidad necesaria (mínimo 0.0001, máximo 3 decimales)">
+          </app-input>
+        </div>
+      </div>
+
+      <!-- Mensaje vacío -->
+      <div *ngIf="items.length === 0" class="card p-8 text-center text-slate-500">
+        No hay ingredientes en la receta. Haga clic en "Agregar Ingrediente" para comenzar.
+      </div>
+    </div>
+  </app-section-container>
+
+  <!-- Botones -->
+  <app-save-cancel [saveLabel]="'Guardar Receta'" [cancelLabel]="'Cancelar'" [loading]="loading"
+    [disabled]="items.length === 0" [sticky]="true" (cancel)="cancel()">
+  </app-save-cancel>
+</form>

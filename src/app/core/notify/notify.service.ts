@@ -24,8 +24,60 @@ export class NotifyService {
   dismiss(id: string) { this.list.update(arr => arr.filter(x => x.id !== id)); }
   clear()             { this.list.set([]); }
 
-  success(text: string, timeout = 3000) { this.push({ type: 'success', text, timeout }); }
-  error(text: string, timeout = 6000)   { this.push({ type: 'error', text, timeout }); }
-  info(text: string, timeout = 4000)    { this.push({ type: 'info', text, timeout }); }
-  warning(text: string, timeout = 5000) { this.push({ type: 'warning', text, timeout }); }
+  success(text: string, timeout = 3000) {
+    console.log('✅ [NOTIFY] Success:', text);
+    this.push({ type: 'success', text, timeout });
+  }
+
+  error(text: string, timeout = 6000) {
+    console.error('❌ [NOTIFY] Error:', text);
+    this.push({ type: 'error', text, timeout });
+  }
+
+  info(text: string, timeout = 4000) {
+    console.log('ℹ️ [NOTIFY] Info:', text);
+    this.push({ type: 'info', text, timeout });
+  }
+
+  warning(text: string, timeout = 5000) {
+    console.warn('⚠️ [NOTIFY] Warning:', text);
+    this.push({ type: 'warning', text, timeout });
+  }
+
+  /**
+   * Procesa errores del backend y muestra notificación apropiada
+   */
+  handleError(err: any, defaultMessage = 'Ocurrió un error inesperado') {
+    console.error('❌ [NOTIFY] Handling error:', err);
+
+    let message = defaultMessage;
+
+    // Extraer mensaje del error
+    if (err?.error?.mensaje) {
+      message = err.error.mensaje;
+    } else if (err?.error?.message) {
+      message = err.error.message;
+    } else if (err?.message) {
+      message = err.message;
+    }
+
+    // Detectar errores comunes y personalizarlos
+    if (err?.status === 400) {
+      message = err?.error?.mensaje || err?.error?.message || 'Datos inválidos';
+    } else if (err?.status === 401) {
+      message = 'No tienes permisos para realizar esta acción';
+    } else if (err?.status === 403) {
+      message = 'No tienes acceso a este recurso';
+    } else if (err?.status === 404) {
+      message = 'El recurso solicitado no existe';
+    } else if (err?.status === 409) {
+      message = err?.error?.mensaje || err?.error?.message || 'Conflicto con el estado actual';
+    } else if (err?.status === 500) {
+      message = 'Ocurrió un error en el servidor. Por favor, intenta más tarde.';
+    } else if (err?.status === 0) {
+      message = 'No se pudo conectar con el servidor. Verifica tu conexión a internet.';
+    }
+
+    this.error(message, 0); // 0 = no auto-dismiss para errores
+  }
 }

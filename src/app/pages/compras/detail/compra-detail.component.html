@@ -1,0 +1,31 @@
+<div *ngIf="loading" class="flex justify-center items-center py-12">
+  <div class="skeleton h-64 w-full"></div>
+</div>
+
+<div *ngIf="!loading && compra" class="form">
+  <!-- Cabecera de la Compra -->
+  <app-detail-header [title]="'Compra #' + compra.id" [fields]="headerFields"></app-detail-header>
+
+  <!-- Items de la Compra -->
+  <app-section-container [heading]="'Items de la Compra'" [compact]="true" [divider]="true" [inset]="true">
+    <app-table [columns]="itemsColumns" [rows]="compra.items || []" [emptyText]="'No hay items en esta compra'">
+    </app-table>
+  </app-section-container>
+
+  <!-- Total -->
+  <app-section-container [heading]="'Total'" [compact]="true" [divider]="true" [inset]="true">
+    <div class="card p-4 bg-slate-100 border-slate-200">
+      <div class="flex justify-between items-center">
+        <span class="text-lg font-semibold text-slate-700">Total de la Compra:</span>
+        <span class="text-2xl font-bold text-slate-700">${{ (compra.total || 0).toFixed(2) }}</span>
+      </div>
+    </div>
+  </app-section-container>
+
+  <!-- Botón volver -->
+  <div class="flex justify-end mt-6">
+    <button type="button" class="btn btn--outline btn--lg" (click)="goBack()">
+      Volver al Listado
+    </button>
+  </div>
+</div>

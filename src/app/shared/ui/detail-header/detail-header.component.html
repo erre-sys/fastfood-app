@@ -1,0 +1,47 @@
+<div class="card detail-header">
+  <!-- Título principal grande -->
+  <div class="detail-header__title">
+    {{ title }}
+  </div>
+
+  <!-- Grid de campos estilo formulario -->
+  <div class="detail-header__fields">
+    <div *ngFor="let field of fields" class="detail-header__field">
+      <label class="detail-header__label">{{ field.label }}</label>
+
+      <div class="detail-header__value-wrapper">
+        <ng-container [ngSwitch]="field.type || 'text'">
+          <!-- Badge -->
+          <ng-container *ngSwitchCase="'badge'">
+            <div class="detail-header__input-like">
+              <span class="pill" [ngClass]="field.badgeClass || 'pill--muted'">
+                {{ field.value || '—' }}
+              </span>
+            </div>
+          </ng-container>
+
+          <!-- Currency -->
+          <ng-container *ngSwitchCase="'currency'">
+            <div class="detail-header__input-like" [attr.data-accent]="field.tone">
+              {{ (field.value || 0) | currency:'USD':'symbol':'1.2-2':'es-EC' }}
+            </div>
+          </ng-container>
+
+          <!-- Date -->
+          <ng-container *ngSwitchCase="'date'">
+            <div class="detail-header__input-like">
+              {{ field.value ? (field.value | date:'dd/MM/yyyy HH:mm':'':'es-EC') : '—' }}
+            </div>
+          </ng-container>
+
+          <!-- Text (default) -->
+          <ng-container *ngSwitchDefault>
+            <div class="detail-header__input-like" [attr.data-accent]="field.tone">
+              {{ field.value || '—' }}
+            </div>
+          </ng-container>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>

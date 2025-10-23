@@ -7,88 +7,18 @@
     </div>
   </header>
 
-  <h2 class="nav__section">Proveedores</h2>
-  <nav class="nav" aria-label="Proveedores">
-    <ul class="nav__list">
-
-      <li>
-        <a routerLink="/proveedores" class="nav__link" routerLinkActive="is-active"
-          [routerLinkActiveOptions]="{ exact: true }">
-          <lucide-icon [img]="SquareMenu" size="18"></lucide-icon>
-          <span>Proveedores</span>
-        </a>
-      </li>
-
-      <li>
-        <a routerLink="/pago-proveedor" class="nav__link" routerLinkActive="is-active"
-          [routerLinkActiveOptions]="{ exact: true }">
-          <lucide-icon [img]="SquareMenu" size="18"></lucide-icon>
-          <span>Pagos</span>
-        </a>
-      </li>
-
-    </ul>
-  </nav>
-
-  <h2 class="nav__section">Ingredientes</h2>
-  <nav class="nav" aria-label="Ingredientes">
-    <ul class="nav__list">
-
-      <li>
-        <a routerLink="/grupo-ingredientes" class="nav__link" routerLinkActive="is-active"
-          #rlaGrupoIng="routerLinkActive" [routerLinkActiveOptions]="{ exact: false }"
-          [attr.aria-current]="rlaGrupoIng.isActive ? 'page' : null" data-tip="Grupos de ingredientes">
-          <lucide-icon [img]="SquareMenu" size="18"></lucide-icon>
-          <span>Grupos</span>
-        </a>
-      </li>
-
-      <li>
-        <a routerLink="/ingredientes" class="nav__link" routerLinkActive="is-active" #rlaIng="routerLinkActive"
-          [routerLinkActiveOptions]="{ exact: false }" [attr.aria-current]="rlaIng.isActive ? 'page' : null"
-          data-tip="Ingredientes">
-          <lucide-icon [img]="ShoppingBasket" size="18"></lucide-icon>
-          <span>Ingredientes</span>
-        </a>
-      </li>
-    </ul>
-  </nav>
-
-  <h2 class="nav__section">Platos</h2>
-  <nav class="nav" aria-label="Platos">
-    <ul class="nav__list">
-
-      <li>
-        <a routerLink="/grupo-platos" class="nav__link" routerLinkActive="is-active"
-          [routerLinkActiveOptions]="{ exact: true }">
-          <lucide-icon [img]="LayoutDashboard" size="18"></lucide-icon>
-          <span>Grupos</span>
-        </a>
-      </li>
-
-      <li>
-        <a routerLink="/platos" class="nav__link" routerLinkActive="is-active"
-          [routerLinkActiveOptions]="{ exact: true }">
-          <lucide-icon [img]="Soup" size="18"></lucide-icon>
-          <span>Platos</span>
-        </a>
-      </li>
-
-    </ul>
-  </nav>
-
-  <h2 class="nav__section">Operación</h2>
-  <nav class="nav" aria-label="Operación">
-    <ul class="nav__list">
-      <li>
-        <a routerLink="/pedidos" class="nav__link" routerLinkActive="is-active"
-          [routerLinkActiveOptions]="{ exact: true }">
-          <lucide-icon [img]="ShoppingBag" size="18"></lucide-icon>
-          <span>Pedidos</span>
-        </a>
-      </li>
-
-
-    </ul>
-  </nav>
+  <ng-container *ngFor="let section of navSections">
+    <h2 class="nav__section">{{ section.title }}</h2>
+    <nav class="nav" [attr.aria-label]="section.ariaLabel">
+      <ul class="nav__list">
+        <li *ngFor="let item of section.items">
+          <a [routerLink]="item.route" class="nav__link" routerLinkActive="is-active"
+            [routerLinkActiveOptions]="{ exact: item.exactMatch ?? true }">
+            <lucide-icon [img]="item.icon" size="18"></lucide-icon>
+            <span>{{ item.label }}</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </ng-container>
 </aside>

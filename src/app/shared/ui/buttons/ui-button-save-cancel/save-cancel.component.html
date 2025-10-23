@@ -3,15 +3,15 @@
     <div *ngIf="align==='between'"></div>
 
     <div class="actions__right">
-        <button type="button" class="btn btn--warning" (click)="cancel.emit()" [disabled]="loading">
+        <button type="button" class="btn" data-variant="outline" data-size="md" (click)="cancel.emit()" [disabled]="loading">
             {{ cancelLabel }}
         </button>
 
-        <button *ngIf="showDelete" type="button" class="btn btn--warning" (click)="delete.emit()" [disabled]="loading">
+        <button *ngIf="showDelete" type="button" class="btn" data-variant="danger" data-size="md" (click)="delete.emit()" [disabled]="loading">
             {{ deleteLabel }}
         </button>
 
-        <button type="submit" class="btn btn--primary" [disabled]="disabled || loading" aria-live="polite">
+        <button type="submit" class="btn" data-variant="primary" data-size="md" [disabled]="disabled || loading" aria-live="polite">
             <span *ngIf="!loading">{{ saveLabel }}</span>
             <span *ngIf="loading" class="inline-flex items-center gap-2">
                 <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"

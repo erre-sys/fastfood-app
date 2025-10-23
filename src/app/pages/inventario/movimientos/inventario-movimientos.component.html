@@ -1,0 +1,70 @@
+<app-page-layout [headerTemplate]="headerT" [contentTemplate]="contentT"></app-page-layout>
+
+<!-- HEADER -->
+<ng-template #headerT>
+  <app-title [titleLabel]="titleLabel" [subtitle]="subTitleLabel" [showBack]="true" variant="tinted" tone="brand"
+    (cancel)="goBack()">
+  </app-title>
+</ng-template>
+
+<!-- CONTENT -->
+<ng-template #contentT>
+  <!-- Tabs -->
+  <app-tabs-filter [items]="[
+    { key:'all',     label:'Todos',    count:counters.all,     tone:'brand'   },
+    { key:'COMPRA',  label:'Compras',  count:counters.COMPRA,  tone:'success' },
+    { key:'CONSUMO', label:'Consumos', count:counters.CONSUMO, tone:'warn'    },
+    { key:'AJUSTE',  label:'Ajustes',  count:counters.AJUSTE,  tone:'warn'   }
+  ]" [active]="tab" (activeChange)="setTab($any($event))">
+  </app-tabs-filter>
+
+  <!-- Filters -->
+  <div class="flex gap-4 mb-4 flex-wrap">
+    <div class="flex flex-col gap-1 min-w-[250px]">
+      <label for="ingredienteId" class="text-sm font-medium text-gray-700">Ingrediente *</label>
+      <select
+        id="ingredienteId"
+        [formControl]="searchForm.controls.ingredienteId"
+        class="input"
+      >
+        <option [value]="null">Seleccione un ingrediente</option>
+        <option *ngFor="let ing of ingredientes" [value]="ing.id">
+          {{ ing.nombre }}
+        </option>
+      </select>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label for="fechaDesde" class="text-sm font-medium text-gray-700">Fecha Desde</label>
+      <input
+        type="date"
+        id="fechaDesde"
+        [formControl]="searchForm.controls.fechaDesde"
+        class="input"
+      />
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label for="fechaHasta" class="text-sm font-medium text-gray-700">Fecha Hasta</label>
+      <input
+        type="date"
+        id="fechaHasta"
+        [formControl]="searchForm.controls.fechaHasta"
+        class="input"
+      />
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="card overflow-hidden">
+    <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay movimientos de inventario'"
+      [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)">
+    </app-table>
+
+    <!-- Paginación -->
+    <app-paginator class="mt-2" [from]="from()" [to]="to()" [total]="total" [pageIndex]="page" [pageSize]="pageSize"
+      [pageSizeOptions]="[10,20,30,50]" [maxPage]="maxPage()" (sizeChange)="setPageSize($event)" (prev)="prev()"
+      (next)="next()">
+    </app-paginator>
+  </div>
+</ng-template>

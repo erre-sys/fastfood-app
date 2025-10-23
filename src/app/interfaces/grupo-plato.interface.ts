@@ -1,5 +1,6 @@
 
 export type Estado = 'A' | 'I';
+export type SN = 'S' | 'N';
 
 export interface GrupoPlato {
   id: number;

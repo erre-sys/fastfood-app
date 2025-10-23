@@ -1,0 +1,81 @@
+<form class="form" [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
+  <!-- Información General -->
+  <app-section-container [heading]="'Información de Proveedor'" [compact]="true" [divider]="true" [inset]="true">
+    <div class="fg">
+      <app-select label="Proveedor" [formGroup]="form" controlName="proveedorId" [items]="proveedores"
+        labelKey="nombre" valueKey="id" [required]="true" [soft]="true" [disabled]="loading" [includeNull]="true"
+        nullLabel="Seleccione un proveedor">
+      </app-select>
+
+      <app-input label="Referencia" [formGroup]="form" controlName="referencia" [soft]="true" [disabled]="loading"
+        hint="Ej: Factura #12345" placeholder="Ingrese una referencia">
+      </app-input>
+
+      <app-input label="Observaciones" type="textarea" [formGroup]="form" controlName="observaciones" [soft]="true"
+        [disabled]="loading" placeholder="Observaciones adicionales">
+      </app-input>
+    </div>
+  </app-section-container>
+
+  <!-- Items de Compra -->
+  <app-section-container [heading]="'Items de Compra'" [compact]="true" [divider]="true" [inset]="true"
+    [actionsTpl]="headerActions">
+    <ng-template #headerActions>
+      <button type="button" class="btn btn--sm btn--primary" (click)="agregarItem()" [disabled]="loading">
+        <lucide-icon [img]="Plus" [size]="16"></lucide-icon>
+        <span>Agregar Item</span>
+      </button>
+    </ng-template>
+
+    <div formArrayName="items" class="space-y-4">
+      <!-- Cada item -->
+      <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i"
+        class="card p-4 bg-slate-50 border-slate-200 relative">
+
+        <!-- Botón remover -->
+        <button *ngIf="items.length > 1" type="button" (click)="removerItem(i)"
+          class="absolute top-3 right-3 btn-icon btn-icon--sm btn-icon--danger" title="Remover item"
+          [disabled]="loading">
+          <lucide-icon [img]="X" [size]="16"></lucide-icon>
+        </button>
+
+        <div class="fg">
+          <app-select [label]="'Ingrediente'" [formGroup]="$any(item)" controlName="ingredienteId" [items]="ingredientes"
+            labelKey="nombre" valueKey="id" [required]="true" [soft]="true" [disabled]="loading" [includeNull]="true"
+            nullLabel="Seleccionar ingrediente">
+          </app-select>
+
+          <app-input [label]="'Cantidad'" type="numeric" [formGroup]="$any(item)" controlName="cantidad" [required]="true"
+            [soft]="true" [disabled]="loading" [step]="0.001" [min]="0.001" placeholder="0.000"
+            hint="Cantidad del ingrediente (hasta 3 decimales)"
+            [errors]="{'pattern': 'Solo números con hasta 3 decimales', 'min': 'Mínimo 0.001'}">
+          </app-input>
+
+          <app-input [label]="'Costo Unitario'" type="numeric" [formGroup]="$any(item)" controlName="costoUnitario"
+            [required]="true" [soft]="true" [disabled]="loading" [step]="0.01" [min]="0.01" placeholder="0.00"
+            hint="Costo por unidad (hasta 2 decimales)"
+            [errors]="{'pattern': 'Solo números con hasta 2 decimales', 'min': 'Mínimo 0.01'}">
+          </app-input>
+        </div>
+      </div>
+
+      <!-- Mensaje vacío -->
+      <div *ngIf="items.length === 0" class="card p-8 text-center text-slate-500">
+        No hay items agregados. Haga clic en "Agregar Item" para comenzar.
+      </div>
+    </div>
+
+    <!-- Total General -->
+    <div *ngIf="items.length > 0" class="card p-4 bg-blue-50 border-blue-200 mt-6">
+      <div class="flex justify-between items-center">
+        <span class="text-lg font-semibold text-slate-700">Total de Compra:</span>
+        <span class="text-2xl font-bold text-blue-600">${{ calcularTotal().toFixed(2) }}</span>
+      </div>
+    </div>
+  </app-section-container>
+
+  <!-- Botones -->
+  <app-save-cancel [saveLabel]="'Guardar Compra'" [cancelLabel]="'Cancelar'" [loading]="loading"
+    [disabled]="items.length === 0" [sticky]="true" (cancel)="cancel()">
+  </app-save-cancel>
+</form>

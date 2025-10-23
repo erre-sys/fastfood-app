@@ -1,0 +1,29 @@
+<form class="form" [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
+  <!-- Información del Pago -->
+  <app-section-container [heading]="'Registrar Pago de Cliente'" [compact]="true" [divider]="true" [inset]="true">
+    <div class="fg">
+      <app-input label="ID del Pedido" type="numeric" [formGroup]="form" controlName="pedidoId" [required]="true"
+        [soft]="true" [disabled]="loading || pedidoId !== null" hint="Número del pedido a pagar"
+        placeholder="Ingrese el ID del pedido">
+      </app-input>
+
+      <app-input label="Monto Total" type="decimal" [formGroup]="form" controlName="montoTotal" [required]="true"
+        [soft]="true" [disabled]="loading" [step]="0.01" [min]="0.01" placeholder="0.00"
+        hint="Monto total a pagar">
+      </app-input>
+
+      <app-select label="Método de Pago" [formGroup]="form" controlName="metodo" [items]="metodosPago"
+        labelKey="label" valueKey="value" [required]="true" [soft]="true" [disabled]="loading">
+      </app-select>
+
+      <app-input label="Referencia" [formGroup]="form" controlName="referencia" [soft]="true" [disabled]="loading"
+        hint="Número de transacción, voucher, etc." placeholder="Ej: TRX-123456">
+      </app-input>
+    </div>
+  </app-section-container>
+
+  <!-- Botones -->
+  <app-save-cancel [saveLabel]="'Registrar Pago'" [cancelLabel]="'Cancelar'" [loading]="loading" [sticky]="true"
+    (cancel)="cancel()">
+  </app-save-cancel>
+</form>

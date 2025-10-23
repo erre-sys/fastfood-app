@@ -28,10 +28,13 @@
     <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay platos'"
       [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
       <ng-template #actionsTpl let-r>
-
         <ui-button [icon]="Pencil" label="Editar" variant="primary" size="sm" [to]="['/platos', r.id, 'editar']"
           [ariaLabel]="'Editar ' + r.nombre">
         </ui-button>
+        <ui-button [icon]="ChefHat" label="Receta" variant="outline" size="sm" [to]="['/platos', r.id, 'receta']"
+          [ariaLabel]="'Ver receta de ' + r.nombre">
+        </ui-button>
+
       </ng-template>
     </app-table>
 

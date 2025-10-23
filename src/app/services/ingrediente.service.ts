@@ -3,40 +3,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../environments/environments';
 import { withSuccess } from '../core/interceptors/toast-context';
-
-export type Estado = 'A' | 'I';
-export type SN = 'S' | 'N';
-
-export interface Ingrediente {
-  id: number;
-  codigo: string;
-  nombre: string;
-  grupoIngredienteId: number;
-  unidad: string | null;
-  esExtra: SN;
-  aplicaComida: SN;
-  precioExtra: number | null;
-  stockMinimo: number | null;
-  estado: Estado;
-  grupoNombre?: string;
-}
-
-export interface IngredienteCreate extends Omit<Ingrediente, 'id'> {}
-export interface IngredienteUpdate extends Ingrediente {}
-
-export interface Pager {
-  page: number;      
-  size: number;
-  sortBy: string;   
-  direction: 'asc' | 'desc';
-}
-
-export interface Filtro {
-  llave: string;           
-  operacion: 'EQ' | 'LIKE' | 'IN' | 'NE' | 'GT' | 'LT' | 'GE' | 'LE';
-  valor?: any;
-  valores?: any[];
-}
+import { Ingrediente, IngredienteCreate, IngredienteUpdate, Estado, SN } from '../interfaces/ingrediente.interface';
+import { Filtro, Pager } from '../interfaces/pagination.interface';
 
 @Injectable({ providedIn: 'root' })
 export class IngredienteService {

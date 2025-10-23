@@ -1,0 +1,67 @@
+<app-page-layout [headerTemplate]="headerT" [contentTemplate]="contentT"></app-page-layout>
+
+<!-- HEADER -->
+<ng-template #headerT>
+  <app-title [titleLabel]="titleLabel" [subtitle]="subTitleLabel" [showBack]="true" variant="tinted" tone="brand"
+    (cancel)="goBack()">
+    <ui-button [icon]="Plus" label="Nuevo Pedido" variant="primary" size="md" [to]="['/pedidos/nuevo']">
+    </ui-button>
+  </app-title>
+</ng-template>
+
+<!-- CONTENT -->
+<ng-template #contentT>
+  <!-- Tabs -->
+  <app-tabs-filter [items]="[
+    { key:'all', label:'Todos',     count:counters.all, tone:'brand'   },
+    { key:'C',   label:'Creados',   count:counters.C,   tone:'warn'    },
+    { key:'L',   label:'Listos',    count:counters.L,   tone:'brand'   },
+    { key:'E',   label:'Entregados',count:counters.E,   tone:'success' },
+    { key:'A',   label:'Anulados',  count:counters.A,   tone:'danger'  }
+  ]" [active]="tab" (activeChange)="setTab($any($event))">
+  </app-tabs-filter>
+
+  <!-- Search -->
+  <app-search class="w-full max-w-md" placeholder="Buscar por ID de pedido" [value]="searchForm.controls.q.value"
+    (valueChange)="onSearch($event)">
+  </app-search>
+
+  <!-- Tabla -->
+  <div class="card overflow-hidden">
+    <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay pedidos registrados'"
+      [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
+      <ng-template #actionsTpl let-r>
+        <ui-button [icon]="Eye" label="Ver" variant="warning" size="sm" [to]="['/pedidos', r.id, 'detalle']"
+          [ariaLabel]="'Ver detalle del pedido #' + r.id">
+        </ui-button>
+
+        <!-- C -> L (Creado a Listo) - NO descuenta inventario -->
+        <button *ngIf="r.estado === 'C'" type="button" class="btn btn--sm btn--outline" (click)="onMarcarListo(r)"
+          title="Marcar como Listo (NO descuenta inventario)">
+          <lucide-icon [img]="Check" [size]="16"></lucide-icon>
+          <span>Listo</span>
+        </button>
+
+        <!-- L -> E (Listo a Entregado) - SÍ descuenta inventario -->
+        <button *ngIf="r.estado === 'L'" type="button" class="btn btn--sm btn--outline" (click)="onEntregar(r)"
+          title="Entregar pedido (SÍ descuenta inventario)">
+          <lucide-icon [img]="Check" [size]="16"></lucide-icon>
+          <span>Entregar</span>
+        </button>
+
+        <!-- C, L -> A (Anular) -->
+        <button *ngIf="r.estado === 'C' || r.estado === 'L'" type="button" class="btn btn--sm btn--outline" (click)="onAnular(r)"
+          title="Anular pedido">
+          <lucide-icon [img]="XIcon" [size]="16"></lucide-icon>
+          <span>Anular</span>
+        </button>
+      </ng-template>
+    </app-table>
+
+    <!-- Paginación -->
+    <app-paginator class="mt-2" [from]="from()" [to]="to()" [total]="total" [pageIndex]="page" [pageSize]="pageSize"
+      [pageSizeOptions]="[10,20,30,50]" [maxPage]="maxPage()" (sizeChange)="setPageSize($event)" (prev)="prev()"
+      (next)="next()">
+    </app-paginator>
+  </div>
+</ng-template>

@@ -3,23 +3,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environments';
 import { withSuccess } from '../core/interceptors/toast-context';
-import { GrupoPlato, GrupoPlatoCreate, GrupoPlatoUpdate } from '../interfaces/grupo-plato.interface';
-import { Estado } from './ingrediente.service';
-
-
-export interface Pager {
-  page: number;      
-  size: number;
-  sortBy: string;   
-  direction: 'asc' | 'desc';
-}
-
-export interface Filtro {
-  llave: string;           
-  operacion: 'EQ' | 'LIKE' | 'IN' | 'NE' | 'GT' | 'LT' | 'GE' | 'LE';
-  valor?: any;
-  valores?: any[];
-}
+import { GrupoPlato, GrupoPlatoCreate, GrupoPlatoUpdate, Estado } from '../interfaces/grupo-plato.interface';
+import { Filtro, Pager } from '../interfaces/pagination.interface';
 
 @Injectable({ providedIn: 'root' })
 export class GrupoPlatoService {

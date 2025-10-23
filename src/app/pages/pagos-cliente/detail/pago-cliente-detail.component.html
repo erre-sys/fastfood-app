@@ -1,0 +1,15 @@
+<div *ngIf="loading" class="flex justify-center items-center py-12">
+  <div class="skeleton h-64 w-full"></div>
+</div>
+
+<div *ngIf="!loading && pago" class="form">
+  <!-- Cabecera del Pago -->
+  <app-detail-header [title]="'Pago #' + pago.id" [fields]="headerFields"></app-detail-header>
+
+  <!-- Botón volver -->
+  <div class="flex justify-end mt-6">
+    <button type="button" class="btn btn--outline" (click)="goBack()">
+      Volver al Listado
+    </button>
+  </div>
+</div>

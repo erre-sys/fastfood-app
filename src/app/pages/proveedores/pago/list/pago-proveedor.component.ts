@@ -122,7 +122,7 @@ export default class PagosProveedorListPage implements OnInit, OnDestroy {
   }
 
   private loadProveedores(): void {
-    this.proveedoresApi.listarActivos().subscribe({
+    this.proveedoresApi.listar().subscribe({
       next: (arr) => {
         this.proveedorName = new Map(
           (arr ?? []).map((p: any) => [

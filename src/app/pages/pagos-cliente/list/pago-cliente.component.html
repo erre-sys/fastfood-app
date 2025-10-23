@@ -1,0 +1,46 @@
+<app-page-layout [headerTemplate]="headerT" [contentTemplate]="contentT"></app-page-layout>
+
+<!-- HEADER -->
+<ng-template #headerT>
+  <app-title [titleLabel]="titleLabel" [subtitle]="subTitleLabel" [showBack]="true" variant="tinted" tone="brand"
+    (cancel)="goBack()">
+    <ui-button [icon]="Plus" label="Nuevo Pago" variant="primary" size="md" [to]="['/pagos-cliente/nuevo']">
+    </ui-button>
+  </app-title>
+</ng-template>
+
+<!-- CONTENT -->
+<ng-template #contentT>
+  <!-- Tabs -->
+  <app-tabs-filter [items]="[
+    { key:'all',       label:'Todos',      count:counters.all,       tone:'brand'   },
+    { key:'pagado',    label:'Pagados',    count:counters.pagado,    tone:'success' },
+    { key:'pendiente', label:'Pendientes', count:counters.pendiente, tone:'warn'    },
+    { key:'fiado',     label:'Fiados',     count:counters.fiado,     tone:'info'    },
+    { key:'anulado',   label:'Anulados',   count:counters.anulado,   tone:'danger'  }
+  ]" [active]="tab" (activeChange)="setTab($any($event))">
+  </app-tabs-filter>
+
+  <!-- Search -->
+  <app-search class="w-full max-w-md" placeholder="Buscar por ID de pago o pedido" [value]="searchForm.controls.q.value"
+    (valueChange)="onSearch($event)">
+  </app-search>
+
+  <!-- Tabla -->
+  <div class="card overflow-hidden">
+    <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay pagos registrados'"
+      [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
+      <ng-template #actionsTpl let-r>
+        <ui-button [icon]="Eye" label="Ver" variant="warning" size="sm" [to]="['/pagos-cliente', r.id, 'detalle']"
+          [ariaLabel]="'Ver detalle del pago #' + r.id">
+        </ui-button>
+      </ng-template>
+    </app-table>
+
+    <!-- Paginación -->
+    <app-paginator class="mt-2" [from]="from()" [to]="to()" [total]="total" [pageIndex]="page" [pageSize]="pageSize"
+      [pageSizeOptions]="[10,20,30,50]" [maxPage]="maxPage()" (sizeChange)="setPageSize($event)" (prev)="prev()"
+      (next)="next()">
+    </app-paginator>
+  </div>
+</ng-template>

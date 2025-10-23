@@ -4,20 +4,9 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environments';
 import { withSuccess } from '../core/interceptors/toast-context';
 import { PagoProveedor, PagoProveedorCreate } from '../interfaces/pago-proveedor.interface';
+import { Filtro, Pager } from '../interfaces/pagination.interface';
 
-export interface Pager {
-  page: number;      
-  size: number;
-  sortBy: string;   
-  direction: 'asc' | 'desc';
-}
 
-export interface Filtro {
-  llave: string;           
-  operacion: 'EQ' | 'LIKE' | 'IN' | 'NE' | 'GT' | 'LT' | 'GE' | 'LE';
-  valor?: any;
-  valores?: any[];
-}
 @Injectable({ providedIn: 'root' })
 export class PagosProveedorService {
   private http = inject(HttpClient);

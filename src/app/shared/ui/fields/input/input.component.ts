@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, Input, TemplateRef, OnChanges, Simp
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NgIf, NgTemplateOutlet, NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
 
-type InputType = 'text'|'numeric'|'decimal'|'mail'|'tel'|'search'|'url'|'textarea';
+type InputType = 'text'|'numeric'|'decimal'|'mail'|'tel'|'search'|'url'|'textarea'|'datetime-local';
 
 @Component({
   selector: 'app-input',

@@ -1,0 +1,43 @@
+<app-page-layout [headerTemplate]="headerT" [contentTemplate]="contentT"></app-page-layout>
+
+<!-- HEADER -->
+<ng-template #headerT>
+  <app-title [titleLabel]="titleLabel" [subtitle]="subTitleLabel" [showBack]="true" variant="tinted" tone="brand"
+    (cancel)="goBack()">
+    <ui-button [icon]="Plus" label="Nuevo" variant="primary" size="md" [to]="['/promo-programada/nuevo']"></ui-button>
+  </app-title>
+</ng-template>
+
+<!-- CONTENT -->
+<ng-template #contentT>
+  <!-- Tabs -->
+  <app-tabs-filter [items]="[
+    { key:'all',      label:'Todos',     count:counters.all,      tone:'brand'   },
+    { key:'active',   label:'Activos',   count:counters.active,   tone:'success' },
+    { key:'inactive', label:'Inactivos', count:counters.inactive, tone:'warn'    }
+  ]" [active]="tab" (activeChange)="setTab($any($event))">
+  </app-tabs-filter>
+
+  <!-- Search -->
+  <app-search class="w-full max-w-md" placeholder="Buscar por ID" [value]="searchForm.controls.q.value"
+    (valueChange)="onSearch($event)">
+  </app-search>
+
+  <!-- Tabla -->
+  <div class="card overflow-hidden">
+    <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay promociones programadas'"
+      [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
+      <ng-template #actionsTpl let-r>
+        <ui-button [icon]="Pencil" label="Editar" variant="primary" size="sm" [to]="['/promo-programada', r.id, 'editar']"
+          [ariaLabel]="'Editar promoción ' + r.id">
+        </ui-button>
+      </ng-template>
+    </app-table>
+
+    <!-- Paginación -->
+    <app-paginator class="mt-2" [from]="from()" [to]="to()" [total]="total" [pageIndex]="page" [pageSize]="pageSize"
+      [pageSizeOptions]="[10,20,30,50]" [maxPage]="maxPage()" (sizeChange)="setPageSize($event)" (prev)="prev()"
+      (next)="next()">
+    </app-paginator>
+  </div>
+</ng-template>

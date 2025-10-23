@@ -2,14 +2,14 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-
-import { IngredienteService, SN, Estado } from '../../../../services/ingrediente.service';
 import { GrupoIngredienteService } from '../../../../services/grupo-ingrediente.service';
 
 import { InputComponent } from '../../../../shared/ui/fields/input/input.component';
 import { AppSelectComponent } from '../../../../shared/ui/fields/select/select.component';
 import { SectionContainerComponent } from '../../../../shared/ui/section-container/section-container.component';
 import { SaveCancelComponent } from '../../../../shared';
+import { IngredienteService } from '../../../../services/ingrediente.service';
+import { Estado, SN } from '../../../../interfaces/ingrediente.interface';
 
 @Component({
   selector: 'app-ingrediente-form',

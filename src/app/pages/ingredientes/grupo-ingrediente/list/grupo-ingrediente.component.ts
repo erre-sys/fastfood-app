@@ -53,7 +53,7 @@ export default class GrupoIngredientesListPage implements OnInit, OnDestroy {
   columns: ColumnDef<GrupoIngrediente>[] = [
     { key: 'id', header: 'ID', widthPx: 96, sortable: true },
     { key: 'nombre', header: 'Nombre', sortable: true },
-    {key: 'aplicaComida',header: 'Aplica Comida',widthPx: 160,sortable: true,type: 'badge',
+    {key: 'aplicaComida',header: 'Aplica Comida',widthPx: 180,sortable: true,type: 'badge',
       badgeMap: { S: 'ok', N: 'muted' },valueMap: { S: 'Sí', N: 'No' },align: 'center',},
     {key: 'estado', header: 'Estado',widthPx: 140,sortable: true,type: 'badge',
       badgeMap: { A: 'ok', I: 'warn' }, valueMap: { A: 'Activo', I: 'Inactivo' },align: 'center',},

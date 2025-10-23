@@ -1,0 +1,24 @@
+<article class="home-card" [attr.data-variant]="variant()">
+  <header class="home-card__header">
+    <div class="home-card__icon">
+      <lucide-icon [img]="icon()" [size]="28" aria-hidden="true"></lucide-icon>
+    </div>
+    <h2 class="home-card__title">{{ title() }}</h2>
+  </header>
+
+  <section class="home-card__content">
+    <p class="home-card__total-label">Total</p>
+    <p class="home-card__total-value">{{ total() }}</p>
+  </section>
+
+  <footer class="home-card__footer">
+    <button
+      type="button"
+      class="btn"
+      [attr.data-variant]="buttonVariant()"
+      (click)="onNavigate()"
+    >
+      {{ buttonText() }}
+    </button>
+  </footer>
+</article>

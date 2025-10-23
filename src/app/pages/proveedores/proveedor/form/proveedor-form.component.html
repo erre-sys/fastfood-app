@@ -6,14 +6,16 @@
                 hint="Nombre comercial o razón social" [required]="true">
             </app-input>
 
-            <app-input label="RUC/Cédula" [formGroup]="form" controlName="ruc" [required]="true" [soft]="true"
-                [disabled]="loading()">
+            <app-input label="RUC/Cédula" type="numeric" [formGroup]="form" controlName="ruc" [required]="true" [soft]="true"
+                [disabled]="loading()" hint="Solo números (10-13 dígitos)" [max]="13" [min]="10" maxlength="13" minlength="10"
+                [errors]="{'pattern': 'Solo se permiten números', 'minlength': 'Mínimo 10 dígitos', 'maxlength': 'Máximo 13 dígitos'}">
             </app-input>
 
-            <app-input label="Teléfono" type="numeric" [formGroup]="form" controlName="telefono">
+            <app-input label="Teléfono" type="numeric" [formGroup]="form" controlName="telefono" hint="Solo números (7-15 dígitos)"
+                [errors]="{'pattern': 'Solo se permiten números', 'minlength': 'Mínimo 7 dígitos', 'maxlength': 'Máximo 15 dígitos'}">
             </app-input>
 
-            <app-input label="Correo" type="mail" [formGroup]="form" controlName="mail" [soft]="true"
+            <app-input label="Correo" type="mail" [formGroup]="form" controlName="email" [soft]="true"
                 [disabled]="loading()">
             </app-input>
 

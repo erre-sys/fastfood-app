@@ -1,0 +1,37 @@
+<app-page-layout [headerTemplate]="headerT" [contentTemplate]="contentT"></app-page-layout>
+
+<!-- HEADER -->
+<ng-template #headerT>
+  <app-title [titleLabel]="titleLabel" [subtitle]="subTitleLabel" [showBack]="true" variant="tinted" tone="brand"
+    (cancel)="goBack()">
+    <ui-button [icon]="ShoppingCart" label="Nueva Compra" variant="primary" size="md" [to]="['/compras/nuevo']">
+    </ui-button>
+  </app-title>
+</ng-template>
+
+<!-- CONTENT -->
+<ng-template #contentT>
+  <!-- Search -->
+  <app-search class="w-full max-w-md" placeholder="Buscar por ID o referencia" [value]="searchForm.controls.q.value"
+    (valueChange)="onSearch($event)">
+  </app-search>
+
+  <!-- Tabla -->
+  <div class="card overflow-hidden">
+    <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay compras registradas'"
+      [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
+    </app-table>
+
+    <!-- Template de acciones -->
+    <ng-template #actionsTpl let-row>
+      <ui-button [icon]="Eye" label="Ver" variant="warning" size="sm" [to]="['/compras', row.id, 'detalle']">
+      </ui-button>
+    </ng-template>
+
+    <!-- Paginación -->
+    <app-paginator class="mt-2" [from]="from()" [to]="to()" [total]="total" [pageIndex]="page" [pageSize]="pageSize"
+      [pageSizeOptions]="[10,20,30,50]" [maxPage]="maxPage()" (sizeChange)="setPageSize($event)" (prev)="prev()"
+      (next)="next()">
+    </app-paginator>
+  </div>
+</ng-template>

@@ -1,41 +1,79 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../environments/environments';
-
-export interface PromoProgramada {
-  promo_id: number;
-  plato_id: number;
-  fecha_inicio: string; // ISO o 'yyyy-MM-dd'
-  fecha_fin: string;
-  descuento_pct: number;
-  estado: 'A'|'I';
-  creado_por_sub?: string | null;
-}
+import { withSuccess } from '../core/interceptors/toast-context';
+import { Filtro, Pager } from '../interfaces/pagination.interface';
+import { PromoProgramada, PromoProgramadaCreate, PromoProgramadaUpdate, Estado } from '../interfaces/promo-programada.interface';
 
 @Injectable({ providedIn: 'root' })
 export class PromoProgramadaService {
   private http = inject(HttpClient);
-  private base = `${environment.apiBaseUrl}/promo-programada`; // ajusta si tu endpoint difiere
+  private base = `${environment.apiBaseUrl}/promos`;
 
-  // tolerante a distintos nombres que pueda devolver el back
-  private pick<T=any>(o:any, keys:string[], fallback:any=null): any {
-    for (const k of keys) if (o && o[k] !== undefined && o[k] !== null) return o[k];
-    return fallback;
+  private pickId(r: any): number {
+    for (const k of ['id', 'promoId', 'promo_id']) {
+      const v = r?.[k];
+      if (v !== null && v !== undefined && !Number.isNaN(Number(v)))
+        return Number(v);
+    }
+    return -1;
   }
-  private normalize = (r:any): PromoProgramada => ({
-    promo_id: Number(this.pick(r, ['promo_id','promoId','id'], -1)),
-    plato_id: Number(this.pick(r, ['plato_id','platoId'], 0)),
-    fecha_inicio: String(this.pick(r, ['fecha_inicio','fechaInicio'], '')),
-    fecha_fin: String(this.pick(r, ['fecha_fin','fechaFin'], '')),
-    descuento_pct: Number(this.pick(r, ['descuento_pct','descuentoPct','descuento'], 0)),
-    estado: (this.pick(r, ['estado'], 'A') as 'A'|'I'),
-    creado_por_sub: this.pick(r, ['creado_por_sub','creadoPorSub'], null),
+
+  public normalize = (r: any): PromoProgramada => ({
+    id: this.pickId(r),
+    platoId: r?.platoId ?? r?.plato_id ?? -1,
+    fechaInicio: r?.fechaInicio ?? r?.fecha_inicio ?? '',
+    fechaFin: r?.fechaFin ?? r?.fecha_fin ?? '',
+    descuentoPct: Number(r?.descuentoPct ?? r?.descuento_pct ?? 0),
+    estado: (r?.estado ?? 'A') as Estado,
+    platoNombre: r?.platoNombre ?? r?.plato_nombre ?? undefined,
   });
 
+  // ---- CRUD ----
   listar(): Observable<PromoProgramada[]> {
-    return this.http.get<any[]>(this.base).pipe(
-      map(arr => (arr ?? []).map(this.normalize))
-    );
+    return this.http
+      .get<any[]>(this.base)
+      .pipe(map((arr) => (arr ?? []).map(this.normalize)));
+  }
+
+  obtener(id: number): Observable<PromoProgramada> {
+    return this.http.get<any>(`${this.base}/${id}`).pipe(map(this.normalize));
+  }
+
+  crear(dto: PromoProgramadaCreate): Observable<void> {
+    return this.http.post<void>(this.base, dto, {
+      context: withSuccess('Promoción creada correctamente.'),
+    });
+  }
+
+  actualizar(dto: PromoProgramadaUpdate): Observable<void> {
+    return this.http.put<void>(this.base, dto, {
+      context: withSuccess('Promoción actualizada correctamente.'),
+    });
+  }
+
+  eliminar(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${id}`, {
+      context: withSuccess('Promoción eliminada correctamente.'),
+    });
+  }
+
+  buscarPaginado(pager: Pager, filtros: Filtro[]) {
+    const params = new HttpParams({
+      fromObject: {
+        page: String(pager.page ?? 0),
+        size: String(pager.size ?? 10),
+        sortBy: pager.sortBy || 'id',
+        direction: pager.direction || 'asc',
+      },
+    });
+
+    return this.http.post<{
+      contenido?: any[];
+      totalRegistros?: number;
+      content?: any[];
+      totalElements?: number;
+    }>(`${this.base}/search`, filtros ?? [], { params });
   }
 }

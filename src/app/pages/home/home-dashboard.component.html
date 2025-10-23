@@ -1,85 +1,89 @@
 <!-- ===== Sección: Accesos rápidos ===== -->
-<section aria-labelledby="dash-quick" class="grid-autofit gap-4">
+<section aria-labelledby="dash-quick" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     <!-- Grupos de ingredientes -->
-    <article class="card-soft qa-card qa-card--groups">
-        <header class="qa-head">
-            <span class="ico"><lucide-icon [img]="List" size="16" aria-hidden="true"></lucide-icon></span>
-            <h3 class="qa-title">Grupos de ingredientes</h3>
-        </header>
-        <div class="qa-body">
-            <p class="muted">Total:</p>
-            <p class="stat" aria-live="polite">
-                <span class="stat-value">{{ gruposCount() }}</span>
-            </p>
-            <a routerLink="/grupos" class="btn btn--primary">Ver Grupos</a>
-        </div>
-    </article>
+    <app-home-card
+        [title]="'Grupos de ingredientes'"
+        [total]="gruposCount()"
+        [icon]="List"
+        variant="success"
+        [buttonText]="'Ver Grupos'"
+        buttonVariant="primary"
+        (navigate)="navegarA('/grupo-ingredientes')"
+    />
 
     <!-- Ingredientes -->
-    <article class="card-soft qa-card qa-card--items">
-        <header class="qa-head">
-            <span class="ico"><lucide-icon [img]="Square" size="16" aria-hidden="true"></lucide-icon></span>
-            <h3 class="qa-title">Ingredientes</h3>
-        </header>
-        <div class="qa-body">
-            <p class="muted">Total:</p>
-            <p class="stat" aria-live="polite">
-                <span class="stat-value">{{ ingredientesCount() }}</span>
-            </p>
-            <a routerLink="/ingredientes" class="btn btn--primary">Ver Ingredientes</a>
-        </div>
-    </article>
+    <app-home-card
+        [title]="'Ingredientes'"
+        [total]="ingredientesCount()"
+        [icon]="Square"
+        variant="success"
+        [buttonText]="'Ver Ingredientes'"
+        buttonVariant="primary"
+        (navigate)="navegarA('/ingredientes')"
+    />
 
-    <!-- Pedidos (dato quemado) -->
-    <article class="card-soft qa-card qa-card--orders">
-        <header class="qa-head">
-            <span class="ico"><lucide-icon [img]="ShoppingBag" size="16" aria-hidden="true"></lucide-icon></span>
-            <h3 class="qa-title">Pedidos</h3>
-        </header>
-        <div class="qa-body">
-            <p class="muted">Total:</p>
-            <p class="stat" aria-live="polite">
-                <span class="stat-value">{{ pedidosCount() }}</span>
-            </p>
-            <a routerLink="/pedidos" class="btn btn--primary">Ver Pedidos</a>
-        </div>
-    </article>
+    <!-- Pedidos del día -->
+    <app-home-card
+        [title]="'Pedidos del Día'"
+        [total]="pedidosHoyCount()"
+        [icon]="ShoppingBag"
+        variant="success"
+        [buttonText]="'Ver Todos los Pedidos'"
+        buttonVariant="primary"
+        (navigate)="navegarA('/pedidos')"
+    />
 </section>
 
-<!-- ===== Sección: Historial ===== -->
-<section aria-labelledby="dash-history" class="card-soft mt-4">
+<!-- ===== Sección: Pedidos de Hoy ===== -->
+<section aria-labelledby="dash-pedidos-hoy" class="card-soft mt-4">
     <header class="card-head">
-        <h2 id="dash-history" class="card-title">Historial de Pedidos</h2>
-        <nav class="card-actions" aria-label="Acciones de historial">
-            <a routerLink="/transacciones" class="btn btn--primary">Ver todo</a>
+        <h2 id="dash-pedidos-hoy" class="card-title">Pedidos de Hoy ({{ now() | date:'dd/MM/yyyy' }})</h2>
+        <nav class="card-actions" aria-label="Acciones de pedidos">
+            <a routerLink="/pedidos/nuevo" class="btn btn--success">Nuevo Pedido</a>
+            <a routerLink="/pedidos" class="btn btn--primary">Ver Todos</a>
         </nav>
     </header>
 
     <div class="w-full overflow-x-auto">
-        <table class="table w-full">
+        <div *ngIf="loading()" class="p-8 text-center text-slate-500">
+            Cargando pedidos...
+        </div>
+
+        <div *ngIf="!loading() && pedidosHoy().length === 0" class="p-8 text-center text-slate-500">
+            No hay pedidos registrados hoy
+        </div>
+
+        <table *ngIf="!loading() && pedidosHoy().length > 0" class="table w-full">
             <thead>
                 <tr>
-                    <th scope="col">Nombre</th>
                     <th scope="col">ID</th>
                     <th scope="col">Estado</th>
-                    <th scope="col">Fecha</th>
-                    <th scope="col" class="text-right">Monto</th>
+                    <th scope="col">Hora</th>
+                    <th scope="col" class="text-right">Total</th>
+                    <th scope="col" class="text-center">Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Guy Hawkins</td>
-                    <td>#1206970</td>
-                    <td><span class="pill pill--success">Completado</span></td>
-                    <td><time datetime="2025-10-04">Oct 4, 2025</time></td>
-                    <td class="text-right text-rose-600">- $153.30</td>
-                </tr>
-                <tr>
-                    <td>Robert Fox</td>
-                    <td>#1848230</td>
-                    <td><span class="pill pill--warning">Pendiente</span></td>
-                    <td><time datetime="2025-10-03">Oct 3, 2025</time></td>
-                    <td class="text-right text-emerald-600">+ $23.00</td>
+                <tr *ngFor="let pedido of pedidosHoy()">
+                    <td class="font-semibold">#{{ pedido.id }}</td>
+                    <td>
+                        <span [ngClass]="getEstadoBadgeClass(pedido.estado)">
+                            {{ getEstadoLabel(pedido.estado) }}
+                        </span>
+                    </td>
+                    <td>
+                        <time [dateTime]="pedido.creadoEn">
+                            {{ pedido.creadoEn | date:'HH:mm' }}
+                        </time>
+                    </td>
+                    <td class="text-right font-bold text-orange-600">
+                        ${{ pedido.totalNeto.toFixed(2) }}
+                    </td>
+                    <td class="text-center">
+                        <a [routerLink]="['/pedidos', pedido.id, 'detalle']" class="btn btn--sm btn--outline">
+                            Ver detalle
+                        </a>
+                    </td>
                 </tr>
             </tbody>
         </table>

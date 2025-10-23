@@ -5,7 +5,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { Plato, PlatoService } from '../../../../services/plato.service';
+import { PlatoService } from '../../../../services/plato.service';
 import { GrupoPlatoService } from '../../../../services/grupo-plato.service';
 
 import { PageLayoutComponent } from '../../../../shared/ui/page-layout/page-layout.component';
@@ -13,10 +13,11 @@ import { TitleComponent } from '../../../../shared/ui/fields/title/title.compone
 import { TableComponent } from '../../../../shared/ui/table/table.component';
 import { SearchComponent } from '../../../../shared/ui/fields/searchbox/search.component';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
-import { LucideAngularModule, Pencil, Plus } from 'lucide-angular';
+import { LucideAngularModule, Pencil, Plus, ChefHat } from 'lucide-angular';
 import { UiButtonComponent } from '../../../../shared/ui/buttons/ui-button/ui-button.component';
 import { TabsFilterComponent } from '../../../../shared/ui/tabs-filter/tabs-filter.component';
 import { ColumnDef, Dir, TableSort, TabStatus } from '../../../../shared/ui/table/column-def';
+import { Plato } from '../../../../interfaces/plato.interface';
 
 @Component({
   selector: 'app-platos-list',
@@ -51,6 +52,7 @@ export default class PlatosListPage implements OnInit, OnDestroy {
   // Íconos
   Pencil = Pencil;
   Plus = Plus;
+  ChefHat = ChefHat;
   
   searchForm = new FormGroup({
     q: new FormControl<string>('', { nonNullable: true }),

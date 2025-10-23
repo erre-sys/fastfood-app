@@ -40,7 +40,7 @@ export default class PagoProveedorFormPage implements OnInit {
 
   ngOnInit(): void {
     // cargar combo
-    this.provApi.listarActivos().subscribe({
+    this.provApi.listar().subscribe({
       next: arr => {
         this.proveedores = (arr ?? []).map((p: any) => ({
           value: Number(p?.id ?? p?.proveedorId ?? p?.proveedor_id),

@@ -37,8 +37,27 @@ export class PagoClienteService {
 
   /**
    * Crear un pago para un pedido
+   * Requiere: pedidoId, montoTotal, metodo
+   * Opcional: fecha, referencia
    */
-  crearPagoPedido(pedidoId: number, dto: PagoClienteCreate): Observable<{ id: number }> {
-    return this.http.post<{ id: number }>(`${this.apiUrl}/pedidos/${pedidoId}`, dto);
+  crear(dto: PagoClienteCreate): Observable<{ id: number }> {
+    return this.http.post<{ id: number }>(this.apiUrl, dto);
+  }
+
+  /**
+   * Obtener todos los pagos de un pedido específico
+   */
+  obtenerPorPedido(pedidoId: number): Observable<PagoCliente[]> {
+    return this.http.get<PagoCliente[]>(`${this.apiUrl}/pedidos/${pedidoId}`);
+  }
+
+  /**
+   * Cambiar estado del pago
+   * @param id - ID del pago
+   * @param estado - Nuevo estado: S=Solicitado, P=Pagado, F=Fiado
+   */
+  cambiarEstado(id: number, estado: 'S' | 'P' | 'F'): Observable<void> {
+    const params = new HttpParams().set('estado', estado);
+    return this.http.put<void>(`${this.apiUrl}/${id}/cambiar-estado`, null, { params });
   }
 }

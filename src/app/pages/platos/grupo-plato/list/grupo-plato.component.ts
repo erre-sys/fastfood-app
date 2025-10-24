@@ -95,7 +95,6 @@ export default class GrupoPlatosListPage implements OnInit, OnDestroy {
     ).subscribe({
       next: p => {
         const contenido = (p?.contenido ?? p?.content ?? []) as any[];
-        console.log('contenido', contenido);
         this.rows = contenido.map(r => ({
           id: (r?.id ?? r?.grupoPlatoId ?? r?.grupo_plato_id) ?? -1,
           nombre: r?.nombre ?? '',

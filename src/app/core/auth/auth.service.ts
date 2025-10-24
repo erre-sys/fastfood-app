@@ -78,6 +78,14 @@ class AuthService {
       return {};
     }
   }
+
+  /**
+   * Obtiene el 'sub' (subject/identificador único) del usuario autenticado
+   */
+  getSub(): string | undefined {
+    if (!this.kc || !this.kc.tokenParsed) return undefined;
+    return this.kc.tokenParsed['sub'] as string | undefined;
+  }
 }
 
 export const authService = new AuthService();

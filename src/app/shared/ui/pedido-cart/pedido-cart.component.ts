@@ -5,7 +5,7 @@ import { LucideAngularModule, Plus, Minus, Trash2 } from 'lucide-angular';
 export interface CartItem {
   platoId: number;
   platoNombre: string;
-  precioBas: number;
+  precioBase: number;
   cantidad: number;
   extras: CartExtra[];
 }
@@ -33,7 +33,7 @@ export interface CartExtra {
           <!-- Info principal -->
           <div class="col-span-5">
             <h4 class="font-bold text-lg text-slate-900">{{ item.platoNombre }}</h4>
-            <span class="text-base text-slate-600">\${{ item.precioBas.toFixed(2) }} c/u</span>
+            <span class="text-base text-slate-600">\${{ item.precioBase.toFixed(2) }} c/u</span>
           </div>
 
           <!-- Controles de cantidad -->
@@ -102,7 +102,7 @@ export class PedidoCartComponent {
   Trash2 = Trash2;
 
   calculateSubtotal(item: CartItem): number {
-    const precioBase = item.precioBas * item.cantidad;
+    const precioBase = item.precioBase * item.cantidad;
     const precioExtras = item.extras.reduce((sum, extra) => {
       return sum + (extra.precioExtra * extra.cantidad * item.cantidad);
     }, 0);

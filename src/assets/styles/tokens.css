@@ -32,10 +32,10 @@
   --radius: 12px;
   --radius-2xl: 20px;
   --z-header: 40;
-  --z-overlay: 50;
-  --sidebar-w: 280px;
-  --sidebar-w-collapsed: 80px;
-  --header-h: 64px;
+  --z-overlay: 40;
+  --sidebar-w: 200px;
+  --sidebar-w-collapsed: 64px;
+  --header-h: 70px;
 
   /* Sombras - Sutiles y profesionales */
   --shadow-soft: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);

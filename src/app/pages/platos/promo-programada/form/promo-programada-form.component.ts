@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { PromoProgramadaService } from '../../../../services/promo-programada.service';
 import { PlatoService } from '../../../../services/plato.service';
+import { NotifyService } from '../../../../core/notify/notify.service';
 import { Estado } from '../../../../interfaces/promo-programada.interface';
 
 import { InputComponent } from '../../../../shared/ui/fields/input/input.component';
@@ -31,6 +32,7 @@ export default class PromoProgramadaFormPage implements OnInit {
   private router = inject(Router);
   private api = inject(PromoProgramadaService);
   private platosApi = inject(PlatoService);
+  private notify = inject(NotifyService);
 
   id?: number;
   loading = signal(false);
@@ -55,7 +57,11 @@ export default class PromoProgramadaFormPage implements OnInit {
   ngOnInit(): void {
     this.platosApi.listar().subscribe({
       next: (ps) => (this.platos = (ps ?? []).map((p) => ({ label: p.nombre, value: p.id }))),
-      error: () => (this.platos = []),
+      error: (err) => {
+        console.error('Error al cargar platos:', err);
+        this.notify.handleError(err, 'Error al cargar platos');
+        this.platos = [];
+      },
     });
 
     const raw = this.route.snapshot.paramMap.get('id');
@@ -73,7 +79,11 @@ export default class PromoProgramadaFormPage implements OnInit {
             estado: it.estado,
           });
         },
-        error: () => {},
+        error: (err) => {
+          console.error('Error al cargar promoción:', err);
+          this.notify.handleError(err, 'Error al cargar la promoción');
+          this.loading.set(false);
+        },
         complete: () => this.loading.set(false),
       });
     }
@@ -81,7 +91,11 @@ export default class PromoProgramadaFormPage implements OnInit {
 
   onSubmit(): void {
     this.form.markAllAsTouched();
-    if (this.form.invalid) return;
+
+    if (this.form.invalid) {
+      this.notify.warning('Por favor, complete todos los campos requeridos correctamente');
+      return;
+    }
 
     this.loading.set(true);
 
@@ -98,13 +112,27 @@ export default class PromoProgramadaFormPage implements OnInit {
 
     if (!this.id) {
       this.api.crear(dto).subscribe({
-        next: () => this.router.navigate(['/promo-programada']),
-        error: () => this.loading.set(false),
+        next: () => {
+          this.notify.success('Promoción creada correctamente');
+          this.router.navigate(['/promo-programada']);
+        },
+        error: (err) => {
+          console.error('Error al crear promoción:', err);
+          this.notify.handleError(err, 'Error al crear promoción');
+          this.loading.set(false);
+        },
       });
     } else {
       this.api.actualizar({ id: this.id, ...dto }).subscribe({
-        next: () => this.router.navigate(['/promo-programada']),
-        error: () => this.loading.set(false),
+        next: () => {
+          this.notify.success('Promoción actualizada correctamente');
+          this.router.navigate(['/promo-programada']);
+        },
+        error: (err) => {
+          console.error('Error al actualizar promoción:', err);
+          this.notify.handleError(err, 'Error al actualizar promoción');
+          this.loading.set(false);
+        },
       });
     }
   }

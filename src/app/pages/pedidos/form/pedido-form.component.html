@@ -4,15 +4,23 @@
     <app-section-container [heading]="'Seleccionar Platos'" [compact]="false" [divider]="true" [inset]="true">
       <div class="space-y-6">
         <!-- Plato y Cantidad -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 items-center">
           <app-select label="Plato" [formGroup]="platoForm" controlName="platoId" [items]="platos" [soft]="true"
             [disabled]="loading" [includeNull]="true" nullLabel="-- Seleccione un plato --" labelKey="nombre"
             valueKey="id">
           </app-select>
 
-          <app-input label="Cantidad" type="numeric" [formGroup]="platoForm" controlName="cantidad" [soft]="true"
-            [disabled]="loading" [min]="1">
-          </app-input>
+          <div class="flex justify-center items-center gap-3 mt-6">
+            <button type="button" class="btn-icon btn-icon--sm btn-icon--outline"
+              (click)="ajustarCantidad(platoForm, -1)" [disabled]="platoForm.controls.cantidad.value <= 1 || loading">
+              <lucide-icon [img]="Minus" [size]="14"></lucide-icon>
+            </button>
+            <span class="font-semibold text-lg w-8 text-center">{{ platoForm.controls.cantidad.value }}</span>
+            <button type="button" class="btn-icon btn-icon--sm btn-icon--outline"
+              (click)="ajustarCantidad(platoForm, 1)" [disabled]="loading">
+              <lucide-icon [img]="Plus" [size]="14"></lucide-icon>
+            </button>
+          </div>
         </div>
 
         <!-- Extras -->
@@ -60,13 +68,13 @@
         <!-- Preview del precio -->
         <div *ngIf="platoForm.controls.platoId.value" class="card p-4 bg-blue-50 border-blue-200">
           <div class="flex justify-between items-center">
-            <span class="font-semibold text-slate-700">Precio estimado:</span>
+            <span class="font-semibold text-slate-700">Precio Total:</span>
             <span class="text-2xl font-bold text-blue-600">${{ calcularPrecioPreview().toFixed(2) }}</span>
           </div>
         </div>
 
         <!-- Botón Agregar al carrito -->
-        <button type="button" class="btn btn--primary w-full" (click)="agregarPlatoAlCarrito()"
+        <button type="button" class="btn w-full" (click)="agregarPlatoAlCarrito()"
           [disabled]="!platoForm.controls.platoId.value || platoForm.controls.cantidad.value <= 0 || loading">
           <lucide-icon [img]="Plus" [size]="20"></lucide-icon>
           <span>Agregar al Pedido</span>
@@ -103,7 +111,7 @@
 
                 <!-- Precio unitario -->
                 <td>
-                  <span class="text-slate-600">${{ item.precioBas.toFixed(2) }}</span>
+                  <span class="text-slate-600">${{ item.precioBase.toFixed(2) }}</span>
                 </td>
 
                 <!-- Cantidad con botones -->
@@ -140,8 +148,8 @@
 
                 <!-- Acciones -->
                 <td class="td--actions">
-                  <button type="button" class="btn-icon btn-icon--sm btn-icon--danger"
-                    (click)="removerDelCarrito(i)" [disabled]="loading" title="Eliminar">
+                  <button type="button" class="btn-icon btn-icon--sm btn-icon--danger" (click)="removerDelCarrito(i)"
+                    [disabled]="loading" title="Eliminar">
                     <lucide-icon [img]="Trash2" [size]="16"></lucide-icon>
                   </button>
                 </td>

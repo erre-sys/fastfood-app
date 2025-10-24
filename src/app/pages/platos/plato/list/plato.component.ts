@@ -105,7 +105,6 @@ export default class PlatosListPage implements OnInit, OnDestroy {
         ).subscribe({
               next: p => {
                 const contenido = (p?.contenido ?? []) as any[];
-                console.log('contenido', contenido);
                 this.rows = contenido.map(r => {
                   return {
                     id: (r?.id ?? r?.proveedorId ?? r?.proveedor_id) ?? -1,

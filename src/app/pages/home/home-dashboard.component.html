@@ -5,7 +5,7 @@
 </header>
 
 <!-- ===== Métricas Principales ===== -->
-<section aria-labelledby="dash-metrics" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+<section aria-labelledby="dash-metrics" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
   <!-- Pedidos del Día -->
   <app-home-card
     [title]="'Pedidos del Día'"
@@ -39,16 +39,6 @@
     (navigate)="navegarA('/pedidos')"
   />
 
-  <!-- Ingredientes -->
-  <app-home-card
-    [title]="'Ingredientes'"
-    [total]="ingredientesCount()"
-    [icon]="List"
-    variant="secondary"
-    [buttonText]="'Ver Inventario'"
-    buttonVariant="outline"
-    (navigate)="navegarA('/inventario')"
-  />
 </section>
 
 <!-- ===== Grid de Tablas ===== -->

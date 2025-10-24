@@ -50,7 +50,7 @@ export default class ProveedorFormPage implements OnInit {
   });
 
   get titleLabel() {
-    return this.id ? 'Editar grupo' : 'Nuevo grupo';
+    return this.id ? 'Editar proveedor' : 'Nuevo proveedor';
   }
 
   ngOnInit(): void {
@@ -69,35 +69,35 @@ export default class ProveedorFormPage implements OnInit {
             estado: g.estado,
           });
         },
-        error: () => {},
+        error: (err) => {
+          console.error('Error al cargar proveedor:', err);
+          this.notify.handleError(err, 'Error al cargar el proveedor');
+          this.loading.set(false);
+        },
         complete: () => this.loading.set(false),
       });
     }
   }
 
   onSubmit(): void {
-    console.log('💾 [PROVEEDOR-FORM] Iniciando envío de formulario');
     this.form.markAllAsTouched();
 
     if (this.form.invalid) {
-      console.warn('⚠️ [PROVEEDOR-FORM] Formulario inválido');
       this.notify.warning('Por favor, complete todos los campos requeridos correctamente.');
       return;
     }
 
-    console.log('📤 [PROVEEDOR-FORM] Datos a enviar:', this.form.getRawValue());
     this.loading.set(true);
 
     if (!this.id) {
       const body = this.form.getRawValue() as ProveedorCreate;
       this.api.crear(body).subscribe({
         next: () => {
-          console.log('✅ [PROVEEDOR-FORM] Proveedor creado exitosamente');
           this.notify.success('Proveedor creado correctamente');
           this.router.navigate(['/proveedores']);
         },
         error: (err) => {
-          console.error('❌ [PROVEEDOR-FORM] Error al crear proveedor:', err);
+          console.error('Error al crear proveedor:', err);
           this.notify.handleError(err, 'Error al crear proveedor');
           this.loading.set(false);
         },
@@ -109,12 +109,11 @@ export default class ProveedorFormPage implements OnInit {
       };
       this.api.actualizar(body).subscribe({
         next: () => {
-          console.log('✅ [PROVEEDOR-FORM] Proveedor actualizado exitosamente');
           this.notify.success('Proveedor actualizado correctamente');
           this.router.navigate(['/proveedores']);
         },
         error: (err) => {
-          console.error('❌ [PROVEEDOR-FORM] Error al actualizar proveedor:', err);
+          console.error('Error al actualizar proveedor:', err);
           this.notify.handleError(err, 'Error al actualizar proveedor');
           this.loading.set(false);
         },

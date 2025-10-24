@@ -200,6 +200,20 @@ export const routes: Routes = [
       },
 
       {
+        path: 'inventario/ajustar',
+        loadComponent: () =>
+          import('./pages/inventario/ajuste/ajuste-inventario.component').then(
+            (m) => m.default
+          ),
+      },
+      {
+        path: 'inventario/stock',
+        loadComponent: () =>
+          import('./pages/inventario/stock/inventario-stock.component').then(
+            (m) => m.default
+          ),
+      },
+      {
         path: 'inventario',
         loadComponent: () =>
           import('./pages/inventario/stock/inventario-stock.component').then(

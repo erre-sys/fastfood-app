@@ -58,34 +58,43 @@ export default class IngredienteFormPage implements OnInit {
     return this.id ? 'Editar ingrediente' : 'Nuevo ingrediente';
   }
 
-  ngOnInit(): void {
-    console.log('🔍 [INGREDIENTE-FORM] Inicializando formulario');
+  /**
+   * Actualiza el estado del campo precioExtra según el valor de esExtra
+   */
+  private updatePrecioExtraState(): void {
+    const esExtraValue = this.form.get('esExtra')!.value;
+    const precioExtraCtrl = this.form.get('precioExtra')!;
 
+    if (esExtraValue === 'S') {
+      precioExtraCtrl.enable({ emitEvent: false });
+    } else {
+      precioExtraCtrl.disable({ emitEvent: false });
+      precioExtraCtrl.setValue(null, { emitEvent: false });
+    }
+  }
+
+  ngOnInit(): void {
     this.gruposApi.listar().subscribe({
       next: (gs) => {
         this.grupos = (gs ?? []).map(g => ({ label: g.nombre, value: g.id }));
-        console.log('✅ [INGREDIENTE-FORM] Grupos cargados:', this.grupos.length);
       },
       error: (err) => {
-        console.error('❌ [INGREDIENTE-FORM] Error al cargar grupos:', err);
+        console.error('Error al cargar grupos:', err);
+        this.notify.handleError(err, 'Error al cargar grupos de ingredientes');
         this.grupos = [];
       },
     });
 
     const raw = this.route.snapshot.paramMap.get('id');
     this.id = raw ? Number(raw) : undefined;
-    console.log('📝 [INGREDIENTE-FORM] Modo:', this.id ? `Edición (ID: ${this.id})` : 'Creación');
 
-    this.form.get('esExtra')!.valueChanges.subscribe((v) => {
-      const ctrl = this.form.get('precioExtra')!;
-      if (v === 'S') ctrl.enable({ emitEvent: false });
-      else {
-        ctrl.disable({ emitEvent: false });
-        ctrl.setValue(null, { emitEvent: false });
-      }
+    // Suscribirse a cambios en esExtra para habilitar/deshabilitar precioExtra
+    this.form.get('esExtra')!.valueChanges.subscribe(() => {
+      this.updatePrecioExtraState();
     });
-    // estado inicial del control
-    if (this.form.get('esExtra')!.value !== 'S') this.form.get('precioExtra')!.disable({ emitEvent: false });
+
+    // Establecer estado inicial del campo precioExtra
+    this.updatePrecioExtraState();
 
     if (this.id) {
       this.loading.set(true);
@@ -103,62 +112,54 @@ export default class IngredienteFormPage implements OnInit {
             estado: it.estado,
           }, { emitEvent: false });
 
-          // forzar coherencia de precioExtra con esExtra
-          const v = this.form.get('esExtra')!.value;
-          const ctrl = this.form.get('precioExtra')!;
-          if (v === 'S') ctrl.enable({ emitEvent: false });
-          else { ctrl.disable({ emitEvent: false }); ctrl.setValue(null, { emitEvent: false }); }
+          // Actualizar estado del campo precioExtra después de cargar los datos
+          this.updatePrecioExtraState();
         },
-        error: () => {},
+        error: (err) => {
+          console.error('Error al cargar ingrediente:', err);
+          this.notify.handleError(err, 'Error al cargar el ingrediente');
+          this.loading.set(false);
+        },
         complete: () => this.loading.set(false),
       });
     }
   }
 
   onSubmit(): void {
-    console.log('💾 [INGREDIENTE-FORM] Iniciando envío de formulario');
     this.form.markAllAsTouched();
 
     if (this.form.invalid) {
-      console.warn('⚠️ [INGREDIENTE-FORM] Formulario inválido');
       this.notify.warning('Por favor, complete todos los campos requeridos correctamente');
       return;
     }
 
-    // coherencia antes de enviar
     if (this.form.value.esExtra !== 'S') {
       this.form.patchValue({ precioExtra: null }, { emitEvent: false });
     }
 
     const data = this.form.getRawValue();
-    console.log('📤 [INGREDIENTE-FORM] Datos a enviar:', data);
-
     this.loading.set(true);
 
     if (!this.id) {
-      console.log('➕ [INGREDIENTE-FORM] Creando nuevo ingrediente');
       this.api.crear(data as any).subscribe({
-        next: (response) => {
-          console.log('✅ [INGREDIENTE-FORM] Ingrediente creado exitosamente:', response);
+        next: () => {
           this.notify.success('Ingrediente creado correctamente');
           this.router.navigate(['/ingredientes']);
         },
         error: (err) => {
-          console.error('❌ [INGREDIENTE-FORM] Error al crear ingrediente:', err);
+          console.error('Error al crear ingrediente:', err);
           this.notify.handleError(err, 'Error al crear ingrediente');
           this.loading.set(false);
         },
       });
     } else {
-      console.log('✏️ [INGREDIENTE-FORM] Actualizando ingrediente ID:', this.id);
       this.api.actualizar({ id: this.id, ...(data as any) }).subscribe({
-        next: (response) => {
-          console.log('✅ [INGREDIENTE-FORM] Ingrediente actualizado exitosamente:', response);
+        next: () => {
           this.notify.success('Ingrediente actualizado correctamente');
           this.router.navigate(['/ingredientes']);
         },
         error: (err) => {
-          console.error('❌ [INGREDIENTE-FORM] Error al actualizar ingrediente:', err);
+          console.error('Error al actualizar ingrediente:', err);
           this.notify.handleError(err, 'Error al actualizar ingrediente');
           this.loading.set(false);
         },

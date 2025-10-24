@@ -54,34 +54,43 @@ export default class PlatoFormPage implements OnInit {
     return this.id ? 'Editar plato' : 'Nuevo plato';
   }
 
-  ngOnInit(): void {
-    console.log('🔍 [PLATO-FORM] Inicializando formulario');
+  /**
+   * Actualiza el estado del campo descuentoPct según el valor de enPromocion
+   */
+  private updateDescuentoPctState(): void {
+    const enPromocionValue = this.form.get('enPromocion')!.value;
+    const descuentoPctCtrl = this.form.get('descuentoPct')!;
 
+    if (enPromocionValue === 'S') {
+      descuentoPctCtrl.enable({ emitEvent: false });
+    } else {
+      descuentoPctCtrl.disable({ emitEvent: false });
+      descuentoPctCtrl.setValue(null, { emitEvent: false });
+    }
+  }
+
+  ngOnInit(): void {
     this.gruposApi.listar().subscribe({
       next: (gs) => {
         this.grupos = (gs ?? []).map(g => ({ label: g.nombre, value: g.id }));
-        console.log('✅ [PLATO-FORM] Grupos cargados:', this.grupos.length);
       },
       error: (err) => {
-        console.error('❌ [PLATO-FORM] Error al cargar grupos:', err);
+        console.error('Error al cargar grupos:', err);
+        this.notify.handleError(err, 'Error al cargar grupos de platos');
         this.grupos = [];
       },
     });
 
     const raw = this.route.snapshot.paramMap.get('id');
     this.id = raw ? Number(raw) : undefined;
-    console.log('📝 [PLATO-FORM] Modo:', this.id ? `Edición (ID: ${this.id})` : 'Creación');
 
-    this.form.get('enPromocion')!.valueChanges.subscribe((v) => {
-      const ctrl = this.form.get('descuentoPct')!;
-      if (v === 'S') ctrl.enable({ emitEvent: false });
-      else {
-        ctrl.disable({ emitEvent: false });
-        ctrl.setValue(null, { emitEvent: false });
-      }
+    // Suscribirse a cambios en enPromocion para habilitar/deshabilitar descuentoPct
+    this.form.get('enPromocion')!.valueChanges.subscribe(() => {
+      this.updateDescuentoPctState();
     });
-    // estado inicial del control
-    if (this.form.get('enPromocion')!.value !== 'S') this.form.get('descuentoPct')!.disable({ emitEvent: false });
+
+    // Establecer estado inicial del campo descuentoPct
+    this.updateDescuentoPctState();
 
     if (this.id) {
       this.loading.set(true);
@@ -94,64 +103,57 @@ export default class PlatoFormPage implements OnInit {
             estado: it.estado,
             precioBase: it.precioBase,
             enPromocion: it.enPromocion,
-            descuentoPct: it.descuentoPct,    
+            descuentoPct: it.descuentoPct,
           }, { emitEvent: false });
 
-          const v = this.form.get('enPromocion')!.value;
-          const ctrl = this.form.get('descuentoPct')!;
-          if (v === 'S') ctrl.enable({ emitEvent: false });
-          else { ctrl.disable({ emitEvent: false }); ctrl.setValue(null, { emitEvent: false }); }
+          // Actualizar estado del campo descuentoPct después de cargar los datos
+          this.updateDescuentoPctState();
         },
-        error: () => {},
+        error: (err) => {
+          console.error('Error al cargar plato:', err);
+          this.notify.handleError(err, 'Error al cargar el plato');
+          this.loading.set(false);
+        },
         complete: () => this.loading.set(false),
       });
     }
   }
 
   onSubmit(): void {
-    console.log('💾 [PLATO-FORM] Iniciando envío de formulario');
     this.form.markAllAsTouched();
 
     if (this.form.invalid) {
-      console.warn('⚠️ [PLATO-FORM] Formulario inválido');
       this.notify.warning('Por favor, complete todos los campos requeridos correctamente');
       return;
     }
 
-    // coherencia antes de enviar
     if (this.form.value.enPromocion !== 'S') {
       this.form.patchValue({ descuentoPct: null }, { emitEvent: false });
     }
 
     const data = this.form.getRawValue();
-    console.log('📤 [PLATO-FORM] Datos a enviar:', data);
-
     this.loading.set(true);
 
     if (!this.id) {
-      console.log('➕ [PLATO-FORM] Creando nuevo plato');
       this.api.crear(data as any).subscribe({
-        next: (response) => {
-          console.log('✅ [PLATO-FORM] Plato creado exitosamente:', response);
+        next: () => {
           this.notify.success('Plato creado correctamente');
           this.router.navigate(['/platos']);
         },
         error: (err) => {
-          console.error('❌ [PLATO-FORM] Error al crear plato:', err);
+          console.error('Error al crear plato:', err);
           this.notify.handleError(err, 'Error al crear plato');
           this.loading.set(false);
         },
       });
     } else {
-      console.log('✏️ [PLATO-FORM] Actualizando plato ID:', this.id);
       this.api.actualizar({ id: this.id, ...(data as any) }).subscribe({
-        next: (response) => {
-          console.log('✅ [PLATO-FORM] Plato actualizado exitosamente:', response);
+        next: () => {
           this.notify.success('Plato actualizado correctamente');
           this.router.navigate(['/platos']);
         },
         error: (err) => {
-          console.error('❌ [PLATO-FORM] Error al actualizar plato:', err);
+          console.error('Error al actualizar plato:', err);
           this.notify.handleError(err, 'Error al actualizar plato');
           this.loading.set(false);
         },

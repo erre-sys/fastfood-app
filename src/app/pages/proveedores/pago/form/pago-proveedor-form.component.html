@@ -17,8 +17,9 @@
             </app-input>
 
             <app-input label="Monto (USD)" type="numeric" [formGroup]="form" controlName="montoTotal" [required]="true"
-                [soft]="true" [disabled]="loading()" [errors]="{ min: 'Debe ser mayor a 0' }" 
-                [errors]="{ decimalDot: 'Usa punto (.) como separador decimal' }" [step]="0.01">
+                [soft]="true" [disabled]="loading()"
+                [errors]="{ min: 'Debe ser mayor a 0', decimalDot: 'Usa punto (.) como separador decimal' }"
+                [step]="0.01">
             </app-input>
 
 

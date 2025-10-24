@@ -5,17 +5,20 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 
 import { PagoClienteService } from '../../../services/pago-cliente.service';
-import { PagoCliente } from '../../../interfaces/pago-cliente.interface';
+import { PagoCliente, MetodoPago, EstadoPago } from '../../../interfaces/pago-cliente.interface';
 
 import { PageLayoutComponent } from '../../../shared/ui/page-layout/page-layout.component';
 import { TitleComponent } from '../../../shared/ui/fields/title/title.component';
 import { TableComponent } from '../../../shared/ui/table/table.component';
 import { SearchComponent } from '../../../shared/ui/fields/searchbox/search.component';
 import { PaginatorComponent } from '../../../shared/ui/paginator/paginator.component';
-import { LucideAngularModule, Eye, Plus } from 'lucide-angular';
+import { SectionContainerComponent } from '../../../shared/ui/section-container/section-container.component';
+import { SummaryComponent } from '../../../shared/ui/summary/summary.component';
+import { LucideAngularModule, Eye, Plus, DollarSign, Check, Handshake } from 'lucide-angular';
 import { UiButtonComponent } from '../../../shared/ui/buttons/ui-button/ui-button.component';
 import { TabsFilterComponent } from '../../../shared/ui/tabs-filter/tabs-filter.component';
 import { ColumnDef, Dir, TableSort, TabStatus } from '../../../shared/ui/table/column-def';
+import { NotifyService } from '../../../core/notify/notify.service';
 
 @Component({
   selector: 'app-pagos-cliente-list',
@@ -29,6 +32,8 @@ import { ColumnDef, Dir, TableSort, TabStatus } from '../../../shared/ui/table/c
     TableComponent,
     SearchComponent,
     PaginatorComponent,
+    SectionContainerComponent,
+    SummaryComponent,
     LucideAngularModule,
     UiButtonComponent,
     TabsFilterComponent,
@@ -40,12 +45,13 @@ export default class PagosClienteListPage implements OnInit, OnDestroy {
   private readonly destroyed$ = new Subject<void>();
   private api = inject(PagoClienteService);
   private cdr = inject(ChangeDetectorRef);
+  private notify = inject(NotifyService);
 
   titleLabel = 'Pagos de Clientes';
   subTitleLabel = 'Registro de pagos recibidos';
 
   // UI
-  tab: TabStatus | 'pendiente' | 'pagado' | 'anulado' | 'fiado' = 'all';
+  tab: TabStatus | 'S' | 'P' | 'F' = 'all';
   sortKey: string = 'id';
   sortDir: Dir = 'desc';
   page = 0;
@@ -58,39 +64,74 @@ export default class PagosClienteListPage implements OnInit, OnDestroy {
   // Íconos
   Eye = Eye;
   Plus = Plus;
+  DollarSign = DollarSign;
+  Check = Check;
+  Handshake = Handshake;
 
   searchForm = new FormGroup({
     q: new FormControl<string>('', { nonNullable: true }),
+    fechaDesde: new FormControl<string>('', { nonNullable: true }),
+    fechaHasta: new FormControl<string>('', { nonNullable: true }),
   });
 
   columns: ColumnDef<PagoCliente>[] = [
-    { key: 'id', header: 'ID', sortable: true, widthPx: 80 },
     { key: 'pedidoId', header: 'Pedido', sortable: true, widthPx: 100 },
-    { key: 'fecha', header: 'Fecha', sortable: true, widthPx: 160 },
-    { key: 'montoTotal', header: 'Monto', align: 'right', widthPx: 120 },
-    { key: 'metodo', header: 'Método', widthPx: 120, align: 'center',
+    { key: 'fecha', header: 'Fecha', sortable: true, type: 'date', widthPx: 200 },
+    { key: 'montoTotal', header: 'Monto', align: 'right', widthPx: 130, type: 'money' },
+    { key: 'metodo', header: 'Método', widthPx: 100, align: 'center',
       type: 'badge',
-      badgeMap: { efectivo: 'ok', transferencia: 'muted' },
-      valueMap: { efectivo: 'Efectivo', transferencia: 'Transferencia' }
+      badgeMap: {
+        'EFECTIVO': 'ok',
+        'TARJETA': 'warn',
+        'TRANSFERENCIA': 'muted',
+        'DEPOSITO': 'ok'
+      },
+      valueMap: {
+        'EFECTIVO': 'Efect.',
+        'TARJETA': 'Tarj.',
+        'TRANSFERENCIA': 'Transf.',
+        'DEPOSITO': 'Depós.'
+      }
     },
-    { key: 'estado', header: 'Estado', widthPx: 120, align: 'center',
+    { key: 'estado', header: 'Estado', widthPx: 110, align: 'center',
       type: 'badge',
-      badgeMap: { pendiente: 'warn', pagado: 'ok', anulado: 'danger', fiado: 'muted' },
-      valueMap: { pendiente: 'Pendiente', pagado: 'Pagado', anulado: 'Anulado', fiado: 'Fiado' }
+      badgeMap: {
+        'S': 'warn',    // Solicitado
+        'P': 'ok',      // Pagado
+        'F': 'muted'    // Fiado
+      },
+      valueMap: {
+        'S': 'Solicit.',
+        'P': 'Pagado',
+        'F': 'Fiado'
+      }
     },
-    { key: 'referencia', header: 'Referencia' },
+    { key: 'referencia', header: 'Observ.' },
   ];
 
   counters = {
     all: 0,
-    pendiente: undefined as number | undefined,
-    pagado: undefined as number | undefined,
-    anulado: undefined as number | undefined,
-    fiado: undefined as number | undefined,
+    S: undefined as number | undefined, // Solicitado
+    P: undefined as number | undefined, // Pagado
+    F: undefined as number | undefined, // Fiado
   };
 
   ngOnInit(): void {
     this.searchForm.controls.q.valueChanges
+      .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroyed$))
+      .subscribe(() => {
+        this.page = 0;
+        this.load();
+      });
+
+    this.searchForm.controls.fechaDesde.valueChanges
+      .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroyed$))
+      .subscribe(() => {
+        this.page = 0;
+        this.load();
+      });
+
+    this.searchForm.controls.fechaHasta.valueChanges
       .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroyed$))
       .subscribe(() => {
         this.page = 0;
@@ -110,10 +151,9 @@ export default class PagosClienteListPage implements OnInit, OnDestroy {
     this.cdr.markForCheck();
 
     const filtros: any[] = [];
-    if (this.tab === 'pendiente') filtros.push({ llave: 'estado', operacion: '=', valor: 'pendiente' });
-    if (this.tab === 'pagado') filtros.push({ llave: 'estado', operacion: '=', valor: 'pagado' });
-    if (this.tab === 'anulado') filtros.push({ llave: 'estado', operacion: '=', valor: 'anulado' });
-    if (this.tab === 'fiado') filtros.push({ llave: 'estado', operacion: '=', valor: 'fiado' });
+    if (this.tab === 'S') filtros.push({ llave: 'estado', operacion: '=', valor: 'S' });
+    if (this.tab === 'P') filtros.push({ llave: 'estado', operacion: '=', valor: 'P' });
+    if (this.tab === 'F') filtros.push({ llave: 'estado', operacion: '=', valor: 'F' });
 
     const term = this.searchForm.controls.q.value.trim();
     if (term) {
@@ -122,6 +162,16 @@ export default class PagosClienteListPage implements OnInit, OnDestroy {
         filtros.push({ llave: 'id', operacion: 'EQ', valor: n });
         filtros.push({ llave: 'pedidoId', operacion: 'EQ', valor: n });
       }
+    }
+
+    const fechaDesde = this.searchForm.controls.fechaDesde.value.trim();
+    if (fechaDesde) {
+      filtros.push({ llave: 'fecha', operacion: '>=', valor: fechaDesde });
+    }
+
+    const fechaHasta = this.searchForm.controls.fechaHasta.value.trim();
+    if (fechaHasta) {
+      filtros.push({ llave: 'fecha', operacion: '<=', valor: fechaHasta });
     }
 
     this.api
@@ -137,9 +187,9 @@ export default class PagosClienteListPage implements OnInit, OnDestroy {
             pedidoId: Number(r?.pedidoId ?? r?.pedido_id ?? -1),
             fecha: r?.fecha ?? '',
             montoTotal: Number(r?.montoTotal ?? r?.monto_total ?? 0),
-            metodo: (r?.metodo ?? 'efectivo') as 'efectivo' | 'transferencia',
+            metodo: (r?.metodo ?? 'EFECTIVO') as MetodoPago,
             referencia: r?.referencia ?? '',
-            estado: (r?.estado ?? 'pendiente') as 'pendiente' | 'pagado' | 'anulado' | 'fiado',
+            estado: (r?.estado ?? 'S') as EstadoPago,
             creadoPorSub: r?.creadoPorSub ?? r?.creado_por_sub ?? '',
           })) as PagoCliente[];
 
@@ -158,7 +208,7 @@ export default class PagosClienteListPage implements OnInit, OnDestroy {
   }
 
   // Handlers UI
-  setTab(k: TabStatus | 'pendiente' | 'pagado' | 'anulado' | 'fiado') {
+  setTab(k: TabStatus | 'S' | 'P' | 'F') {
     if (this.tab !== k) {
       this.tab = k;
       this.page = 0;
@@ -214,5 +264,58 @@ export default class PagosClienteListPage implements OnInit, OnDestroy {
 
   onSearch(term: string) {
     this.searchForm.controls.q.setValue(term, { emitEvent: true });
+  }
+
+  /**
+   * Calcula el total de los montos de pagos mostrados en la tabla
+   */
+  calcularTotalMostrado(): number {
+    return this.rows.reduce((sum, pago) => sum + (pago.montoTotal || 0), 0);
+  }
+
+  /**
+   * Aprobar pago (S -> P)
+   */
+  onAprobar(pago: PagoCliente) {
+    if (pago.estado !== 'S') {
+      this.notify.warning('Solo se pueden aprobar pagos en estado Solicitado');
+      return;
+    }
+
+    if (confirm(`¿Aprobar pago #${pago.id} por $${pago.montoTotal.toFixed(2)}?`)) {
+      this.api.cambiarEstado(pago.id, 'P').subscribe({
+        next: () => {
+          this.notify.success(`Pago #${pago.id} aprobado (Pagado)`);
+          this.load();
+        },
+        error: (err) => {
+          console.error('Error al aprobar pago:', err);
+          this.notify.handleError(err, 'Error al aprobar pago');
+        },
+      });
+    }
+  }
+
+  /**
+   * Marcar como Fiado (S -> F)
+   */
+  onFiar(pago: PagoCliente) {
+    if (pago.estado !== 'S') {
+      this.notify.warning('Solo se pueden fiar pagos en estado Solicitado');
+      return;
+    }
+
+    if (confirm(`¿Marcar pago #${pago.id} como Fiado?`)) {
+      this.api.cambiarEstado(pago.id, 'F').subscribe({
+        next: () => {
+          this.notify.success(`Pago #${pago.id} marcado como Fiado`);
+          this.load();
+        },
+        error: (err) => {
+          console.error('Error al fiar pago:', err);
+          this.notify.handleError(err, 'Error al marcar como fiado');
+        },
+      });
+    }
   }
 }

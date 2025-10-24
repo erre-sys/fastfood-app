@@ -60,36 +60,32 @@ export default class CompraFormPage implements OnInit {
   }
 
   private loadProveedores(): void {
-    console.log('🔍 [COMPRA-FORM] Cargando proveedores');
     this.proveedoresApi.listar().subscribe({
       next: (arr) => {
         this.proveedores = (arr ?? []).map((prov: any) => ({
           id: Number(prov?.id ?? prov?.proveedorId),
           nombre: prov?.nombre ?? '',
         }));
-        console.log('✅ [COMPRA-FORM] Proveedores cargados:', this.proveedores.length);
         this.cdr.markForCheck();
       },
       error: (err) => {
-        console.error('❌ [COMPRA-FORM] Error al cargar proveedores:', err);
+        console.error('Error al cargar proveedores:', err);
         this.notify.handleError(err, 'Error al cargar proveedores');
       },
     });
   }
 
   private loadIngredientes(): void {
-    console.log('🔍 [COMPRA-FORM] Cargando ingredientes');
     this.ingredientesApi.listar().subscribe({
       next: (arr) => {
         this.ingredientes = (arr ?? []).map((ing: any) => ({
           id: Number(ing?.id ?? ing?.ingredienteId),
           nombre: ing?.nombre ?? '',
         }));
-        console.log('✅ [COMPRA-FORM] Ingredientes cargados:', this.ingredientes.length);
         this.cdr.markForCheck();
       },
       error: (err) => {
-        console.error('❌ [COMPRA-FORM] Error al cargar ingredientes:', err);
+        console.error('Error al cargar ingredientes:', err);
         this.notify.handleError(err, 'Error al cargar ingredientes');
       },
     });
@@ -100,7 +96,6 @@ export default class CompraFormPage implements OnInit {
   }
 
   agregarItem(): void {
-    console.log('➕ [COMPRA-FORM] Agregando nuevo item');
     const itemGroup = new FormGroup({
       ingredienteId: new FormControl<number | null>(null, [Validators.required]),
       cantidad: new FormControl<number>(1, [
@@ -120,7 +115,6 @@ export default class CompraFormPage implements OnInit {
 
   removerItem(index: number): void {
     if (this.items.length > 1) {
-      console.log('🗑️ [COMPRA-FORM] Removiendo item:', index);
       this.items.removeAt(index);
       this.cdr.markForCheck();
     } else {
@@ -141,18 +135,13 @@ export default class CompraFormPage implements OnInit {
   }
 
   onSubmit(): void {
-    console.log('💾 [COMPRA-FORM] Iniciando envío de compra');
-    console.log('📋 [COMPRA-FORM] Formulario válido:', this.form.valid);
-
     if (this.form.invalid) {
-      console.warn('⚠️ [COMPRA-FORM] Formulario inválido');
       this.form.markAllAsTouched();
       this.notify.warning('Por favor, complete todos los campos requeridos correctamente');
       return;
     }
 
     if (this.items.length === 0) {
-      console.warn('⚠️ [COMPRA-FORM] No hay items en la compra');
       this.notify.warning('Debe agregar al menos un item a la compra');
       return;
     }
@@ -171,20 +160,16 @@ export default class CompraFormPage implements OnInit {
       items,
     };
 
-    console.log('📤 [COMPRA-FORM] DTO a enviar:', dto);
-    console.log('💰 [COMPRA-FORM] Total de la compra:', this.calcularTotal());
-
     this.loading = true;
     this.cdr.markForCheck();
 
     this.api.crear(dto).subscribe({
-      next: (response) => {
-        console.log('✅ [COMPRA-FORM] Compra creada exitosamente:', response);
+      next: () => {
         this.notify.success('Compra registrada correctamente');
         this.router.navigate(['/compras']);
       },
       error: (err) => {
-        console.error('❌ [COMPRA-FORM] Error al crear compra:', err);
+        console.error('Error al crear compra:', err);
         this.notify.handleError(err, 'Error al registrar la compra');
         this.loading = false;
         this.cdr.markForCheck();

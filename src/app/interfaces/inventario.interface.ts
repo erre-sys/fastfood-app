@@ -7,3 +7,9 @@ export interface Inventario {
   unidad: string;
   actualizadoEn: string;
 }
+
+export interface AjusteInventario {
+  ingredienteId: number;
+  cantidad: number; // Positivo = SUMAR, Negativo = RESTAR
+  referencia?: string; // Motivo del ajuste
+}

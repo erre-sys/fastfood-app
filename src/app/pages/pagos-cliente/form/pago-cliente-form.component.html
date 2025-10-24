@@ -2,10 +2,10 @@
   <!-- Información del Pago -->
   <app-section-container [heading]="'Registrar Pago de Cliente'" [compact]="true" [divider]="true" [inset]="true">
     <div class="fg">
-      <app-input label="ID del Pedido" type="numeric" [formGroup]="form" controlName="pedidoId" [required]="true"
-        [soft]="true" [disabled]="loading || pedidoId !== null" hint="Número del pedido a pagar"
-        placeholder="Ingrese el ID del pedido">
-      </app-input>
+      <app-select label="Pedido" [formGroup]="form" controlName="pedidoId" [items]="pedidos"
+        labelKey="label" valueKey="value" [required]="true" [soft]="true"
+        [disabled]="loading || pedidoId !== null" hint="Seleccione el pedido entregado">
+      </app-select>
 
       <app-input label="Monto Total" type="decimal" [formGroup]="form" controlName="montoTotal" [required]="true"
         [soft]="true" [disabled]="loading" [step]="0.01" [min]="0.01" placeholder="0.00"

@@ -13,34 +13,72 @@
 <ng-template #contentT>
   <!-- Tabs -->
   <app-tabs-filter [items]="[
-    { key:'all',       label:'Todos',      count:counters.all,       tone:'brand'   },
-    { key:'pagado',    label:'Pagados',    count:counters.pagado,    tone:'success' },
-    { key:'pendiente', label:'Pendientes', count:counters.pendiente, tone:'warn'    },
-    { key:'fiado',     label:'Fiados',     count:counters.fiado,     tone:'info'    },
-    { key:'anulado',   label:'Anulados',   count:counters.anulado,   tone:'danger'  }
+    { key:'all', label:'Todos',       count:counters.all, tone:'brand'   },
+    { key:'S',   label:'Solicitados', count:counters.S,   tone:'warn'    },
+    { key:'P',   label:'Pagados',     count:counters.P,   tone:'success' },
+    { key:'F',   label:'Fiados',      count:counters.F,   tone:'danger'  }
   ]" [active]="tab" (activeChange)="setTab($any($event))">
   </app-tabs-filter>
 
-  <!-- Search -->
-  <app-search class="w-full max-w-md" placeholder="Buscar por ID de pago o pedido" [value]="searchForm.controls.q.value"
-    (valueChange)="onSearch($event)">
-  </app-search>
+  <!-- Filtros de Búsqueda -->
+  <app-section-container [heading]="'Filtros de Búsqueda'" [compact]="true" [inset]="true">
+    <div class="fg">
+      <!-- Búsqueda por ID -->
+      <div class="form-field">
+        <label class="form-label">Buscar por ID</label>
+        <input type="text" class="field field--soft" placeholder="ID de pago o pedido"
+          [formControl]="searchForm.controls.q">
+        <p class="form-help text-xs">Buscar por número de pago o pedido</p>
+      </div>
+
+      <!-- Fecha Desde -->
+      <div class="form-field">
+        <label class="form-label">Fecha Desde</label>
+        <input type="date" class="field field--soft" [formControl]="searchForm.controls.fechaDesde">
+        <p class="form-help text-xs">Inicio del rango</p>
+      </div>
+
+      <!-- Fecha Hasta -->
+      <div class="form-field">
+        <label class="form-label">Fecha Hasta</label>
+        <input type="date" class="field field--soft" [formControl]="searchForm.controls.fechaHasta">
+        <p class="form-help text-xs">Fin del rango</p>
+      </div>
+    </div>
+  </app-section-container>
 
   <!-- Tabla -->
-  <div class="card overflow-hidden">
-    <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay pagos registrados'"
-      [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
-      <ng-template #actionsTpl let-r>
-        <ui-button [icon]="Eye" label="Ver" variant="warning" size="sm" [to]="['/pagos-cliente', r.id, 'detalle']"
-          [ariaLabel]="'Ver detalle del pago #' + r.id">
-        </ui-button>
-      </ng-template>
-    </app-table>
 
-    <!-- Paginación -->
-    <app-paginator class="mt-2" [from]="from()" [to]="to()" [total]="total" [pageIndex]="page" [pageSize]="pageSize"
-      [pageSizeOptions]="[10,20,30,50]" [maxPage]="maxPage()" (sizeChange)="setPageSize($event)" (prev)="prev()"
-      (next)="next()">
-    </app-paginator>
-  </div>
+  <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay pagos registrados'"
+    [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
+    <ng-template #actionsTpl let-r>
+      <ui-button [icon]="Eye" [iconOnly]="true" variant="warning" size="sm" [to]="['/pagos-cliente', r.id, 'detalle']"
+        [ariaLabel]="'Ver detalle del pago #' + r.id" [title]="'Ver detalle'">
+      </ui-button>
+
+      <!-- S -> P (Aprobar) -->
+      <ui-button *ngIf="r.estado === 'S'" [icon]="Check" [iconOnly]="true" variant="primary" size="sm" type="button"
+        (clicked)="onAprobar(r)" [ariaLabel]="'Aprobar pago #' + r.id" [title]="'Aprobar pago'">
+      </ui-button>
+
+      <!-- S -> F (Fiar) -->
+      <ui-button *ngIf="r.estado === 'S'" [icon]="Handshake" [iconOnly]="true" variant="outline" size="sm" type="button"
+        (clicked)="onFiar(r)" [ariaLabel]="'Fiar pago #' + r.id" [title]="'Marcar como Fiado'">
+      </ui-button>
+    </ng-template>
+  </app-table>
+
+
+  <!-- Total de Pagos Mostrados -->
+  <app-summary *ngIf="rows.length > 0" [label]="'Total de Pagos Mostrados'"
+    [value]="'$' + calcularTotalMostrado().toFixed(2)" [variant]="'success'" [icon]="DollarSign" [iconSize]="2"
+    [size]="'sm'">
+  </app-summary>
+
+  <!-- Paginación -->
+  <app-paginator class="mt-1" [from]="from()" [to]="to()" [total]="total" [pageIndex]="page" [pageSize]="pageSize"
+    [pageSizeOptions]="[10,20,30,50]" [maxPage]="maxPage()" (sizeChange)="setPageSize($event)" (prev)="prev()"
+    (next)="next()">
+  </app-paginator>
+
 </ng-template>

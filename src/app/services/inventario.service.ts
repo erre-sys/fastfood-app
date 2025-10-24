@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environments';
 import { Pager } from '../interfaces/pagination.interface';
+import { AjusteInventario } from '../interfaces/inventario.interface';
 
 @Injectable({ providedIn: 'root' })
 export class InventarioService {
@@ -101,5 +102,16 @@ export class InventarioService {
       content?: any[];
       totalElements?: number;
     }>(`${this.base}/kardex/search`, {}, { params });
+  }
+
+  /**
+   * Método 3: Ajustar inventario manualmente
+   * POST /inventario/ajustar
+   * @param ajuste - Datos del ajuste (ingredienteId, cantidad, referencia)
+   * cantidad positiva = SUMAR stock, cantidad negativa = RESTAR stock
+   */
+  ajustar(ajuste: AjusteInventario): Observable<void> {
+    console.log('[INVENTARIO-SERVICE] Ajustando inventario:', ajuste);
+    return this.http.post<void>(`${this.base}/ajustar`, ajuste);
   }
 }

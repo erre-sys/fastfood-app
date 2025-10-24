@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { GrupoIngredienteService } from '../../../../services/grupo-ingrediente.service';
+import { NotifyService } from '../../../../core/notify/notify.service';
 
 import { InputComponent } from '../../../../shared/ui/fields/input/input.component';
 import { SectionContainerComponent } from '../../../../shared/ui/section-container/section-container.component';
@@ -25,6 +26,7 @@ export default class GrupoIngredienteFormPage implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private api = inject(GrupoIngredienteService);
+  private notify = inject(NotifyService);
 
   id?: number;
   loading = signal(false);
@@ -51,7 +53,11 @@ export default class GrupoIngredienteFormPage implements OnInit {
             aplicaComida: g.aplicaComida ?? 'N',
           });
         },
-        error: () => {},
+        error: (err) => {
+          console.error('Error al cargar grupo de ingrediente:', err);
+          this.notify.handleError(err, 'Error al cargar el grupo de ingrediente');
+          this.loading.set(false);
+        },
         complete: () => this.loading.set(false),
       });
     }
@@ -59,21 +65,39 @@ export default class GrupoIngredienteFormPage implements OnInit {
 
   onSubmit(): void {
     this.form.markAllAsTouched();
-    if (this.form.invalid) return;
+
+    if (this.form.invalid) {
+      this.notify.warning('Por favor, complete todos los campos requeridos correctamente');
+      return;
+    }
 
     this.loading.set(true);
 
     if (!this.id) {
       const body = this.form.getRawValue() as GrupoIngredienteCreate;
       this.api.crear(body).subscribe({
-        next: () => this.router.navigate(['/grupo-ingredientes']),
-        error: () => this.loading.set(false),
+        next: () => {
+          this.notify.success('Grupo de ingrediente creado correctamente');
+          this.router.navigate(['/grupo-ingredientes']);
+        },
+        error: (err) => {
+          console.error('Error al crear grupo de ingrediente:', err);
+          this.notify.handleError(err, 'Error al crear grupo de ingrediente');
+          this.loading.set(false);
+        },
       });
     } else {
       const body: GrupoIngredienteUpdate = { id: this.id, ...(this.form.getRawValue() as GrupoIngredienteCreate) };
       this.api.actualizar(body).subscribe({
-        next: () => this.router.navigate(['/grupo-ingredientes']),
-        error: () => this.loading.set(false),
+        next: () => {
+          this.notify.success('Grupo de ingrediente actualizado correctamente');
+          this.router.navigate(['/grupo-ingredientes']);
+        },
+        error: (err) => {
+          console.error('Error al actualizar grupo de ingrediente:', err);
+          this.notify.handleError(err, 'Error al actualizar grupo de ingrediente');
+          this.loading.set(false);
+        },
       });
     }
   }

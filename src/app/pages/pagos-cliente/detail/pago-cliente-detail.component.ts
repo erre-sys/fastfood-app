@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { PagoClienteService } from '../../../services/pago-cliente.service';
-import { PagoCliente } from '../../../interfaces/pago-cliente.interface';
+import { PagoCliente, MetodoPago, EstadoPago } from '../../../interfaces/pago-cliente.interface';
 
 import { SectionContainerComponent } from '../../../shared/ui/section-container/section-container.component';
 import { DetailHeaderComponent, DetailHeaderField } from '../../../shared/ui/detail-header/detail-header.component';
@@ -43,9 +43,9 @@ export default class PagoClienteDetailPage implements OnInit {
           pedidoId: Number(r?.pedidoId ?? r?.pedido_id ?? -1),
           fecha: r?.fecha ?? '',
           montoTotal: Number(r?.montoTotal ?? r?.monto_total ?? 0),
-          metodo: (r?.metodo ?? 'efectivo') as 'efectivo' | 'transferencia',
+          metodo: (r?.metodo ?? 'EFECTIVO') as MetodoPago,
           referencia: r?.referencia ?? '',
-          estado: (r?.estado ?? 'pendiente') as 'pendiente' | 'pagado' | 'anulado' | 'fiado',
+          estado: (r?.estado ?? 'S') as EstadoPago,
           creadoPorSub: r?.creadoPorSub ?? r?.creado_por_sub ?? '',
         };
 
@@ -87,28 +87,28 @@ export default class PagoClienteDetailPage implements OnInit {
 
   getMetodoLabel(metodo: string): string {
     const map: Record<string, string> = {
-      efectivo: 'Efectivo',
-      transferencia: 'Transferencia',
+      'EFECTIVO': 'Efectivo',
+      'TARJETA': 'Tarjeta',
+      'TRANSFERENCIA': 'Transferencia',
+      'DEPOSITO': 'Depósito',
     };
     return map[metodo] || metodo;
   }
 
   getEstadoLabel(estado: string): string {
     const map: Record<string, string> = {
-      pendiente: 'Pendiente',
-      pagado: 'Pagado',
-      anulado: 'Anulado',
-      fiado: 'Fiado',
+      'S': 'Solicitado',
+      'P': 'Pagado',
+      'F': 'Fiado',
     };
     return map[estado] || estado;
   }
 
   getEstadoBadgeClass(estado: string): string {
     const map: Record<string, string> = {
-      pendiente: 'pill--warning',
-      pagado: 'pill--success',
-      anulado: 'pill--danger',
-      fiado: 'pill--muted',
+      'S': 'pill--warning',  // Solicitado
+      'P': 'pill--success',  // Pagado
+      'F': 'pill--muted',    // Fiado
     };
     return map[estado] || 'pill--muted';
   }

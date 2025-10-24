@@ -7,6 +7,7 @@ import { AppSelectComponent } from '../../../../shared/ui/fields/select/select.c
 import { InputComponent, SectionContainerComponent, SaveCancelComponent } from '../../../../shared';
 import { ProveedoresService } from '../../../../services/proveedores.service';
 import { PagosProveedorService } from '../../../../services/pago-proveedor.service';
+import { NotifyService } from '../../../../core/notify/notify.service';
 import { MetodoPago, PagoProveedorCreate } from '../../../../interfaces/pago-proveedor.interface';
 import { decimalDot } from '../../../../shared/ui/fields/input/decimal-dot.validator';
 
@@ -22,6 +23,7 @@ export default class PagoProveedorFormPage implements OnInit {
   private router = inject(Router);
   private provApi = inject(ProveedoresService);
   private pagosApi = inject(PagosProveedorService);
+  private notify = inject(NotifyService);
 
   loading = signal(false);
 
@@ -46,6 +48,11 @@ export default class PagoProveedorFormPage implements OnInit {
           value: Number(p?.id ?? p?.proveedorId ?? p?.proveedor_id),
           label: String(p?.nombre ?? p?.razonSocial ?? ''),
         }));
+      },
+      error: (err) => {
+        console.error('Error al cargar proveedores:', err);
+        this.notify.handleError(err, 'Error al cargar proveedores');
+        this.proveedores = [];
       }
     });
 
@@ -62,7 +69,11 @@ export default class PagoProveedorFormPage implements OnInit {
 
   onSubmit(): void {
     this.form.markAllAsTouched();
-    if (this.form.invalid) return;
+
+    if (this.form.invalid) {
+      this.notify.warning('Por favor, complete todos los campos requeridos correctamente');
+      return;
+    }
 
     const v = this.form.getRawValue();
     const body: PagoProveedorCreate = {
@@ -75,8 +86,15 @@ export default class PagoProveedorFormPage implements OnInit {
 
     this.loading.set(true);
     this.pagosApi.crear(body).subscribe({
-      next: () => this.router.navigate(['/pago-proveedor']),
-      error: () => this.loading.set(false),
+      next: () => {
+        this.notify.success('Pago a proveedor registrado correctamente');
+        this.router.navigate(['/pago-proveedor']);
+      },
+      error: (err) => {
+        console.error('Error al crear pago a proveedor:', err);
+        this.notify.handleError(err, 'Error al registrar pago a proveedor');
+        this.loading.set(false);
+      },
     });
   }
 

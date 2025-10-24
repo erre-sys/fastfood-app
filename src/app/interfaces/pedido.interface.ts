@@ -34,6 +34,9 @@ export interface Pedido {
   actualizadoEn?: string;
   entregadoEn?: string;
   items?: PedidoItem[];
+  // Información de pagos
+  totalPagado?: number; // Suma de pagos aprobados (estado P)
+  montoPendiente?: number; // totalNeto - totalPagado
 }
 
 export interface PedidoCreate {

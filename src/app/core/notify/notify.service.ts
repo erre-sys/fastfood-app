@@ -29,7 +29,7 @@ export class NotifyService {
     this.push({ type: 'success', text, timeout });
   }
 
-  error(text: string, timeout = 6000) {
+  error(text: string, timeout = 8000) {
     console.error('❌ [NOTIFY] Error:', text);
     this.push({ type: 'error', text, timeout });
   }
@@ -52,32 +52,32 @@ export class NotifyService {
 
     let message = defaultMessage;
 
-    // Extraer mensaje del error
+    // Extraer mensaje del error del backend (prioridad alta)
     if (err?.error?.mensaje) {
       message = err.error.mensaje;
     } else if (err?.error?.message) {
       message = err.error.message;
     } else if (err?.message) {
       message = err.message;
+    } else {
+      // Si no hay mensaje específico, usar mensajes por código de estado
+      if (err?.status === 400) {
+        message = 'Datos inválidos';
+      } else if (err?.status === 401) {
+        message = 'No tienes permisos para realizar esta acción';
+      } else if (err?.status === 403) {
+        message = 'No tienes acceso a este recurso';
+      } else if (err?.status === 404) {
+        message = 'El recurso solicitado no existe';
+      } else if (err?.status === 409) {
+        message = 'Conflicto con el estado actual';
+      } else if (err?.status === 500) {
+        message = 'Ocurrió un error en el servidor. Por favor, intenta más tarde.';
+      } else if (err?.status === 0) {
+        message = 'No se pudo conectar con el servidor. Verifica tu conexión a internet.';
+      }
     }
 
-    // Detectar errores comunes y personalizarlos
-    if (err?.status === 400) {
-      message = err?.error?.mensaje || err?.error?.message || 'Datos inválidos';
-    } else if (err?.status === 401) {
-      message = 'No tienes permisos para realizar esta acción';
-    } else if (err?.status === 403) {
-      message = 'No tienes acceso a este recurso';
-    } else if (err?.status === 404) {
-      message = 'El recurso solicitado no existe';
-    } else if (err?.status === 409) {
-      message = err?.error?.mensaje || err?.error?.message || 'Conflicto con el estado actual';
-    } else if (err?.status === 500) {
-      message = 'Ocurrió un error en el servidor. Por favor, intenta más tarde.';
-    } else if (err?.status === 0) {
-      message = 'No se pudo conectar con el servidor. Verifica tu conexión a internet.';
-    }
-
-    this.error(message, 0); // 0 = no auto-dismiss para errores
+    this.error(message); // Auto-dismiss después de 8 segundos
   }
 }

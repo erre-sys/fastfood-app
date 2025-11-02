@@ -32,7 +32,7 @@ export class CompraService {
       fromObject: {
         page: String(pager.page ?? 0),
         size: String(pager.size ?? 10),
-        sortBy: pager.sortBy || 'fecha',
+        orderBy: pager.orderBy || 'fecha',
         direction: pager.direction || 'desc',
       },
     });

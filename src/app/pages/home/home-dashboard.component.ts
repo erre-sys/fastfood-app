@@ -1,28 +1,24 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { NgIf, NgFor, DatePipe, DecimalPipe, CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { NgIf, NgFor, DatePipe, CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { LucideAngularModule, Square, List, ShoppingBag, CalendarClock, DollarSign } from 'lucide-angular';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 import { GrupoIngredienteService } from '../../services/grupo-ingrediente.service';
 import { IngredienteService } from '../../services/ingrediente.service';
 import { PedidoService } from '../../services/pedido.service';
 import { HomeCardComponent } from '../../shared/ui/home-card/home-card.component';
-import { Pedido } from '../../interfaces/pedido.interface';
+import { Pedido, EstadoPedido } from '../../interfaces/pedido.interface';
+import { NotifyService } from '../../core/notify/notify.service';
+import { HasRoleDirective } from '../../core/auth/has-role.directive';
+import { getTodayDateStringECT, dateToBackendDateTimeStart, dateToBackendDateTimeEnd } from '../../shared/utils/date-format.util';
 
 
 @Component({
   selector: 'app-home-dashboard',
   standalone: true,
   imports: [
-    NgIf,
-    NgFor,
-    CommonModule,
-    RouterLink,
-    DatePipe,
-    DecimalPipe,
-    LucideAngularModule,
-    HomeCardComponent,
+    NgIf, NgFor, CommonModule, DatePipe,
+    LucideAngularModule, HomeCardComponent, HasRoleDirective,
   ],
   templateUrl: './home-dashboard.component.html',
 })
@@ -32,7 +28,7 @@ export default class HomeDashboardComponent implements OnInit {
   private ingredientesApi = inject(IngredienteService);
   private pedidosApi = inject(PedidoService);
   private router = inject(Router);
-  private sanitizer = inject(DomSanitizer);
+  private notify = inject(NotifyService);
 
   // ---- Estado reactivo ----
   gruposCount = signal<number>(0);
@@ -67,17 +63,16 @@ export default class HomeDashboardComponent implements OnInit {
   }
 
   cargarDatos(): void {
-    console.log('🏠 [HOME] Cargando datos del dashboard');
     this.loading.set(true);
 
     // Grupos de ingredientes
     this.gruposApi.listar().subscribe({
       next: (data: string | any[]) => {
-        console.log('✅ [HOME] Grupos de ingredientes:', data?.length ?? 0);
         this.gruposCount.set(data?.length ?? 0);
       },
       error: (err) => {
-        console.error('❌ [HOME] Error al cargar grupos:', err);
+        console.error('Error al consultar grupos de ingredientes:', err);
+        this.notify.handleError(err, 'Error al cargar grupos de ingredientes');
         this.gruposCount.set(0);
       },
     });
@@ -85,11 +80,11 @@ export default class HomeDashboardComponent implements OnInit {
     // Ingredientes
     this.ingredientesApi.listar().subscribe({
       next: (data) => {
-        console.log('✅ [HOME] Ingredientes:', data?.length ?? 0);
         this.ingredientesCount.set(data?.length ?? 0);
       },
       error: (err) => {
-        console.error('❌ [HOME] Error al cargar ingredientes:', err);
+        console.error('Error al consultar ingredientes:', err);
+        this.notify.handleError(err, 'Error al cargar ingredientes');
         this.ingredientesCount.set(0);
       },
     });
@@ -99,37 +94,30 @@ export default class HomeDashboardComponent implements OnInit {
   }
 
   cargarPedidosDelDia(): void {
-    console.log('📅 [HOME] Cargando pedidos del día');
+    // Obtener fecha de hoy en zona horaria de Ecuador (UTC-5)
+    const fechaHoy = getTodayDateStringECT();
 
-    // Obtener fecha de hoy - inicio y fin del día
-    const hoy = new Date();
-    const inicioDelDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), 0, 0, 0);
-    const finDelDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), 23, 59, 59);
+    // Convertir a formato DateTime del backend (inicio y fin del día)
+    const fechaInicio = dateToBackendDateTimeStart(fechaHoy);
+    const fechaFin = dateToBackendDateTimeEnd(fechaHoy);
 
-    // Formato: yyyy-MM-dd HH:mm:ss (como espera el backend)
-    const fechaInicio = this.formatDateTimeForBackend(inicioDelDia);
-    const fechaFin = this.formatDateTimeForBackend(finDelDia);
-
-    console.log('📅 [HOME] Rango de fechas:', fechaInicio, 'a', fechaFin);
+    console.log('Rango de fechas (ECT):', fechaInicio, 'a', fechaFin);
 
     // Filtros para pedidos creados hoy (rango de fechas)
     const filtros = [
-      { llave: 'creadoEn', operacion: '>=', valor: fechaInicio },
-      { llave: 'creadoEn', operacion: '<=', valor: fechaFin }
+      { llave: 'creadoEn', operacion: '>=' as const, valor: fechaInicio },
+      { llave: 'creadoEn', operacion: '<=' as const, valor: fechaFin }
     ];
 
-    const pager = { page: 0, size: 100, sortBy: 'id', direction: 'desc' as 'desc' | 'asc' };
-
-    console.log('🔍 [HOME] Consultando pedidos con filtros:', filtros);
+    const pager = { page: 0, size: 100, orderBy: 'id', direction: 'desc' as 'desc' | 'asc' };
 
     this.pedidosApi.buscarPaginado(pager, filtros).subscribe({
       next: (response) => {
-        console.log('✅ [HOME] Respuesta de pedidos del día:', response);
 
         const contenido = (response?.contenido ?? []) as any[];
         const pedidos = contenido.map((r: any) => ({
           id: Number(r?.id ?? -1),
-          estado: r?.estado ?? 'C',
+          estado: (r?.estado ?? 'C') as EstadoPedido,
           totalBruto: Number(r?.totalBruto ?? r?.total_bruto ?? 0),
           totalExtras: Number(r?.totalExtras ?? r?.total_extras ?? 0),
           totalNeto: Number(r?.totalNeto ?? r?.total_neto ?? 0),
@@ -140,15 +128,13 @@ export default class HomeDashboardComponent implements OnInit {
           entregadoEn: r?.entregadoEn ?? r?.entregado_en ?? '',
         })) as Pedido[];
 
-        console.log('📊 [HOME] Pedidos del día procesados:', pedidos);
-        console.log('🔢 [HOME] Total de pedidos hoy:', pedidos.length);
-
         this.pedidosHoy.set(pedidos);
         this.pedidosHoyCount.set(pedidos.length);
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('❌ [HOME] Error al cargar pedidos del día:', err);
+        console.error('Error al consultar pedidos del día:', err);
+        this.notify.handleError(err, 'Error al cargar pedidos del día');
         this.pedidosHoy.set([]);
         this.pedidosHoyCount.set(0);
         this.loading.set(false);
@@ -186,19 +172,5 @@ export default class HomeDashboardComponent implements OnInit {
 
   navegarA(ruta: string): void {
     this.router.navigate([ruta]);
-  }
-
-  /**
-   * Formatea una fecha al formato esperado por el backend: yyyy-MM-dd HH:mm:ss
-   */
-  private formatDateTimeForBackend(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   }
 }

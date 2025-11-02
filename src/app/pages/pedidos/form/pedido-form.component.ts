@@ -6,6 +6,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, FormsModule, Validators } 
 import { PedidoService } from '../../../services/pedido.service';
 import { PlatoService } from '../../../services/plato.service';
 import { IngredienteService } from '../../../services/ingrediente.service';
+import { PromoProgramadaService } from '../../../services/promo-programada.service';
 import { PedidoCreate, PedidoItemCreate, PedidoItemExtraCreate } from '../../../interfaces/pedido.interface';
 import { NotifyService } from '../../../core/notify/notify.service';
 
@@ -39,6 +40,7 @@ export default class PedidoFormPage implements OnInit {
   private api = inject(PedidoService);
   private platosApi = inject(PlatoService);
   private ingredientesApi = inject(IngredienteService);
+  private promosApi = inject(PromoProgramadaService);
   private router = inject(Router);
   private notify = inject(NotifyService);
   private cdr = inject(ChangeDetectorRef);
@@ -53,6 +55,9 @@ export default class PedidoFormPage implements OnInit {
   loading = false;
   platos: Array<{ id: number; nombre: string; precioBase: number; grupoPlatoId: number }> = [];
   ingredientes: Array<{ id: number; nombre: string; codigo: string; precioExtra: number }> = [];
+
+  // Promociones vigentes: platoId -> descuentoPct
+  promocionesVigentes = new Map<number, number>();
 
   // Carrito de compras
   carrito: CartItem[] = [];
@@ -75,6 +80,7 @@ export default class PedidoFormPage implements OnInit {
   ngOnInit(): void {
     this.loadPlatos();
     this.loadIngredientes();
+    this.loadPromociones();
   }
 
   private loadPlatos(): void {
@@ -111,6 +117,21 @@ export default class PedidoFormPage implements OnInit {
       error: (err) => {
         console.error('Error al consultar ingredientes:', err);
         this.notify.handleError(err, 'Error al cargar ingredientes');
+      },
+    });
+  }
+
+  private loadPromociones(): void {
+    this.promosApi.obtenerVigentes().subscribe({
+      next: (arr) => {
+        this.promocionesVigentes.clear();
+        arr.forEach((promo) => {
+          this.promocionesVigentes.set(promo.platoId, promo.descuentoPct);
+        });
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error al cargar promociones vigentes:', err);
       },
     });
   }
@@ -168,12 +189,16 @@ export default class PedidoFormPage implements OnInit {
     if (existe) {
       existe.cantidad += cantidad;
     } else {
+      // Verificar si hay promoción vigente para este plato
+      const descuentoPct = this.promocionesVigentes.get(platoId);
+
       this.carrito.push({
         platoId: platoId,
         platoNombre: plato.nombre,
         precioBase: plato.precioBase,
         cantidad: cantidad,
         extras: [...this.extrasTemp],
+        descuentoPct: descuentoPct,
       });
     }
 

@@ -31,14 +31,19 @@ export class InventarioService {
       fromObject: {
         page: String(pager.page ?? 0),
         size: String(pager.size ?? 10),
-        sortBy: pager.sortBy || 'nombre',
+        orderBy: pager.orderBy || 'ingredienteId',
         direction: pager.direction || 'asc',
-        soloBajoMinimo: String(soloBajoMinimo),
       },
     });
 
+    // Solo agregar q si tiene valor
     if (q && q.trim()) {
       params = params.set('q', q.trim());
+    }
+
+    // Solo agregar soloBajoMinimo si es true
+    if (soloBajoMinimo) {
+      params = params.set('soloBajoMinimo', 'true');
     }
 
     return this.http.post<{
@@ -53,14 +58,14 @@ export class InventarioService {
    * Método 2: Buscar kardex (movimientos) paginado con filtros opcionales
    * POST /inventario/kardex/search
    * @param pager - Paginación y ordenamiento
-   * @param ingredienteId - ID del ingrediente (opcional - si no se envía, trae todos)
-   * @param desde - Fecha desde en formato ISO-8601 (opcional)
-   * @param hasta - Fecha hasta en formato ISO-8601 (opcional)
+   * @param ingredienteId - ID del ingrediente (OBLIGATORIO según backend)
+   * @param desde - Fecha desde en formato 'yyyy-MM-dd HH:mm:ss' (opcional)
+   * @param hasta - Fecha hasta en formato 'yyyy-MM-dd HH:mm:ss' (opcional)
    * @param tipo - Tipo de movimiento: COMPRA, CONSUMO, AJUSTE (opcional)
    */
   buscarKardexPaginado(
     pager: Pager,
-    ingredienteId?: number | null,
+    ingredienteId: number,
     desde?: string,
     hasta?: string,
     tipo?: 'COMPRA' | 'CONSUMO' | 'AJUSTE' | null
@@ -74,15 +79,11 @@ export class InventarioService {
       fromObject: {
         page: String(pager.page ?? 0),
         size: String(pager.size ?? 10),
-        sortBy: pager.sortBy || 'fecha',
+        orderBy: pager.orderBy || 'fecha',
         direction: pager.direction || 'desc',
+        ingredienteId: String(ingredienteId), // OBLIGATORIO
       },
     });
-
-    // Solo agregar ingredienteId si existe
-    if (ingredienteId != null && ingredienteId > 0) {
-      params = params.set('ingredienteId', String(ingredienteId));
-    }
 
     if (desde && desde.trim()) {
       params = params.set('desde', desde.trim());
@@ -111,7 +112,6 @@ export class InventarioService {
    * cantidad positiva = SUMAR stock, cantidad negativa = RESTAR stock
    */
   ajustar(ajuste: AjusteInventario): Observable<void> {
-    console.log('[INVENTARIO-SERVICE] Ajustando inventario:', ajuste);
     return this.http.post<void>(`${this.base}/ajustar`, ajuste);
   }
 }

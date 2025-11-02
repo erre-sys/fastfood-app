@@ -1,25 +1,20 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { InventarioService } from '../../../services/inventario.service';
 import { IngredienteService } from '../../../services/ingrediente.service';
 import { InventarioMov } from '../../../interfaces/inventario-mov.interface';
+import { isoToSimpleDate, dateToBackendDateTimeStart, dateToBackendDateTimeEnd } from '../../../shared/utils/date-format.util';
+import { BaseListComponent } from '../../../shared/base/base-list.component';
 
-import { PageLayoutComponent } from '../../../shared/ui/page-layout/page-layout.component';
-import { TitleComponent } from '../../../shared/ui/fields/title/title.component';
-import { TableComponent } from '../../../shared/ui/table/table.component';
-import { PaginatorComponent } from '../../../shared/ui/paginator/paginator.component';
-import { SectionContainerComponent } from '../../../shared/ui/section-container/section-container.component';
-import { InputComponent } from '../../../shared/ui/fields/input/input.component';
+import { PageLayoutComponent, TitleComponent, TableComponent, PaginatorComponent, SectionContainerComponent, DateRangeComponent } from '../../../shared';
 import { AppSelectComponent } from '../../../shared/ui/fields/select/select.component';
 import { LucideAngularModule, ArrowLeftRight } from 'lucide-angular';
-import { UiButtonComponent } from '../../../shared/ui/buttons/ui-button/ui-button.component';
 import { TabsFilterComponent } from '../../../shared/ui/tabs-filter/tabs-filter.component';
-import { ColumnDef, Dir, TableSort } from '../../../shared/ui/table/column-def';
+import { ColumnDef, Dir } from '../../../shared/ui/table/column-def';
 
 type TipoMovTab = 'all' | 'COMPRA' | 'CONSUMO' | 'AJUSTE';
 
@@ -28,24 +23,21 @@ type TipoMovTab = 'all' | 'COMPRA' | 'CONSUMO' | 'AJUSTE';
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     ReactiveFormsModule,
     PageLayoutComponent,
     TitleComponent,
     TableComponent,
     PaginatorComponent,
     SectionContainerComponent,
-    InputComponent,
+    DateRangeComponent,
     AppSelectComponent,
     LucideAngularModule,
-    UiButtonComponent,
-    TabsFilterComponent,
-  ],
+    TabsFilterComponent
+],
   templateUrl: './inventario-movimientos.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class InventarioMovimientosPage implements OnInit, OnDestroy {
-  private readonly destroyed$ = new Subject<void>();
+export default class InventarioMovimientosPage extends BaseListComponent implements OnInit {
   private api = inject(InventarioService);
   private ingredientesApi = inject(IngredienteService);
   private cdr = inject(ChangeDetectorRef);
@@ -55,13 +47,8 @@ export default class InventarioMovimientosPage implements OnInit, OnDestroy {
 
   // UI
   tab: TipoMovTab = 'all';
-  sortKey: string = 'fecha';
-  sortDir: Dir = 'desc';
-  page = 0;
-  pageSize = 10;
-
-  loading = false;
-  total = 0;
+  override sortKey: string = 'fecha';
+  override sortDir: Dir = 'desc';
   rows: InventarioMov[] = [];
 
   // Íconos
@@ -69,6 +56,9 @@ export default class InventarioMovimientosPage implements OnInit, OnDestroy {
 
   // Lista de ingredientes para el select
   ingredientes: Array<{ id: number; nombre: string }> = [];
+
+  // Map para búsqueda rápida de nombres de ingredientes
+  private ingredienteNombreMap: Map<number, string> = new Map();
 
   searchForm = new FormGroup({
     ingredienteId: new FormControl<number | null>(null),
@@ -95,8 +85,6 @@ export default class InventarioMovimientosPage implements OnInit, OnDestroy {
   counters = { all: 0, COMPRA: undefined as number | undefined, CONSUMO: undefined as number | undefined, AJUSTE: undefined as number | undefined };
 
   ngOnInit(): void {
-    console.log('[KARDEX] Inicializando componente de movimientos');
-
     // Cargar ingredientes primero
     this.loadIngredientes();
 
@@ -108,11 +96,6 @@ export default class InventarioMovimientosPage implements OnInit, OnDestroy {
     this.searchForm.controls.fechaDesde.setValue(this.formatDateForInput(thirtyDaysAgo));
     this.searchForm.controls.fechaHasta.setValue(this.formatDateForInput(today));
 
-    console.log('[KARDEX] Rango de fechas por defecto:', {
-      desde: this.formatDateForInput(thirtyDaysAgo),
-      hasta: this.formatDateForInput(today)
-    });
-
     this.searchForm.valueChanges
       .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroyed$))
       .subscribe(() => {
@@ -121,29 +104,15 @@ export default class InventarioMovimientosPage implements OnInit, OnDestroy {
       });
   }
 
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
-  }
-
   private formatDateForInput(date: Date): string {
-    return date.toISOString().split('T')[0];
+    return isoToSimpleDate(date.toISOString());
   }
 
-  private formatDateTimeForBackend(dateStr: string): string {
-    // Convierte yyyy-MM-dd a yyyy-MM-ddT00:00:00
-    return `${dateStr}T00:00:00`;
-  }
-
-  private load(): void {
+  protected override load(): void {
     const ingredienteId = this.searchForm.controls.ingredienteId.value;
-
-    console.log('[KARDEX] Iniciando carga de movimientos');
-    console.log('[KARDEX] Ingrediente seleccionado:', ingredienteId);
 
     // El backend requiere ingredienteId obligatorio
     if (!ingredienteId) {
-      console.log('[KARDEX] No hay ingrediente seleccionado, limpiando tabla');
       this.rows = [];
       this.total = 0;
       this.loading = false;
@@ -156,25 +125,23 @@ export default class InventarioMovimientosPage implements OnInit, OnDestroy {
 
     const fechaDesde = this.searchForm.controls.fechaDesde.value.trim();
     const fechaHasta = this.searchForm.controls.fechaHasta.value.trim();
-
-    const desde = fechaDesde ? this.formatDateTimeForBackend(fechaDesde) : undefined;
-    const hasta = fechaHasta ? this.formatDateTimeForBackend(fechaHasta) : undefined;
     const tipo = this.tab === 'all' ? null : this.tab;
 
-    console.log('[KARDEX] Parámetros de búsqueda:', { ingredienteId, desde, hasta, tipo, page: this.page, size: this.pageSize });
+    // Convertir fechas simples a formato DateTime del backend
+    const fechaDesdeDateTime = fechaDesde ? dateToBackendDateTimeStart(fechaDesde) : undefined;
+    const fechaHastaDateTime = fechaHasta ? dateToBackendDateTimeEnd(fechaHasta) : undefined;
 
     this.api
       .buscarKardexPaginado(
-        { page: this.page, size: this.pageSize, sortBy: this.sortKey, direction: this.sortDir },
+        { page: this.page, size: this.pageSize, orderBy: this.sortKey, direction: this.sortDir },
         ingredienteId,
-        desde,
-        hasta,
+        fechaDesdeDateTime,
+        fechaHastaDateTime,
         tipo
       )
       .subscribe({
         next: (p) => {
           const contenido = (p?.contenido ?? p?.content ?? []) as any[];
-          console.log('[KARDEX] Movimientos recibidos:', contenido.length, 'items');
 
           this.rows = contenido.map((r) => {
             const ingId = Number(r?.ingredienteId ?? r?.ingrediente_id ?? -1);
@@ -194,12 +161,9 @@ export default class InventarioMovimientosPage implements OnInit, OnDestroy {
 
           this.total = Number(p?.totalRegistros ?? p?.totalElements ?? this.rows.length);
           this.counters.all = this.total;
-
-          console.log('[KARDEX] Filas procesadas:', this.rows.length, 'Total:', this.total);
           this.cdr.markForCheck();
         },
-        error: (err) => {
-          console.error('[KARDEX] Error al cargar movimientos:', err);
+        error: () => {
           this.rows = [];
           this.total = 0;
           this.loading = false;
@@ -213,26 +177,27 @@ export default class InventarioMovimientosPage implements OnInit, OnDestroy {
   }
 
   private loadIngredientes(): void {
-    console.log('[KARDEX] Cargando lista de ingredientes');
-
     this.ingredientesApi.listar().subscribe({
       next: (arr) => {
-        this.ingredientes = (arr ?? []).map((ing: any) => ({
-          id: Number(ing?.id ?? ing?.ingredienteId),
-          nombre: ing?.nombre ?? '',
-        }));
+        this.ingredientes = (arr ?? []).map((ing: any) => {
+          const id = Number(ing?.id ?? ing?.ingredienteId);
+          const nombre = ing?.nombre ?? '';
 
-        console.log('[KARDEX] Ingredientes cargados:', this.ingredientes.length);
+          // Poblar el Map para búsqueda O(1)
+          this.ingredienteNombreMap.set(id, nombre);
+
+          return { id, nombre };
+        });
         this.cdr.markForCheck();
       },
-      error: (err) => {
-        console.error('[KARDEX] Error al cargar ingredientes:', err);
+      error: () => {
+        // Error silencioso - el formulario mostrará select vacío
       },
     });
   }
 
   private getIngredienteNombre(id: number): string {
-    return this.ingredientes.find((i) => i.id === id)?.nombre ?? '';
+    return this.ingredienteNombreMap.get(id) ?? '';
   }
 
   // Handlers UI
@@ -242,45 +207,5 @@ export default class InventarioMovimientosPage implements OnInit, OnDestroy {
       this.page = 0;
       this.load();
     }
-  }
-  onSort(s: TableSort) {
-    if (!s?.key) return;
-    this.sortKey = s.key;
-    this.sortDir = s.dir as Dir;
-    this.page = 0;
-    this.load();
-  }
-  setPageSize(n: number) {
-    if (n > 0 && n !== this.pageSize) {
-      this.pageSize = n;
-      this.page = 0;
-      this.load();
-    }
-  }
-  prev() {
-    if (this.page > 0) {
-      this.page--;
-      this.load();
-    }
-  }
-  next() {
-    if (this.page + 1 < this.maxPage()) {
-      this.page++;
-      this.load();
-    }
-  }
-
-  maxPage() {
-    return Math.max(1, Math.ceil(this.total / this.pageSize));
-  }
-  from() {
-    return this.total ? this.page * this.pageSize + 1 : 0;
-  }
-  to() {
-    return Math.min((this.page + 1) * this.pageSize, this.total);
-  }
-
-  goBack() {
-    history.back();
   }
 }

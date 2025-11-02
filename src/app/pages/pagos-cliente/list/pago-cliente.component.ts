@@ -1,23 +1,26 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 import { PagoClienteService } from '../../../services/pago-cliente.service';
 import { PagoCliente, MetodoPago, EstadoPago } from '../../../interfaces/pago-cliente.interface';
+import { BaseListComponent } from '../../../shared/base/base-list.component';
+import { dateToBackendDateTimeStart, dateToBackendDateTimeEnd } from '../../../shared/utils/date-format.util';
 
 import { PageLayoutComponent } from '../../../shared/ui/page-layout/page-layout.component';
 import { TitleComponent } from '../../../shared/ui/fields/title/title.component';
 import { TableComponent } from '../../../shared/ui/table/table.component';
 import { SearchComponent } from '../../../shared/ui/fields/searchbox/search.component';
+import { DateRangeComponent } from '../../../shared/ui/fields/date-range/date-range.component';
 import { PaginatorComponent } from '../../../shared/ui/paginator/paginator.component';
 import { SectionContainerComponent } from '../../../shared/ui/section-container/section-container.component';
 import { SummaryComponent } from '../../../shared/ui/summary/summary.component';
 import { LucideAngularModule, Eye, Plus, DollarSign, Check, Handshake } from 'lucide-angular';
 import { UiButtonComponent } from '../../../shared/ui/buttons/ui-button/ui-button.component';
 import { TabsFilterComponent } from '../../../shared/ui/tabs-filter/tabs-filter.component';
-import { ColumnDef, Dir, TableSort, TabStatus } from '../../../shared/ui/table/column-def';
+import { ColumnDef, TabStatus } from '../../../shared/ui/table/column-def';
 import { NotifyService } from '../../../core/notify/notify.service';
 
 @Component({
@@ -31,6 +34,7 @@ import { NotifyService } from '../../../core/notify/notify.service';
     TitleComponent,
     TableComponent,
     SearchComponent,
+    DateRangeComponent,
     PaginatorComponent,
     SectionContainerComponent,
     SummaryComponent,
@@ -41,8 +45,7 @@ import { NotifyService } from '../../../core/notify/notify.service';
   templateUrl: './pago-cliente.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class PagosClienteListPage implements OnInit, OnDestroy {
-  private readonly destroyed$ = new Subject<void>();
+export default class PagosClienteListPage extends BaseListComponent implements OnInit {
   private api = inject(PagoClienteService);
   private cdr = inject(ChangeDetectorRef);
   private notify = inject(NotifyService);
@@ -52,13 +55,6 @@ export default class PagosClienteListPage implements OnInit, OnDestroy {
 
   // UI
   tab: TabStatus | 'S' | 'P' | 'F' = 'all';
-  sortKey: string = 'id';
-  sortDir: Dir = 'desc';
-  page = 0;
-  pageSize = 10;
-
-  loading = false;
-  total = 0;
   rows: PagoCliente[] = [];
 
   // Íconos
@@ -117,6 +113,9 @@ export default class PagosClienteListPage implements OnInit, OnDestroy {
   };
 
   ngOnInit(): void {
+    this.sortKey = 'id';
+    this.sortDir = 'desc';
+
     this.searchForm.controls.q.valueChanges
       .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroyed$))
       .subscribe(() => {
@@ -141,12 +140,7 @@ export default class PagosClienteListPage implements OnInit, OnDestroy {
     this.load();
   }
 
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
-  }
-
-  private load(): void {
+  protected override load(): void {
     this.loading = true;
     this.cdr.markForCheck();
 
@@ -166,17 +160,17 @@ export default class PagosClienteListPage implements OnInit, OnDestroy {
 
     const fechaDesde = this.searchForm.controls.fechaDesde.value.trim();
     if (fechaDesde) {
-      filtros.push({ llave: 'fecha', operacion: '>=', valor: fechaDesde });
+      filtros.push({ llave: 'fecha', operacion: '>=', valor: dateToBackendDateTimeStart(fechaDesde) });
     }
 
     const fechaHasta = this.searchForm.controls.fechaHasta.value.trim();
     if (fechaHasta) {
-      filtros.push({ llave: 'fecha', operacion: '<=', valor: fechaHasta });
+      filtros.push({ llave: 'fecha', operacion: '<=', valor: dateToBackendDateTimeEnd(fechaHasta) });
     }
 
     this.api
       .buscarPaginado(
-        { page: this.page, size: this.pageSize, sortBy: this.sortKey, direction: this.sortDir },
+        { page: this.page, size: this.pageSize, orderBy: this.sortKey, direction: this.sortDir },
         filtros
       )
       .subscribe({
@@ -214,52 +208,6 @@ export default class PagosClienteListPage implements OnInit, OnDestroy {
       this.page = 0;
       this.load();
     }
-  }
-
-  onSort(s: TableSort) {
-    if (!s?.key) return;
-    this.sortKey = s.key;
-    this.sortDir = s.dir as Dir;
-    this.page = 0;
-    this.load();
-  }
-
-  setPageSize(n: number) {
-    if (n > 0 && n !== this.pageSize) {
-      this.pageSize = n;
-      this.page = 0;
-      this.load();
-    }
-  }
-
-  prev() {
-    if (this.page > 0) {
-      this.page--;
-      this.load();
-    }
-  }
-
-  next() {
-    if (this.page + 1 < this.maxPage()) {
-      this.page++;
-      this.load();
-    }
-  }
-
-  maxPage() {
-    return Math.max(1, Math.ceil(this.total / this.pageSize));
-  }
-
-  from() {
-    return this.total ? this.page * this.pageSize + 1 : 0;
-  }
-
-  to() {
-    return Math.min((this.page + 1) * this.pageSize, this.total);
-  }
-
-  goBack() {
-    history.back();
   }
 
   onSearch(term: string) {

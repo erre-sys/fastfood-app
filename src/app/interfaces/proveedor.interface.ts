@@ -19,10 +19,10 @@ export interface Pagina<T> {
 }
 
 export interface PagerAndSort {
-  page: number;     
+  page: number;
   size: number;
-  sort?: string;   
-  sortBy: string;   
+  sort?: string;
+  orderBy: string;
   direction: 'asc' | 'desc';
 }
 

@@ -6,8 +6,8 @@
 
 <!-- ===== Métricas Principales ===== -->
 <section aria-labelledby="dash-metrics" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-  <!-- Pedidos del Día -->
-  <app-home-card
+  <!-- Pedidos del Día - Visible para ADMIN, CAJERO, COCINERO -->
+  <app-home-card *hasRole="['ADMIN', 'CAJERO', 'COCINERO']"
     [title]="'Pedidos del Día'"
     [total]="pedidosHoyCount()"
     [icon]="ShoppingBag"
@@ -17,8 +17,8 @@
     (navigate)="navegarA('/pedidos')"
   />
 
-  <!-- Ventas del Día -->
-  <app-home-card
+  <!-- Ventas del Día - Visible para ADMIN, CAJERO, REPORTES -->
+  <app-home-card *hasRole="['ADMIN', 'CAJERO', 'REPORTES']"
     [title]="'Ventas del Día'"
     [total]="ventasDelDia()"
     [icon]="DollarSign"
@@ -28,8 +28,8 @@
     (navigate)="navegarA('/pagos-cliente')"
   />
 
-  <!-- Pedidos Listos -->
-  <app-home-card
+  <!-- Pedidos Listos - Visible para ADMIN, CAJERO, COCINERO -->
+  <app-home-card *hasRole="['ADMIN', 'CAJERO', 'COCINERO']"
     [title]="'Pedidos Listos'"
     [total]="pedidosListosCount()"
     [icon]="CalendarClock"
@@ -70,7 +70,8 @@
       <div *ngIf="!loading() && pedidosHoy().length === 0" class="p-8 text-center text-muted">
         <lucide-icon [img]="ShoppingBag" [size]="48" class="mx-auto opacity-30 mb-3"></lucide-icon>
         <p class="font-medium">No hay pedidos registrados hoy</p>
-        <button class="btn btn--primary btn--sm mt-4" (click)="navegarA('/pedidos/nuevo')">
+        <!-- Solo ADMIN y CAJERO pueden crear pedidos -->
+        <button *hasRole="['ADMIN', 'CAJERO']" class="btn btn--primary btn--sm mt-4" (click)="navegarA('/pedidos/nuevo')">
           Crear Primer Pedido
         </button>
       </div>
@@ -194,18 +195,25 @@
 <section class="mt-6 card p-6">
   <h2 class="text-lg font-semibold text-fg mb-4">Acciones Rápidas</h2>
   <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-    <button class="btn btn--outline" data-variant="outline" (click)="navegarA('/pedidos/nuevo')">
+    <!-- Nuevo Pedido - Solo ADMIN y CAJERO -->
+    <button *hasRole="['ADMIN', 'CAJERO']" class="btn btn--outline" data-variant="outline" (click)="navegarA('/pedidos/nuevo')">
       <lucide-icon [img]="ShoppingBag" [size]="18"></lucide-icon>
       <span>Nuevo Pedido</span>
     </button>
-    <button class="btn btn--outline" data-variant="outline" (click)="navegarA('/inventario')">
+
+    <!-- Ver Stock - ADMIN, INVENTARIO, REPORTES -->
+    <button *hasRole="['ADMIN', 'INVENTARIO', 'REPORTES']" class="btn btn--outline" data-variant="outline" (click)="navegarA('/inventario')">
       <lucide-icon [img]="List" [size]="18"></lucide-icon>
       <span>Ver Stock</span>
     </button>
-    <button class="btn btn--outline" data-variant="outline" (click)="navegarA('/kardex')">
+
+    <!-- Ver Kardex - ADMIN, INVENTARIO, REPORTES -->
+    <button *hasRole="['ADMIN', 'INVENTARIO', 'REPORTES']" class="btn btn--outline" data-variant="outline" (click)="navegarA('/kardex')">
       <lucide-icon [img]="Square" [size]="18"></lucide-icon>
       <span>Ver Kardex</span>
     </button>
+
+    <!-- Ver Platos - Todos pueden ver (acceso general) -->
     <button class="btn btn--outline" data-variant="outline" (click)="navegarA('/platos')">
       <lucide-icon [img]="ShoppingBag" [size]="18"></lucide-icon>
       <span>Ver Platos</span>

@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 import { PedidoService } from '../../../services/pedido.service';
 import { PagoClienteService } from '../../../services/pago-cliente.service';
@@ -12,6 +12,8 @@ import { NotifyService } from '../../../core/notify/notify.service';
 import { authService } from '../../../core/auth/auth.service';
 import { forkJoin, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { BaseListComponent } from '../../../shared/base/base-list.component';
+import { dateToBackendDateTimeStart, dateToBackendDateTimeEnd } from '../../../shared/utils/date-format.util';
 
 import { PageLayoutComponent } from '../../../shared/ui/page-layout/page-layout.component';
 import { TitleComponent } from '../../../shared/ui/fields/title/title.component';
@@ -22,7 +24,7 @@ import { TabsFilterComponent } from '../../../shared/ui/tabs-filter/tabs-filter.
 import { SectionContainerComponent } from '../../../shared/ui/section-container/section-container.component';
 import { LucideAngularModule, Eye, Plus, Check, X as XIcon, DollarSign } from 'lucide-angular';
 import { UiButtonComponent } from '../../../shared/ui/buttons/ui-button/ui-button.component';
-import { ColumnDef, Dir, TableSort, TabStatus } from '../../../shared/ui/table/column-def';
+import { ColumnDef, TabStatus } from '../../../shared/ui/table/column-def';
 
 @Component({
   selector: 'app-pedidos-list',
@@ -44,8 +46,7 @@ import { ColumnDef, Dir, TableSort, TabStatus } from '../../../shared/ui/table/c
   templateUrl: './pedido.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class PedidosListPage implements OnInit, OnDestroy {
-  private readonly destroyed$ = new Subject<void>();
+export default class PedidosListPage extends BaseListComponent implements OnInit {
   private api = inject(PedidoService);
   private pagoApi = inject(PagoClienteService);
   private cdr = inject(ChangeDetectorRef);
@@ -56,13 +57,6 @@ export default class PedidosListPage implements OnInit, OnDestroy {
 
   // UI
   tab: TabStatus | 'C' | 'L' | 'E' | 'A' = 'all';
-  sortKey: string = 'id';
-  sortDir: Dir = 'desc';
-  page = 0;
-  pageSize = 10;
-
-  loading = false;
-  total = 0;
   rows: Pedido[] = [];
 
   // Íconos
@@ -81,34 +75,24 @@ export default class PedidosListPage implements OnInit, OnDestroy {
   columns: ColumnDef<Pedido>[] = [
     { key: 'id', header: 'ID', sortable: true, widthPx: 80 },
     { key: 'creadoEn', header: 'Fecha', sortable: true, type: 'date', widthPx: 200 },
-    { key: 'estado', header: 'Estado', widthPx: 120, align: 'center',
+    { key: 'estado', header: 'Estado', sortable: true, widthPx: 120, align: 'center',
       type: 'badge',
-      badgeMap: {
-        C: 'warn',    // Creado
-        L: 'muted',   // Listo
-        E: 'ok',      // Entregado
-        A: 'danger'   // Anulado
-      },
-      valueMap: {
-        C: 'Creado',
-        L: 'Listo',
-        E: 'Entregado',
-        A: 'Anulado'
-      }
+      badgeMap: { C: 'warn', L: 'muted', E: 'ok', A: 'danger'     },
+      valueMap: { C: 'Creado', L: 'Listo', E: 'Entregado', A: 'Anulado'   }
     },
-    { key: 'totalNeto', header: 'Total', align: 'right', widthPx: 120, type: 'money' },
-    { key: 'montoPendiente', header: 'Pendiente', align: 'right', widthPx: 120, type: 'money' },
+    { key: 'totalNeto', header: 'Total', sortable: true, align: 'right', widthPx: 120, type: 'money' },
+    { key: 'montoPendiente', header: 'Pendiente', sortable: false, align: 'right', widthPx: 120, type: 'money' },
   ];
 
   counters = {
-    all: 0,
-    C: undefined as number | undefined,
-    L: undefined as number | undefined,
-    E: undefined as number | undefined,
-    A: undefined as number | undefined,
+    all: 0, C: undefined as number | undefined, L: undefined as number | undefined,
+    E: undefined as number | undefined, A: undefined as number | undefined,
   };
 
   ngOnInit(): void {
+    this.sortKey = 'id';
+    this.sortDir = 'desc';
+
     this.searchForm.controls.q.valueChanges
       .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroyed$))
       .subscribe(() => {
@@ -133,12 +117,7 @@ export default class PedidosListPage implements OnInit, OnDestroy {
     this.load();
   }
 
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
-  }
-
-  private load(): void {
+  protected override load(): void {
     this.loading = true;
     this.cdr.markForCheck();
 
@@ -146,31 +125,20 @@ export default class PedidosListPage implements OnInit, OnDestroy {
     if (this.tab === 'C') filtros.push({ llave: 'estado', operacion: '=', valor: 'C' });
     if (this.tab === 'L') filtros.push({ llave: 'estado', operacion: '=', valor: 'L' });
     if (this.tab === 'E') filtros.push({ llave: 'estado', operacion: '=', valor: 'E' });
-    if (this.tab === 'A') filtros.push({ llave: 'estado', operacion: '=', valor: 'A' });
+    if (this.tab === 'A') filtros.push({ llave: 'estado', operacion: 'EQ', valor: 'A' });
 
     const term = this.searchForm.controls.q.value.trim();
     if (term) {
       const n = Number(term);
-      if (!Number.isNaN(n)) {
-        filtros.push({ llave: 'id', operacion: 'EQ', valor: n });
-      }
+      if (!Number.isNaN(n) && n > 0) {
+        filtros.push({ llave: 'id', operacion: '=', valor: n });
+      } 
     }
 
-    const fechaDesde = this.searchForm.controls.fechaDesde.value.trim();
-    if (fechaDesde) {
-      filtros.push({ llave: 'creadoEn', operacion: '>=', valor: fechaDesde });
-    }
-
-    const fechaHasta = this.searchForm.controls.fechaHasta.value.trim();
-    if (fechaHasta) {
-      filtros.push({ llave: 'creadoEn', operacion: '<=', valor: fechaHasta });
-    }
-
-    const pager = { page: this.page, size: this.pageSize, sortBy: this.sortKey, direction: this.sortDir };
-
-    this.api
-      .buscarPaginado(pager, filtros)
-      .subscribe({
+    this.api.buscarPaginado(
+      { page: this.page, size: this.pageSize, orderBy: this.sortKey, direction: this.sortDir },
+      filtros
+    ).subscribe({
         next: (p) => {
           const contenido = (p?.contenido ?? []) as any[];
           const pedidos = contenido.map((r: any) => ({
@@ -186,7 +154,6 @@ export default class PedidosListPage implements OnInit, OnDestroy {
             entregadoEn: r?.entregadoEn ?? r?.entregado_en ?? '',
           })) as Pedido[];
 
-          // Cargar pagos para cada pedido entregado
           this.cargarPagosPedidos(pedidos);
 
           this.total = Number(p?.totalRegistros ?? pedidos.length);
@@ -277,52 +244,6 @@ export default class PedidosListPage implements OnInit, OnDestroy {
       this.page = 0;
       this.load();
     }
-  }
-
-  onSort(s: TableSort) {
-    if (!s?.key) return;
-    this.sortKey = s.key;
-    this.sortDir = s.dir as Dir;
-    this.page = 0;
-    this.load();
-  }
-
-  setPageSize(n: number) {
-    if (n > 0 && n !== this.pageSize) {
-      this.pageSize = n;
-      this.page = 0;
-      this.load();
-    }
-  }
-
-  prev() {
-    if (this.page > 0) {
-      this.page--;
-      this.load();
-    }
-  }
-
-  next() {
-    if (this.page + 1 < this.maxPage()) {
-      this.page++;
-      this.load();
-    }
-  }
-
-  maxPage() {
-    return Math.max(1, Math.ceil(this.total / this.pageSize));
-  }
-
-  from() {
-    return this.total ? this.page * this.pageSize + 1 : 0;
-  }
-
-  to() {
-    return Math.min((this.page + 1) * this.pageSize, this.total);
-  }
-
-  goBack() {
-    history.back();
   }
 
   onSearch(term: string) {

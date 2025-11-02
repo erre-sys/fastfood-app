@@ -30,6 +30,19 @@
         </ng-template>
       </app-input>
 
+      <div class="form-field" *ngIf="form.controls.tipoAjuste.value === 'RESTAR'">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" formControlName="permitirNegativo" [disabled]="loading"
+            class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+          <span class="text-sm font-medium text-slate-700">
+            Permitir stock negativo
+          </span>
+        </label>
+        <p class="form-help text-xs mt-1">
+          Marque esta opción solo si desea permitir que el stock quede en negativo después del ajuste
+        </p>
+      </div>
+
       <app-input type="textarea" label="Motivo (observaciones)" [formGroup]="form" controlName="referencia" [soft]="true"
         [disabled]="loading" placeholder="Ej: Merma por vencimiento, Compra directa, etc.">
         <ng-template #helpText>
@@ -59,7 +72,13 @@
     <div *ngIf="calcularStockResultante() < 0" class="mt-4 card p-4 bg-red-50 border-red-300">
       <p class="text-red-700 font-semibold">
         ⚠️ Advertencia: El stock resultante es negativo ({{ calcularStockResultante() }}).
-        El backend validará si hay stock suficiente.
+      </p>
+      <p class="text-red-600 text-sm mt-2" *ngIf="!form.controls.permitirNegativo.value">
+        Para permitir que el stock quede negativo, marque la opción "Permitir stock negativo" arriba.
+        De lo contrario, el backend rechazará esta operación.
+      </p>
+      <p class="text-red-600 text-sm mt-2" *ngIf="form.controls.permitirNegativo.value">
+        Está permitiendo que el stock quede negativo. Use esta opción con precaución.
       </p>
     </div>
   </app-section-container>

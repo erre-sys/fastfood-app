@@ -1,18 +1,18 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, PaginatorComponent } from '../../../../shared';
 import { LucideAngularModule, Banknote, Pencil, Plus } from 'lucide-angular';
 import { UiButtonComponent } from '../../../../shared/ui/buttons/ui-button/ui-button.component';
 import { TabsFilterComponent } from '../../../../shared/ui/tabs-filter/tabs-filter.component';
-import { ColumnDef, Dir, TableSort, TabStatus } from '../../../../shared/ui/table/column-def';
+import { ColumnDef, TabStatus } from '../../../../shared/ui/table/column-def';
 import { GrupoPlato } from '../../../../interfaces/grupo-plato.interface';
 import { GrupoPlatoService } from '../../../../services/grupo-plato.service';
-
+import { BaseListComponent } from '../../../../shared/base/base-list.component';
 
 @Component({
   selector: 'app-grupo-platos-list',
@@ -24,8 +24,7 @@ import { GrupoPlatoService } from '../../../../services/grupo-plato.service';
   changeDetection: ChangeDetectionStrategy.OnPush   
 })
 
-export default class GrupoPlatosListPage implements OnInit, OnDestroy {
-  private readonly destroyed$ = new Subject<void>();
+export default class GrupoPlatosListPage extends BaseListComponent implements OnInit {
   private api = inject(GrupoPlatoService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -34,13 +33,6 @@ export default class GrupoPlatosListPage implements OnInit, OnDestroy {
 
 // UI
   tab: TabStatus = 'all';
-  sortKey: string = 'id';
-  sortDir: Dir = 'asc';
-  page = 0;
-  pageSize = 10;
-
-  loading = false;
-  total = 0;
   rows: GrupoPlato[] = [];
 
   // Íconos
@@ -69,12 +61,7 @@ export default class GrupoPlatosListPage implements OnInit, OnDestroy {
     this.load();
   }
 
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
-  }
-
-  private load(): void {
+  protected override load(): void {
     this.loading = true;
     this.cdr.markForCheck();
 
@@ -84,13 +71,18 @@ export default class GrupoPlatosListPage implements OnInit, OnDestroy {
 
     const term = this.searchForm.controls.q.value.trim();
     if (term) {
-      filtros.push({ llave: 'nombre', operacion: 'LIKE', valor: term });
       const n = Number(term);
-      if (!Number.isNaN(n)) filtros.push({ llave: 'id', operacion: '=', valor: n });
+      if (!Number.isNaN(n) && n > 0) {
+        // Si es un número válido, buscar solo por ID
+        filtros.push({ llave: 'id', operacion: '=', valor: n });
+      } else {
+        // Si no es un número, buscar por nombre
+        filtros.push({ llave: 'nombre', operacion: 'LIKE', valor: term });
+      }
     }
 
     this.api.buscarPaginado(
-      { page: this.page, size: this.pageSize, sortBy: this.sortKey, direction: this.sortDir },
+      { page: this.page, size: this.pageSize, orderBy: this.sortKey, direction: this.sortDir },
       filtros
     ).subscribe({
       next: p => {
@@ -117,16 +109,6 @@ export default class GrupoPlatosListPage implements OnInit, OnDestroy {
   }
   // ---- UI handlers
   setTab(k: TabStatus) { if (this.tab !== k) { this.tab = k; this.page = 0; this.load(); } }
-  onSort(s: TableSort) { if (!s?.key) return; this.sortKey = s.key; this.sortDir = s.dir as Dir; this.page = 0; this.load(); }
-  setPageSize(n: number) { if (n > 0 && n !== this.pageSize) { this.pageSize = n; this.page = 0; this.load(); } }
-  prev() { if (this.page > 0) { this.page--; this.load(); } }
-  next() { if (this.page + 1 < this.maxPage()) { this.page++; this.load(); } }
-
-  maxPage() { return Math.max(1, Math.ceil(this.total / this.pageSize)); }
-  from() { return this.total ? this.page * this.pageSize + 1 : 0; }
-  to() { return Math.min((this.page + 1) * this.pageSize, this.total); }
-
-  goBack() { history.back(); }
   onSearch(term: string) { this.searchForm.controls.q.setValue(term, { emitEvent: true }); }
   onEdit(row: GrupoPlato) { }
 }

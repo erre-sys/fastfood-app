@@ -16,7 +16,6 @@ export class RecetaService {
    * GET /platos/{platoId}/receta
    */
   obtenerReceta(platoId: number): Observable<RecetaItem[]> {
-    console.log('🔍 [RECETA-SERVICE] Obteniendo receta del plato:', platoId);
     return this.http.get<RecetaItem[]>(`${this.apiUrl}/${platoId}/receta`);
   }
 
@@ -35,8 +34,6 @@ export class RecetaService {
    * - Todas las cantidades deben ser > 0 (mínimo 0.0001, escala 3 decimales)
    */
   guardarReceta(platoId: number, items: RecetaItemDTO[]): Observable<any> {
-    console.log('📤 [RECETA-SERVICE] Guardando receta del plato:', platoId);
-    console.log('📋 [RECETA-SERVICE] Items:', items);
     return this.http.put(`${this.apiUrl}/${platoId}/receta`, items);
   }
 }

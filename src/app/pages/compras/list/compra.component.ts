@@ -1,13 +1,14 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { CompraService } from '../../../services/compra.service';
 
 import { Compra } from '../../../interfaces/compra.interface';
+import { BaseListComponent } from '../../../shared/base/base-list.component';
 
 import { PageLayoutComponent } from '../../../shared/ui/page-layout/page-layout.component';
 import { TitleComponent } from '../../../shared/ui/fields/title/title.component';
@@ -16,7 +17,7 @@ import { SearchComponent } from '../../../shared/ui/fields/searchbox/search.comp
 import { PaginatorComponent } from '../../../shared/ui/paginator/paginator.component';
 import { LucideAngularModule, ShoppingCart, Eye } from 'lucide-angular';
 import { UiButtonComponent } from '../../../shared/ui/buttons/ui-button/ui-button.component';
-import { ColumnDef, Dir, TableSort } from '../../../shared/ui/table/column-def';
+import { ColumnDef } from '../../../shared/ui/table/column-def';
 import { ProveedoresService } from '../../../services/proveedores.service';
 
 @Component({
@@ -37,8 +38,7 @@ import { ProveedoresService } from '../../../services/proveedores.service';
   templateUrl: './compra.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class CompraListPage implements OnInit, OnDestroy {
-  private readonly destroyed$ = new Subject<void>();
+export default class CompraListPage extends BaseListComponent implements OnInit {
   private api = inject(CompraService);
   private proveedoresApi = inject(ProveedoresService);
   private cdr = inject(ChangeDetectorRef);
@@ -47,13 +47,6 @@ export default class CompraListPage implements OnInit, OnDestroy {
   subTitleLabel = 'Gestión de compras a proveedores';
 
   // UI
-  sortKey: string = 'fecha';
-  sortDir: Dir = 'desc';
-  page = 0;
-  pageSize = 10;
-
-  loading = false;
-  total = 0;
   rows: Compra[] = [];
 
   // Íconos
@@ -75,6 +68,9 @@ export default class CompraListPage implements OnInit, OnDestroy {
   ];
 
   ngOnInit(): void {
+    this.sortKey = 'fecha';
+    this.sortDir = 'desc';
+
     this.loadProveedores();
 
     this.searchForm.controls.q.valueChanges
@@ -87,12 +83,7 @@ export default class CompraListPage implements OnInit, OnDestroy {
     this.load();
   }
 
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
-  }
-
-  private load(): void {
+  protected override load(): void {
     this.loading = true;
     this.cdr.markForCheck();
 
@@ -109,7 +100,7 @@ export default class CompraListPage implements OnInit, OnDestroy {
 
     this.api
       .buscarPaginado(
-        { page: this.page, size: this.pageSize, sortBy: this.sortKey, direction: this.sortDir },
+        { page: this.page, size: this.pageSize, orderBy: this.sortKey, direction: this.sortDir },
         filtros
       )
       .subscribe({
@@ -167,52 +158,6 @@ export default class CompraListPage implements OnInit, OnDestroy {
   }
 
   // Handlers UI
-  onSort(s: TableSort) {
-    if (!s?.key) return;
-    this.sortKey = s.key;
-    this.sortDir = s.dir as Dir;
-    this.page = 0;
-    this.load();
-  }
-
-  setPageSize(n: number) {
-    if (n > 0 && n !== this.pageSize) {
-      this.pageSize = n;
-      this.page = 0;
-      this.load();
-    }
-  }
-
-  prev() {
-    if (this.page > 0) {
-      this.page--;
-      this.load();
-    }
-  }
-
-  next() {
-    if (this.page + 1 < this.maxPage()) {
-      this.page++;
-      this.load();
-    }
-  }
-
-  maxPage() {
-    return Math.max(1, Math.ceil(this.total / this.pageSize));
-  }
-
-  from() {
-    return this.total ? this.page * this.pageSize + 1 : 0;
-  }
-
-  to() {
-    return Math.min((this.page + 1) * this.pageSize, this.total);
-  }
-
-  goBack() {
-    history.back();
-  }
-
   onSearch(term: string) {
     this.searchForm.controls.q.setValue(term, { emitEvent: true });
   }

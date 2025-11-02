@@ -75,13 +75,13 @@ export default class PagoProveedorFormPage implements OnInit {
       return;
     }
 
-    const v = this.form.getRawValue();
+    const formValues = this.form.getRawValue();
     const body: PagoProveedorCreate = {
-      proveedorId: Number(v.proveedorId),
-      metodo: v.metodo!,
-      referencia: v.referencia || undefined,
-      montoTotal: Number(v.montoTotal),
-      observaciones: v.observaciones || undefined,
+      proveedorId: Number(formValues.proveedorId),
+      metodo: formValues.metodo!,
+      referencia: formValues.referencia || undefined,
+      montoTotal: Number(formValues.montoTotal),
+      observaciones: formValues.observaciones || undefined,
     };
 
     this.loading.set(true);

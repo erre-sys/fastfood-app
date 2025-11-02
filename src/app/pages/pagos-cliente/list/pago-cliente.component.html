@@ -23,29 +23,17 @@
   <!-- Filtros de Búsqueda -->
   <app-section-container [heading]="'Filtros de Búsqueda'" [compact]="true" [inset]="true">
     <div class="fg">
-      <!-- Búsqueda por ID -->
-      <div class="form-field">
-        <label class="form-label">Buscar por ID</label>
-        <input type="text" class="field field--soft" placeholder="ID de pago o pedido"
-          [formControl]="searchForm.controls.q">
-        <p class="form-help text-xs">Buscar por número de pago o pedido</p>
-      </div>
-
-      <!-- Fecha Desde -->
-      <div class="form-field">
-        <label class="form-label">Fecha Desde</label>
-        <input type="date" class="field field--soft" [formControl]="searchForm.controls.fechaDesde">
-        <p class="form-help text-xs">Inicio del rango</p>
-      </div>
-
-      <!-- Fecha Hasta -->
-      <div class="form-field">
-        <label class="form-label">Fecha Hasta</label>
-        <input type="date" class="field field--soft" [formControl]="searchForm.controls.fechaHasta">
-        <p class="form-help text-xs">Fin del rango</p>
-      </div>
+      <!-- Rango de Fechas -->
+      <app-date-range labelFrom="Fecha Desde" labelTo="Fecha Hasta"
+        [valueFrom]="searchForm.controls.fechaDesde.value" [valueTo]="searchForm.controls.fechaHasta.value"
+        (valueFromChange)="searchForm.controls.fechaDesde.setValue($event)"
+        (valueToChange)="searchForm.controls.fechaHasta.setValue($event)" hintFrom="Inicio del rango"
+        hintTo="Fin del rango">
+      </app-date-range>
     </div>
   </app-section-container>
+
+  
 
   <!-- Tabla -->
 

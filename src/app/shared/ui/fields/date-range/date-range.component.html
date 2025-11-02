@@ -1,0 +1,72 @@
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <!-- Fecha Desde -->
+  <div class="form-field">
+    <label class="form-label" [attr.for]="idFrom">
+      {{ labelFrom }}
+      @if (required) {
+      <span class="text-red-500 ml-1" aria-label="requerido">*</span>
+      }
+    </label>
+
+    <div class="relative">
+      <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+        <lucide-icon [img]="CalendarIcon" size="16" class="text-slate-400" aria-hidden="true"></lucide-icon>
+      </div>
+
+      <input [id]="idFrom" type="date"
+        [class]="'field pl-10 pr-10 ' + (soft ? 'field--soft' : '') + (rangeError ? ' border-red-500' : '')"
+        [value]="valueFrom" [disabled]="disabled" [required]="required" [attr.aria-label]="labelFrom"
+        [attr.aria-invalid]="rangeError ? 'true' : null" [placeholder]="placeholderFrom"
+        (input)="onFromChange($event)" />
+
+      @if (valueFrom && !disabled) {
+      <button type="button"
+        class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
+        [attr.aria-label]="'Limpiar ' + labelFrom" (click)="clearFrom()">
+        <lucide-icon [img]="XIcon" size="14" aria-hidden="true"></lucide-icon>
+      </button>
+      }
+    </div>
+
+    @if (hintFrom) {
+    <p class="form-help text-xs">{{ hintFrom }}</p>
+    }
+  </div>
+
+  <!-- Fecha Hasta -->
+  <div class="form-field">
+    <label class="form-label" [attr.for]="idTo">
+      {{ labelTo }}
+      @if (required) {
+      <span class="text-red-500 ml-1" aria-label="requerido">*</span>
+      }
+    </label>
+
+    <div class="relative">
+      <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+        <lucide-icon [img]="CalendarIcon" size="16" class="text-slate-400" aria-hidden="true"></lucide-icon>
+      </div>
+
+      <input [id]="idTo" type="date"
+        [class]="'field pl-10 pr-10 ' + (soft ? 'field--soft' : '') + (rangeError ? ' border-red-500' : '')"
+        [value]="valueTo" [disabled]="disabled" [required]="required" [attr.aria-label]="labelTo"
+        [attr.aria-invalid]="rangeError ? 'true' : null" [placeholder]="placeholderTo" (input)="onToChange($event)" />
+
+      @if (valueTo && !disabled) {
+      <button type="button"
+        class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
+        [attr.aria-label]="'Limpiar ' + labelTo" (click)="clearTo()">
+        <lucide-icon [img]="XIcon" size="14" aria-hidden="true"></lucide-icon>
+      </button>
+      }
+    </div>
+
+    @if (hintTo) {
+    <p class="form-help text-xs">{{ hintTo }}</p>
+    }
+  </div>
+</div>
+
+@if (rangeError) {
+<p class="text-red-500 text-sm mt-2">{{ rangeError }}</p>
+}

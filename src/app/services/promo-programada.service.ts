@@ -37,6 +37,12 @@ export class PromoProgramadaService {
       .pipe(map((arr) => (arr ?? []).map(this.normalize)));
   }
 
+  obtenerVigentes(): Observable<PromoProgramada[]> {
+    return this.http
+      .get<any[]>(`${this.base}/vigentes`)
+      .pipe(map((arr) => (arr ?? []).map(this.normalize)));
+  }
+
   obtener(id: number): Observable<PromoProgramada> {
     return this.http.get<any>(`${this.base}/${id}`).pipe(map(this.normalize));
   }
@@ -64,7 +70,7 @@ export class PromoProgramadaService {
       fromObject: {
         page: String(pager.page ?? 0),
         size: String(pager.size ?? 10),
-        sortBy: pager.sortBy || 'id',
+        orderBy: pager.orderBy || 'id',
         direction: pager.direction || 'asc',
       },
     });

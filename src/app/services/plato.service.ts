@@ -65,7 +65,7 @@ export class PlatoService {
       fromObject: {
         page: String(pager.page ?? 0),
         size: String(pager.size ?? 10),
-        sortBy: pager.sortBy || 'id',
+        orderBy: pager.orderBy || 'id',
         direction: pager.direction || 'asc',
       },
     });

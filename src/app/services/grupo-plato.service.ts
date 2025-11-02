@@ -12,7 +12,7 @@ export class GrupoPlatoService {
   private base = `${environment.apiBaseUrl}/grupo-platos`;
 
   private pickId(r: any): number {
-    for (const k of ['id']) {
+    for (const k of ['id', 'grupoPlatoId', 'grupo_plato_id']) {
       const v = r?.[k];
       if (v !== null && v !== undefined && !Number.isNaN(Number(v))) return Number(v);
     }
@@ -57,7 +57,7 @@ eliminar(id: number) {
       fromObject: {
         page: String(pager.page ?? 0),
         size: String(pager.size ?? 10),
-        sortBy: pager.sortBy || 'id',
+        orderBy: pager.orderBy || 'id',
         direction: pager.direction || 'asc',
       },
     });
@@ -70,3 +70,4 @@ eliminar(id: number) {
     }>(`${this.base}/search`, filtros ?? [], { params });
   }
 }
+export type { GrupoPlato };

@@ -24,20 +24,18 @@
   </app-search>
 
   <!-- Tabla -->
-  <div class="card overflow-hidden">
-    <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay promociones programadas'"
-      [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
-      <ng-template #actionsTpl let-r>
-        <ui-button [icon]="Pencil" label="Editar" variant="primary" size="sm" [to]="['/promo-programada', r.id, 'editar']"
-          [ariaLabel]="'Editar promoción ' + r.id">
-        </ui-button>
-      </ng-template>
-    </app-table>
+  <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay promociones programadas'"
+    [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
+    <ng-template #actionsTpl let-r>
+      <ui-button [icon]="Pencil" label="Editar" variant="primary" size="sm" [to]="['/promo-programada', r.id, 'editar']"
+        [ariaLabel]="'Editar promoción ' + r.id">
+      </ui-button>
+    </ng-template>
+  </app-table>
 
-    <!-- Paginación -->
-    <app-paginator class="mt-2" [from]="from()" [to]="to()" [total]="total" [pageIndex]="page" [pageSize]="pageSize"
-      [pageSizeOptions]="[10,20,30,50]" [maxPage]="maxPage()" (sizeChange)="setPageSize($event)" (prev)="prev()"
-      (next)="next()">
-    </app-paginator>
-  </div>
+  <!-- Paginación -->
+  <app-paginator class="mt-2" [from]="from()" [to]="to()" [total]="total" [pageIndex]="page" [pageSize]="pageSize"
+    [pageSizeOptions]="[10,20,30,50]" [maxPage]="maxPage()" (sizeChange)="setPageSize($event)" (prev)="prev()"
+    (next)="next()">
+  </app-paginator>
 </ng-template>

@@ -49,47 +49,45 @@
   </app-section-container>
 
   <!-- Tabla -->
-  <div class="card overflow-hidden">
-    <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay pedidos registrados'"
-      [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
-      <ng-template #actionsTpl let-r>
-        <ui-button [icon]="Eye" label="Ver" variant="warning" size="sm" [to]="['/pedidos', r.id, 'detalle']"
-          [ariaLabel]="'Ver detalle del pedido #' + r.id">
-        </ui-button>
+  <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay pedidos registrados'"
+    [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
+    <ng-template #actionsTpl let-r>
+      <ui-button [icon]="Eye" label="Ver" variant="warning" size="sm" [to]="['/pedidos', r.id, 'detalle']"
+        [ariaLabel]="'Ver detalle del pedido #' + r.id">
+      </ui-button>
 
-        <!-- C -> L (Creado a Listo) - NO descuenta inventario -->
-        <ui-button *ngIf="r.estado === 'C'" [icon]="Check" label="Listo" variant="outline" size="sm" type="button"
-          (clicked)="onMarcarListo(r)" [title]="'Marcar como Listo (NO descuenta inventario)'">
-        </ui-button>
+      <!-- C -> L (Creado a Listo) - NO descuenta inventario -->
+      <ui-button *ngIf="r.estado === 'C'" [icon]="Check" label="Listo" variant="outline" size="sm" type="button"
+        (clicked)="onMarcarListo(r)" [title]="'Marcar como Listo (NO descuenta inventario)'">
+      </ui-button>
 
-        <!-- L -> E (Listo a Entregado) - SÍ descuenta inventario -->
-        <ui-button *ngIf="r.estado === 'L'" [icon]="Check" label="Entregar" variant="outline" size="sm" type="button"
-          (clicked)="onEntregar(r)" [title]="'Entregar pedido (SÍ descuenta inventario)'">
-        </ui-button>
+      <!-- L -> E (Listo a Entregado) - SÍ descuenta inventario -->
+      <ui-button *ngIf="r.estado === 'L'" [icon]="Check" label="Entregar" variant="outline" size="sm" type="button"
+        (clicked)="onEntregar(r)" [title]="'Entregar pedido (SÍ descuenta inventario)'">
+      </ui-button>
 
-        <!-- E -> Pagar (Solo pedidos entregados y con saldo pendiente) -->
-        <ui-button *ngIf="r.estado === 'E' && (r.montoPendiente === undefined || r.montoPendiente > 0)"
-          [icon]="DollarSign" label="Pagar" variant="primary" size="sm" type="button"
-          (clicked)="onPagar(r)" [title]="'Registrar pago del pedido'">
-        </ui-button>
+      <!-- E -> Pagar (Solo pedidos entregados y con saldo pendiente) -->
+      <ui-button *ngIf="r.estado === 'E' && (r.montoPendiente === undefined || r.montoPendiente > 0)"
+        [icon]="DollarSign" label="Pagar" variant="primary" size="sm" type="button"
+        (clicked)="onPagar(r)" [title]="'Registrar pago del pedido'">
+      </ui-button>
 
-        <!-- Badge de completamente pagado -->
-        <span *ngIf="r.estado === 'E' && r.montoPendiente !== undefined && r.montoPendiente <= 0"
-          class="pill pill--success text-xs font-semibold">
-          ✓ Pagado
-        </span>
+      <!-- Badge de completamente pagado -->
+      <span *ngIf="r.estado === 'E' && r.montoPendiente !== undefined && r.montoPendiente <= 0"
+        class="pill pill--success text-xs font-semibold">
+        ✓ Pagado
+      </span>
 
-        <!-- C, L -> A (Anular) -->
-        <ui-button *ngIf="r.estado === 'C' || r.estado === 'L'" [icon]="XIcon" label="Anular" variant="outline"
-          size="sm" type="button" (clicked)="onAnular(r)" [title]="'Anular pedido'">
-        </ui-button>
-      </ng-template>
-    </app-table>
+      <!-- C, L -> A (Anular) -->
+      <ui-button *ngIf="r.estado === 'C' || r.estado === 'L'" [icon]="XIcon" label="Anular" variant="outline"
+        size="sm" type="button" (clicked)="onAnular(r)" [title]="'Anular pedido'">
+      </ui-button>
+    </ng-template>
+  </app-table>
 
-    <!-- Paginación -->
-    <app-paginator class="mt-2" [from]="from()" [to]="to()" [total]="total" [pageIndex]="page" [pageSize]="pageSize"
-      [pageSizeOptions]="[10,20,30,50]" [maxPage]="maxPage()" (sizeChange)="setPageSize($event)" (prev)="prev()"
-      (next)="next()">
-    </app-paginator>
-  </div>
+  <!-- Paginación -->
+  <app-paginator class="mt-2" [from]="from()" [to]="to()" [total]="total" [pageIndex]="page" [pageSize]="pageSize"
+    [pageSizeOptions]="[10,20,30,50]" [maxPage]="maxPage()" (sizeChange)="setPageSize($event)" (prev)="prev()"
+    (next)="next()">
+  </app-paginator>
 </ng-template>

@@ -7,6 +7,7 @@ import { PromoProgramadaService } from '../../../../services/promo-programada.se
 import { PlatoService } from '../../../../services/plato.service';
 import { NotifyService } from '../../../../core/notify/notify.service';
 import { Estado } from '../../../../interfaces/promo-programada.interface';
+import { formatToBackendDateTime, formatFromBackendDateTime } from '../../../../shared/utils/date-format.util';
 
 import { InputComponent } from '../../../../shared/ui/fields/input/input.component';
 import { AppSelectComponent } from '../../../../shared/ui/fields/select/select.component';
@@ -73,8 +74,8 @@ export default class PromoProgramadaFormPage implements OnInit {
         next: (it) => {
           this.form.patchValue({
             platoId: it.platoId,
-            fechaInicio: it.fechaInicio ? it.fechaInicio.substring(0, 16) : '', // para datetime-local
-            fechaFin: it.fechaFin ? it.fechaFin.substring(0, 16) : '',
+            fechaInicio: formatFromBackendDateTime(it.fechaInicio),
+            fechaFin: formatFromBackendDateTime(it.fechaFin),
             descuentoPct: it.descuentoPct,
             estado: it.estado,
           });
@@ -101,11 +102,11 @@ export default class PromoProgramadaFormPage implements OnInit {
 
     const values = this.form.getRawValue();
 
-    // Convertir fechas a ISO 8601
+    // Convertir fechas al formato esperado por el backend: yyyy-MM-dd HH:mm:ss
     const dto = {
       platoId: values.platoId!,
-      fechaInicio: values.fechaInicio ? new Date(values.fechaInicio).toISOString() : '',
-      fechaFin: values.fechaFin ? new Date(values.fechaFin).toISOString() : '',
+      fechaInicio: formatToBackendDateTime(values.fechaInicio),
+      fechaFin: formatToBackendDateTime(values.fechaFin),
       descuentoPct: values.descuentoPct!,
       estado: values.estado,
     };

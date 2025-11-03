@@ -29,8 +29,8 @@
       <ui-button [icon]="Edit" label="Ajustar" variant="primary" size="sm" (clicked)="irAjusteManual(r.ingredienteId)"
         [ariaLabel]="'Ajustar stock de ' + r.nombre">
       </ui-button>
-      <ui-button [icon]="ArrowLeftRight" label="Kardex" variant="outline" size="sm" (clicked)="irKardex(r.ingredienteId)"
-        [ariaLabel]="'Ver kardex de ' + r.nombre">
+      <ui-button [icon]="ArrowLeftRight" label="Kardex" variant="outline" size="sm"
+        (clicked)="irKardex(r.ingredienteId)" [ariaLabel]="'Ver kardex de ' + r.nombre">
       </ui-button>
     </ng-template>
   </app-table>

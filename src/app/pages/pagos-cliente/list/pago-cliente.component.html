@@ -53,6 +53,11 @@
       <ui-button *ngIf="r.estado === 'S'" [icon]="Handshake" [iconOnly]="true" variant="outline" size="sm" type="button"
         (clicked)="onFiar(r)" [ariaLabel]="'Fiar pago #' + r.id" [title]="'Marcar como Fiado'">
       </ui-button>
+
+      <!-- F -> P (Pagar Fiado) -->
+      <ui-button *ngIf="r.estado === 'F'" [icon]="DollarSign" [iconOnly]="true" variant="primary" size="sm" type="button"
+        (clicked)="onPagar(r)" [ariaLabel]="'Pagar fiado #' + r.id" [title]="'Marcar como Pagado'">
+      </ui-button>
     </ng-template>
   </app-table>
 

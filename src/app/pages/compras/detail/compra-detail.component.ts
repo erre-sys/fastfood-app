@@ -12,6 +12,8 @@ import { ColumnDef } from '../../../shared/ui/table/column-def';
 import { SectionContainerComponent } from '../../../shared/ui/section-container/section-container.component';
 import { TableComponent } from '../../../shared/ui/table/table.component';
 import { DetailHeaderComponent, DetailHeaderField } from '../../../shared/ui/detail-header/detail-header.component';
+import { SummaryComponent } from '../../../shared/ui/summary/summary.component';
+import { UiButtonComponent } from '../../../shared/ui/buttons/ui-button/ui-button.component';
 
 @Component({
   selector: 'app-compra-detail',
@@ -21,6 +23,8 @@ import { DetailHeaderComponent, DetailHeaderField } from '../../../shared/ui/det
     SectionContainerComponent,
     TableComponent,
     DetailHeaderComponent,
+    SummaryComponent,
+    UiButtonComponent,
   ],
   templateUrl: './compra-detail.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

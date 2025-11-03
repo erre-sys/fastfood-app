@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { InventarioService } from '../../../services/inventario.service';
@@ -13,6 +13,7 @@ import { SectionContainerComponent } from '../../../shared/ui/section-container/
 import { AppSelectComponent } from '../../../shared/ui/fields/select/select.component';
 import { InputComponent } from '../../../shared/ui/fields/input/input.component';
 import { SaveCancelComponent } from '../../../shared/ui/buttons/ui-button-save-cancel/save-cancel.component';
+import { SummaryComponent } from '../../../shared/ui/summary/summary.component';
 import { LucideAngularModule, Plus, Minus } from 'lucide-angular';
 
 @Component({
@@ -25,6 +26,7 @@ import { LucideAngularModule, Plus, Minus } from 'lucide-angular';
     AppSelectComponent,
     InputComponent,
     SaveCancelComponent,
+    SummaryComponent,
     LucideAngularModule,
   ],
   templateUrl: './ajuste-inventario.component.html',
@@ -34,6 +36,7 @@ export default class AjusteInventarioPage implements OnInit {
   private api = inject(InventarioService);
   private ingredientesApi = inject(IngredienteService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
   private notify = inject(NotifyService);
 
@@ -58,6 +61,15 @@ export default class AjusteInventarioPage implements OnInit {
   });
 
   ngOnInit(): void {
+    // Leer queryParam ingredienteId si existe
+    const ingredienteIdParam = this.route.snapshot.queryParamMap.get('ingredienteId');
+    if (ingredienteIdParam) {
+      const ingredienteId = Number(ingredienteIdParam);
+      if (!isNaN(ingredienteId)) {
+        this.form.controls.ingredienteId.setValue(ingredienteId);
+      }
+    }
+
     this.loadIngredientes();
   }
 
@@ -189,7 +201,7 @@ export default class AjusteInventarioPage implements OnInit {
   calcularStockResultante(): number {
     const stockActual = this.getStockActual();
     const tipoAjuste = this.form.controls.tipoAjuste.value;
-    const cantidad = this.form.controls.cantidad.value || 0;
+    const cantidad = Number(this.form.controls.cantidad.value) || 0;
 
     if (tipoAjuste === 'RESTAR') {
       return stockActual - cantidad;

@@ -56,8 +56,6 @@ export default class IngredientesListPage extends BaseListComponent implements O
       valueMap: UNIDAD_MAP },
     {key: 'esExtra', header: 'Extra', widthPx: 110, align: 'center',
       type: 'badge', badgeMap: { S: 'ok', N: 'muted' }, valueMap: { S: 'Sí', N: 'No' } },
-    {key: 'aplicaComida', header: 'Aplica Comida', widthPx: 150, align: 'center',
-      type: 'badge', badgeMap: { S: 'ok', N: 'muted' }, valueMap: { S: 'Sí', N: 'No' } },
     {key: 'estado', header: 'Estado', widthPx: 120, align: 'center',
       type: 'badge', badgeMap: { A: 'ok', I: 'warn' }, valueMap: { A: 'Activo', I: 'Inactivo' } }
   ];

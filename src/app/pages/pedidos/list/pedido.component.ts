@@ -13,7 +13,6 @@ import { authService } from '../../../core/auth/auth.service';
 import { forkJoin, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { BaseListComponent } from '../../../shared/base/base-list.component';
-import { dateToBackendDateTimeStart, dateToBackendDateTimeEnd } from '../../../shared/utils/date-format.util';
 
 import { PageLayoutComponent } from '../../../shared/ui/page-layout/page-layout.component';
 import { TitleComponent } from '../../../shared/ui/fields/title/title.component';
@@ -25,6 +24,8 @@ import { SectionContainerComponent } from '../../../shared/ui/section-container/
 import { LucideAngularModule, Eye, Plus, Check, X as XIcon, DollarSign } from 'lucide-angular';
 import { UiButtonComponent } from '../../../shared/ui/buttons/ui-button/ui-button.component';
 import { ColumnDef, TabStatus } from '../../../shared/ui/table/column-def';
+import { DateRangeComponent } from '../../../shared';
+import { isoToSimpleDate } from '../../../shared/utils/date-format.util';
 
 @Component({
   selector: 'app-pedidos-list',
@@ -36,7 +37,7 @@ import { ColumnDef, TabStatus } from '../../../shared/ui/table/column-def';
     PageLayoutComponent,
     TitleComponent,
     TableComponent,
-    SearchComponent,
+    DateRangeComponent,
     PaginatorComponent,
     TabsFilterComponent,
     SectionContainerComponent,
@@ -73,15 +74,14 @@ export default class PedidosListPage extends BaseListComponent implements OnInit
   });
 
   columns: ColumnDef<Pedido>[] = [
-    { key: 'id', header: 'ID', sortable: true, widthPx: 80 },
+    { key: 'id', header: 'ID', sortable: true, widthPx: 60 },
     { key: 'creadoEn', header: 'Fecha', sortable: true, type: 'date', widthPx: 200 },
     { key: 'estado', header: 'Estado', sortable: true, widthPx: 120, align: 'center',
       type: 'badge',
       badgeMap: { C: 'warn', L: 'muted', E: 'ok', A: 'danger'     },
       valueMap: { C: 'Creado', L: 'Listo', E: 'Entregado', A: 'Anulado'   }
     },
-    { key: 'totalNeto', header: 'Total', sortable: true, align: 'right', widthPx: 120, type: 'money' },
-    { key: 'montoPendiente', header: 'Pendiente', sortable: false, align: 'right', widthPx: 120, type: 'money' },
+    { key: 'totalNeto', header: 'Total', sortable: true, align: 'right', widthPx: 120, type: 'money' }
   ];
 
   counters = {
@@ -100,22 +100,20 @@ export default class PedidosListPage extends BaseListComponent implements OnInit
         this.load();
       });
 
-    this.searchForm.controls.fechaDesde.valueChanges
-      .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroyed$))
-      .subscribe(() => {
-        this.page = 0;
-        this.load();
-      });
+    // Inicializar rango de fechas: últimos 30 días
+    const today = new Date();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(today.getDate() - 30);
 
-    this.searchForm.controls.fechaHasta.valueChanges
-      .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroyed$))
-      .subscribe(() => {
-        this.page = 0;
-        this.load();
-      });
+    this.searchForm.controls.fechaDesde.setValue(this.formatDateForInput(thirtyDaysAgo));
+    this.searchForm.controls.fechaHasta.setValue(this.formatDateForInput(today));
 
     this.load();
   }
+
+  private formatDateForInput(date: Date): string {
+      return isoToSimpleDate(date.toISOString());
+    }
 
   protected override load(): void {
     this.loading = true;

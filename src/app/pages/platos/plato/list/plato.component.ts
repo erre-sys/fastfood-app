@@ -52,11 +52,11 @@ export default class PlatosListPage extends BaseListComponent implements OnInit 
 
   columns: ColumnDef<Plato>[] = [
     { key: 'nombre', header: 'Nombre', sortable: true },
-    { key: 'grupoNombre', header: 'Grupo', sortable: true, widthPx: 180 },
-    { key: 'precioBase', header: 'Precio', widthPx: 100, align: 'right', type: 'money' },
-    { key: 'enPromocion', header: 'Promoción', widthPx: 120, align: 'center',
+    { key: 'grupoNombre', header: 'Grupo', widthPx: 180 },
+    { key: 'precioBase', header: 'Precio', widthPx: 75, align: 'right', type: 'money' },
+    { key: 'enPromocion', header: 'Promoción', widthPx: 100, align: 'center',
       type: 'badge', badgeMap: { S: 'ok', N: 'muted' }, valueMap: { S: 'Sí', N: 'No' } },
-    { key: 'estado', header: 'Estado', widthPx: 120, align: 'center',
+    { key: 'estado', header: 'Estado', widthPx: 100, align: 'center',
       type: 'badge', badgeMap: { A: 'ok', I: 'warn' }, valueMap: { A: 'Activo', I: 'Inactivo' } },
   ];
 

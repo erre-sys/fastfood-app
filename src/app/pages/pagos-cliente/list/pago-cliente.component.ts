@@ -1,13 +1,12 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 import { PagoClienteService } from '../../../services/pago-cliente.service';
 import { PagoCliente, MetodoPago, EstadoPago } from '../../../interfaces/pago-cliente.interface';
 import { BaseListComponent } from '../../../shared/base/base-list.component';
-import { dateToBackendDateTimeStart, dateToBackendDateTimeEnd } from '../../../shared/utils/date-format.util';
+import { dateToBackendDateTimeStart, dateToBackendDateTimeEnd, isoToSimpleDate } from '../../../shared/utils/date-format.util';
 
 import { PageLayoutComponent } from '../../../shared/ui/page-layout/page-layout.component';
 import { TitleComponent } from '../../../shared/ui/fields/title/title.component';
@@ -28,12 +27,10 @@ import { NotifyService } from '../../../core/notify/notify.service';
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     ReactiveFormsModule,
     PageLayoutComponent,
     TitleComponent,
     TableComponent,
-    SearchComponent,
     DateRangeComponent,
     PaginatorComponent,
     SectionContainerComponent,
@@ -123,23 +120,22 @@ export default class PagosClienteListPage extends BaseListComponent implements O
         this.load();
       });
 
-    this.searchForm.controls.fechaDesde.valueChanges
-      .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroyed$))
-      .subscribe(() => {
-        this.page = 0;
-        this.load();
-      });
+    // Inicializar rango de fechas: últimos 30 días
+    const today = new Date();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(today.getDate() - 30);
 
-    this.searchForm.controls.fechaHasta.valueChanges
-      .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroyed$))
-      .subscribe(() => {
-        this.page = 0;
-        this.load();
-      });
+    this.searchForm.controls.fechaDesde.setValue(this.formatDateForInput(thirtyDaysAgo));
+    this.searchForm.controls.fechaHasta.setValue(this.formatDateForInput(today));
+
 
     this.load();
   }
 
+  private formatDateForInput(date: Date): string {
+      return isoToSimpleDate(date.toISOString());
+    }
+    
   protected override load(): void {
     this.loading = true;
     this.cdr.markForCheck();
@@ -262,6 +258,29 @@ export default class PagosClienteListPage extends BaseListComponent implements O
         error: (err) => {
           console.error('Error al fiar pago:', err);
           this.notify.handleError(err, 'Error al marcar como fiado');
+        },
+      });
+    }
+  }
+
+  /**
+   * Pagar un fiado (F -> P)
+   */
+  onPagar(pago: PagoCliente) {
+    if (pago.estado !== 'F') {
+      this.notify.warning('Solo se pueden pagar créditos en estado Fiado');
+      return;
+    }
+
+    if (confirm(`¿Marcar pago #${pago.id} como Pagado?`)) {
+      this.api.cambiarEstado(pago.id, 'P').subscribe({
+        next: () => {
+          this.notify.success(`Pago #${pago.id} marcado como Pagado`);
+          this.load();
+        },
+        error: (err) => {
+          console.error('Error al marcar pago como pagado:', err);
+          this.notify.handleError(err, 'Error al marcar como pagado');
         },
       });
     }

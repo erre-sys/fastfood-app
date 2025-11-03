@@ -71,7 +71,7 @@ export default class PagoClienteFormPage implements OnInit {
 
   private loadPedidos(): void {
     // Filtrar solo pedidos con estado 'E' (Entregado)
-    const filtros = [{ llave: 'estado', operacion: 'EQ' as const, valor: 'E' }];
+    const filtros = [{ llave: 'estado', operacion: '=' as const, valor: 'E' }];
 
     this.pedidosApi.buscarPaginado({ page: 0, size: 1000, orderBy: 'id', direction: 'desc' }, filtros).subscribe({
       next: (response) => {

@@ -982,5 +982,123 @@ select.field:focus {
   .home-card__total-value { font-size: 2rem; }
 }
 
+/* ===== SUMMARY (totales/resúmenes) - API: [data-variant] + [data-size] ===== */
+.summary {
+  /* Variables por variante y tamaño */
+  --summary-bg: rgb(var(--primary-rgb));
+  --summary-color: rgb(var(--brand-ctr-rgb));
+  --summary-border: rgb(var(--primary-rgb));
+  --summary-divider: rgba(255, 255, 255, 0.2);
+  --summary-padding: 1rem;
+  --summary-label-size: 1.125rem;
+  --summary-value-size: 1.875rem;
+  --summary-item-size: 0.9375rem;
+
+  display: flex; flex-direction: column; gap: 1rem;
+  padding: var(--summary-padding);
+  border-radius: var(--radius);
+  background: var(--summary-bg);
+  color: var(--summary-color);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--summary-border);
+}
+
+/* Items opcionales (subtotales) */
+.summary__items {
+  display: flex; flex-direction: column; gap: 0.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--summary-divider);
+}
+
+.summary__item {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: var(--summary-item-size);
+  opacity: 0.9;
+}
+
+.summary__item-label { font-weight: 500; }
+.summary__item-value { font-weight: 600; }
+
+/* Total principal */
+.summary__main {
+  display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+}
+
+.summary__label {
+  font-size: var(--summary-label-size);
+  font-weight: 600; flex: 1;
+}
+
+.summary__value {
+  font-size: var(--summary-value-size);
+  font-weight: 700;
+}
+
+.summary__icon { flex-shrink: 0; }
+
+/* Variantes de color usando tokens del sistema */
+.summary[data-variant="primary"] {
+  --summary-bg: rgb(var(--primary-rgb));
+  --summary-color: rgb(var(--brand-ctr-rgb));
+  --summary-border: rgb(var(--primary-rgb));
+  --summary-divider: rgba(255, 255, 255, 0.2);
+}
+
+.summary[data-variant="accent"] {
+  --summary-bg: rgb(var(--accent-rgb));
+  --summary-color: rgb(var(--on-strong-rgb));
+  --summary-border: rgb(var(--accent-rgb));
+  --summary-divider: rgba(255, 255, 255, 0.2);
+}
+
+.summary[data-variant="success"] {
+  --summary-bg: rgb(var(--success-rgb));
+  --summary-color: rgb(var(--on-strong-rgb));
+  --summary-border: rgb(var(--success-rgb));
+  --summary-divider: rgba(255, 255, 255, 0.2);
+}
+
+.summary[data-variant="warning"] {
+  --summary-bg: rgb(var(--warning-rgb));
+  --summary-color: rgb(var(--fg-rgb));
+  --summary-border: rgb(var(--warning-rgb));
+  --summary-divider: rgba(0, 0, 0, 0.1);
+}
+
+.summary[data-variant="danger"] {
+  --summary-bg: rgb(var(--danger-rgb));
+  --summary-color: rgb(var(--on-strong-rgb));
+  --summary-border: rgb(var(--danger-rgb));
+  --summary-divider: rgba(255, 255, 255, 0.2);
+}
+
+.summary[data-variant="info"] {
+  --summary-bg: rgb(var(--info-rgb));
+  --summary-color: rgb(var(--on-strong-rgb));
+  --summary-border: rgb(var(--info-rgb));
+  --summary-divider: rgba(255, 255, 255, 0.2);
+}
+
+/* Tamaños */
+.summary[data-size="sm"] {
+  --summary-padding: 0.75rem;
+  --summary-label-size: 1rem;
+  --summary-value-size: 1.5rem;
+  --summary-item-size: 0.875rem;
+}
+
+.summary[data-size="md"] {
+  --summary-padding: 1rem;
+  --summary-label-size: 1.125rem;
+  --summary-value-size: 1.875rem;
+  --summary-item-size: 0.9375rem;
+}
+
+.summary[data-size="lg"] {
+  --summary-padding: 1.5rem;
+  --summary-label-size: 1.25rem;
+  --summary-value-size: 2.25rem;
+  --summary-item-size: 1rem;
+}
 
 }

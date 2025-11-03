@@ -4,7 +4,6 @@
 <ng-template #headerT>
   <app-title [titleLabel]="titleLabel" [subtitle]="subTitleLabel" [showBack]="true" variant="tinted" tone="brand"
     (cancel)="goBack()">
-    <ui-button [icon]="Package" label="Ajuste Manual" variant="primary" size="md" [to]="['/inventario/ajustar']"></ui-button>
     <ui-button [icon]="ArrowLeftRight" label="Ver Kardex" variant="outline" size="md" [to]="['/kardex']"></ui-button>
   </app-title>
 </ng-template>
@@ -24,15 +23,21 @@
   </app-search>
 
   <!-- Tabla -->
-  <div class="card overflow-hidden">
-    <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay ingredientes en inventario'"
-      [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)">
-    </app-table>
+  <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay ingredientes en inventario'"
+    [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
+    <ng-template #actionsTpl let-r>
+      <ui-button [icon]="Edit" label="Ajustar" variant="primary" size="sm" (clicked)="irAjusteManual(r.ingredienteId)"
+        [ariaLabel]="'Ajustar stock de ' + r.nombre">
+      </ui-button>
+      <ui-button [icon]="ArrowLeftRight" label="Kardex" variant="outline" size="sm" (clicked)="irKardex(r.ingredienteId)"
+        [ariaLabel]="'Ver kardex de ' + r.nombre">
+      </ui-button>
+    </ng-template>
+  </app-table>
 
-    <!-- Paginación -->
-    <app-paginator class="mt-2" [from]="from()" [to]="to()" [total]="total" [pageIndex]="page" [pageSize]="pageSize"
-      [pageSizeOptions]="[10,20,30,50]" [maxPage]="maxPage()" (sizeChange)="setPageSize($event)" (prev)="prev()"
-      (next)="next()">
-    </app-paginator>
-  </div>
+  <!-- Paginación -->
+  <app-paginator class="mt-2" [from]="from()" [to]="to()" [total]="total" [pageIndex]="page" [pageSize]="pageSize"
+    [pageSizeOptions]="[10,20,30,50]" [maxPage]="maxPage()" (sizeChange)="setPageSize($event)" (prev)="prev()"
+    (next)="next()">
+  </app-paginator>
 </ng-template>

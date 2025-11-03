@@ -4,6 +4,7 @@ export interface InventarioMov {
   id: number;
   ingredienteId: number;
   ingredienteNombre?: string; // opcional, desde JOIN
+  ingredienteUnidad?: string; // opcional, unidad de medida
   fecha: string; // ISO 8601
   tipo: TipoMovimiento;
   cantidad: number;

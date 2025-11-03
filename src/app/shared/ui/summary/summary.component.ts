@@ -4,7 +4,9 @@ import { LucideAngularModule, LucideIconData } from 'lucide-angular';
 
 /**
  * Componente reutilizable para mostrar resúmenes/totales
- * Puede usarse para:
+ * Usa las clases del sistema de diseño definidas en assets/styles/ui-classes.css
+ *
+ * Casos de uso:
  * - Total de pedidos
  * - Total de compras
  * - Resumen de recetas
@@ -24,8 +26,8 @@ export class SummaryComponent {
   /** Valor a mostrar (puede ser número o string formateado) */
   @Input() value: string | number = 0;
 
-  /** Color del fondo - opciones: primary, success, warning, danger, info, accent */
-  @Input() variant: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'accent' = 'primary';
+  /** Color del fondo - opciones: primary, accent, success, warning, danger, info */
+  @Input() variant: 'primary' | 'accent' | 'success' | 'warning' | 'danger' | 'info' = 'primary';
 
   /** Icono opcional de lucide-angular */
   @Input() icon?: LucideIconData;
@@ -38,43 +40,4 @@ export class SummaryComponent {
 
   /** Items adicionales para mostrar (subtotales, descuentos, etc.) */
   @Input() items: Array<{ label: string; value: string | number }> = [];
-
-  get bgColorClass(): string {
-    const colors = {
-      primary: 'bg-blue-600',
-      success: 'bg-green-600',
-      warning: 'bg-yellow-500',
-      danger: 'bg-red-600',
-      info: 'bg-cyan-600',
-      accent: 'bg-orange-500',
-    };
-    return colors[this.variant];
-  }
-
-  get textSizeClass(): string {
-    const sizes = {
-      sm: 'text-2xl',
-      md: 'text-3xl',
-      lg: 'text-4xl',
-    };
-    return sizes[this.size];
-  }
-
-  get labelSizeClass(): string {
-    const sizes = {
-      sm: 'text-base',
-      md: 'text-lg',
-      lg: 'text-xl',
-    };
-    return sizes[this.size];
-  }
-
-  get paddingClass(): string {
-    const paddings = {
-      sm: 'p-3',
-      md: 'p-4',
-      lg: 'p-6',
-    };
-    return paddings[this.size];
-  }
 }

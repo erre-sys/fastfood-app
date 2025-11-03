@@ -13,6 +13,9 @@ import { SectionContainerComponent } from '../../../shared/ui/section-container/
 import { InputComponent } from '../../../shared/ui/fields/input/input.component';
 import { AppSelectComponent } from '../../../shared/ui/fields/select/select.component';
 import { SaveCancelComponent } from '../../../shared/ui/buttons/ui-button-save-cancel/save-cancel.component';
+import { UiButtonComponent } from '../../../shared/ui/buttons/ui-button/ui-button.component';
+import { TableComponent } from '../../../shared/ui/table/table.component';
+import { ColumnDef } from '../../../shared/ui/table/column-def';
 import { LucideAngularModule, X, Plus } from 'lucide-angular';
 import { TitleComponent } from '../../../shared/ui/fields/title/title.component';
 
@@ -21,7 +24,7 @@ import { TitleComponent } from '../../../shared/ui/fields/title/title.component'
   standalone: true,
   imports: [
     CommonModule, TitleComponent, ReactiveFormsModule,  SectionContainerComponent,
-    InputComponent, AppSelectComponent, SaveCancelComponent, LucideAngularModule
+    InputComponent, AppSelectComponent, SaveCancelComponent, UiButtonComponent, TableComponent, LucideAngularModule
   ],
   templateUrl: './receta.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,6 +63,14 @@ export default class RecetaPage implements OnInit {
     'ML': 'Mililitros'
   };
 
+  // Columnas para la tabla de resumen de ingredientes
+  resumenColumns: ColumnDef<any>[] = [
+    { key: 'numero', header: '#', widthPx: 60, align: 'center' },
+    { key: 'nombre', header: 'Ingrediente', sortable: false },
+    { key: 'cantidad', header: 'Cantidad', widthPx: 120, align: 'right' },
+    { key: 'unidad', header: 'Unidad', widthPx: 120, align: 'center' },
+  ];
+
   form = new FormGroup({
     items: new FormArray<FormGroup>([]),
   });
@@ -77,25 +88,19 @@ export default class RecetaPage implements OnInit {
   }
 
   private loadPlato(): void {
-    console.log('🔍 [RECETA] Cargando información del plato:', this.platoId);
-
     this.platoApi.obtener(this.platoId).subscribe({
       next: (plato: any) => {
-        console.log('✅ [RECETA] Plato obtenido:', plato);
-
         this.platoNombre = plato?.nombre ?? `Plato #${this.platoId}`;
 
         // Validar que el plato esté activo
         const estado = plato?.estado ?? '';
         if (estado !== 'A') {
-          console.warn('⚠️ [RECETA] El plato no está activo. Estado:', estado);
           this.notify.warning('Este plato no está activo. Solo se pueden crear recetas para platos activos.');
         }
 
         this.cdr.markForCheck();
       },
       error: (err) => {
-        console.error('❌ [RECETA] Error al cargar plato:', err);
         this.platoNombre = `Plato #${this.platoId}`;
         this.cdr.markForCheck();
       },
@@ -107,8 +112,6 @@ export default class RecetaPage implements OnInit {
 
     this.ingredientesApi.listar().subscribe({
       next: (arr) => {
-        console.log('✅ [RECETA] Ingredientes recibidos:', arr);
-
         // Mapear todos los ingredientes
         this.ingredientes = (arr ?? []).map((ing: any) => ({
           id: Number(ing?.id ?? ing?.ingredienteId),
@@ -129,9 +132,6 @@ export default class RecetaPage implements OnInit {
             unidad: ing.unidad,
           }));
 
-        console.log('📊 [RECETA] Total ingredientes:', this.ingredientes.length);
-        console.log('✅ [RECETA] Ingredientes válidos (activos + aplicaComida):', this.ingredientesValidos.length);
-
         if (this.ingredientesValidos.length === 0) {
           console.warn('⚠️ [RECETA] No hay ingredientes válidos para agregar a la receta');
         }
@@ -145,15 +145,11 @@ export default class RecetaPage implements OnInit {
   }
 
   private loadReceta(): void {
-    console.log('🔍 [RECETA] Cargando receta del plato:', this.platoId);
-
     this.loading = true;
     this.cdr.markForCheck();
 
     this.api.obtenerReceta(this.platoId).subscribe({
       next: (items) => {
-        console.log('✅ [RECETA] Receta obtenida:', items);
-
         this.items.clear();
 
         if (items && items.length > 0) {
@@ -170,8 +166,6 @@ export default class RecetaPage implements OnInit {
             });
             this.items.push(itemGroup);
           });
-
-          console.log('📋 [RECETA] Items cargados en formulario:', this.items.length);
         } else {
           console.log('📝 [RECETA] No hay items en la receta, agregando item vacío');
           this.agregarItem();
@@ -181,7 +175,7 @@ export default class RecetaPage implements OnInit {
         this.cdr.markForCheck();
       },
       error: (err) => {
-        console.error('❌ [RECETA] Error al cargar receta:', err);
+        console.error('[RECETA] Error al cargar receta:', err);
         this.loading = false;
         this.agregarItem(); // Agregar un item vacío si falla
         this.cdr.markForCheck();
@@ -320,18 +314,19 @@ export default class RecetaPage implements OnInit {
     }).length;
   }
 
-  // Obtener resumen de ingredientes
-  getResumenIngredientes(): Array<{ nombre: string; cantidad: number; unidad: string }> {
+  // Obtener resumen de ingredientes con número correlativo
+  getResumenIngredientes(): Array<{ numero: number; nombre: string; cantidad: number; unidad: string }> {
     return this.items.controls
       .filter(control => {
         const ingredienteId = control.get('ingredienteId')?.value;
         return ingredienteId != null;
       })
-      .map(control => {
+      .map((control, index) => {
         const ingredienteId = control.get('ingredienteId')?.value;
         const cantidad = control.get('cantidad')?.value || 0;
         const ing = this.ingredientesValidos.find(i => i.id === ingredienteId);
         return {
+          numero: index + 1,
           nombre: ing?.nombre || 'Ingrediente desconocido',
           cantidad: Number(cantidad),
           unidad: this.getUnidadIngrediente(ingredienteId) || 'Sin unidad'

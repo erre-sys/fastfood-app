@@ -35,6 +35,16 @@
     </div>
   </app-section-container>
 
+  <!-- Stock del Ingrediente Seleccionado -->
+  <app-section-container *ngIf="searchForm.controls.ingredienteId.value" [heading]="'Stock Actual'"
+    [compact]="true" [inset]="true">
+    <app-summary label="Stock Actual del Ingrediente"
+      [value]="getStockActualIngrediente() + ' ' + getUnidadIngrediente()"
+      [variant]="getStockActualIngrediente() === 0 ? 'danger' : 'primary'"
+      size="sm">
+    </app-summary>
+  </app-section-container>
+
   <!-- Tabla -->
   <div class="card overflow-hidden">
     <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay movimientos de inventario'"

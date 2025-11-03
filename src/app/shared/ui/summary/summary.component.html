@@ -1,23 +1,21 @@
-<div class="card text-white rounded-xl" [ngClass]="[bgColorClass, paddingClass]">
+<div class="summary" [attr.data-variant]="variant" [attr.data-size]="size">
   <!-- Items opcionales (subtotales, descuentos, etc.) -->
-  <div *ngIf="items.length > 0" class="space-y-2 mb-4 pb-4 border-b border-white/20">
-    <div *ngFor="let item of items" class="flex justify-between items-center text-white/90">
-      <span [ngClass]="labelSizeClass" class="font-medium">{{ item.label }}</span>
-      <span [ngClass]="labelSizeClass" class="font-semibold">{{ item.value }}</span>
+  <div *ngIf="items.length > 0" class="summary__items">
+    <div *ngFor="let item of items" class="summary__item">
+      <span class="summary__item-label">{{ item.label }}</span>
+      <span class="summary__item-value">{{ item.value }}</span>
     </div>
   </div>
 
   <!-- Total principal -->
-  <div class="flex items-center justify-between gap-4">
+  <div class="summary__main">
     <!-- Icono opcional -->
-    <lucide-icon *ngIf="icon" [img]="icon" [size]="iconSize" class="flex-shrink-0"></lucide-icon>
+    <lucide-icon *ngIf="icon" [img]="icon" [size]="iconSize" class="summary__icon"></lucide-icon>
 
     <!-- Label -->
-    <span [ngClass]="labelSizeClass" class="font-semibold flex-1">{{ label }}</span>
+    <span class="summary__label">{{ label }}</span>
 
     <!-- Valor -->
-    <span [ngClass]="textSizeClass" class="font-bold">
-      {{ value }}
-    </span>
+    <span class="summary__value">{{ value }}</span>
   </div>
 </div>

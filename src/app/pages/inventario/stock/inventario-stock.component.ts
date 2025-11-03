@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, forkJoin } from 'rxjs';
-import { takeUntil, switchMap, tap } from 'rxjs/operators';
+import { takeUntil, tap } from 'rxjs/operators';
 
 import { InventarioService } from '../../../services/inventario.service';
 import { IngredienteService } from '../../../services/ingrediente.service';
 import { Inventario } from '../../../interfaces/inventario.interface';
-import { UNIDAD_MAP, getNombreUnidad } from '../../../shared/constants/unidades.const';
+import { getNombreUnidad } from '../../../shared/constants/unidades.const';
 import { BaseListComponent } from '../../../shared/base/base-list.component';
 
 import { PageLayoutComponent } from '../../../shared/ui/page-layout/page-layout.component';
@@ -16,7 +16,7 @@ import { TitleComponent } from '../../../shared/ui/fields/title/title.component'
 import { TableComponent } from '../../../shared/ui/table/table.component';
 import { SearchComponent } from '../../../shared/ui/fields/searchbox/search.component';
 import { PaginatorComponent } from '../../../shared/ui/paginator/paginator.component';
-import { LucideAngularModule, Package, AlertTriangle, ArrowLeftRight } from 'lucide-angular';
+import { LucideAngularModule, Package, AlertTriangle, ArrowLeftRight, Edit, BarChart3 } from 'lucide-angular';
 import { UiButtonComponent } from '../../../shared/ui/buttons/ui-button/ui-button.component';
 import { TabsFilterComponent } from '../../../shared/ui/tabs-filter/tabs-filter.component';
 import { ColumnDef } from '../../../shared/ui/table/column-def';
@@ -37,6 +37,7 @@ export default class InventarioStockPage extends BaseListComponent implements On
   private api = inject(InventarioService);
   private ingredientesApi = inject(IngredienteService);
   private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
 
   titleLabel = 'Inventario';
   subTitleLabel = 'Stock actual de ingredientes';
@@ -49,6 +50,7 @@ export default class InventarioStockPage extends BaseListComponent implements On
   Package = Package;
   AlertTriangle = AlertTriangle;
   ArrowLeftRight = ArrowLeftRight;
+  Edit = Edit;
 
   // Mapa de ingredientes con nombre y unidad
   ingredienteNombre: Map<number, string> = new Map();
@@ -59,11 +61,9 @@ export default class InventarioStockPage extends BaseListComponent implements On
   });
 
   columns: ColumnDef<Inventario>[] = [
-    { key: 'ingredienteId', header: 'ID', sortable: true, align: 'center', widthPx: 80 },
-    { key: 'nombre', header: 'Ingrediente', sortable: false },
-    { key: 'stockActual', header: 'Stock Actual', sortable: true, align: 'right', widthPx: 150 },
-    { key: 'unidad', header: 'Unidad', align: 'left', widthPx: 120 },
-    { key: 'actualizadoEn', header: 'Última Actualización', sortable: true, align: 'right', type: 'date', widthPx: 220 },
+    { key: 'nombre', header: 'Ingrediente', sortable: false , widthPx: 120},
+    { key: 'unidad', header: 'Unidad', align: 'center'},
+    { key: 'stockActual', header: 'Stock Actual', sortable: true, align: 'right'}
   ];
 
   counters = { all: 0, bajoMinimo: undefined as number | undefined };
@@ -182,5 +182,17 @@ export default class InventarioStockPage extends BaseListComponent implements On
   private getIngredienteUnidad(id: number): string {
     const unidadCodigo = this.ingredienteUnidad.get(id) ?? '';
     return getNombreUnidad(unidadCodigo);
+  }
+
+  irAjusteManual(ingredienteId: number): void {
+    this.router.navigate(['/inventario/ajustar'], {
+      queryParams: { ingredienteId }
+    });
+  }
+
+  irKardex(ingredienteId: number): void {
+    this.router.navigate(['/kardex'], {
+      queryParams: { ingredienteId }
+    });
   }
 }

@@ -16,6 +16,7 @@ import { InputComponent } from '../../../shared/ui/fields/input/input.component'
 import { SaveCancelComponent } from '../../../shared/ui/buttons/ui-button-save-cancel/save-cancel.component';
 import { SummaryComponent } from '../../../shared/ui/summary/summary.component';
 import { PedidoCartComponent, CartItem, CartExtra } from '../../../shared/ui/pedido-cart/pedido-cart.component';
+import { UiButtonComponent } from '../../../shared/ui/buttons/ui-button/ui-button.component';
 import { LucideAngularModule, Plus, Trash2, Minus, ShoppingCart } from 'lucide-angular';
 
 @Component({
@@ -31,6 +32,7 @@ import { LucideAngularModule, Plus, Trash2, Minus, ShoppingCart } from 'lucide-a
     SaveCancelComponent,
     SummaryComponent,
     PedidoCartComponent,
+    UiButtonComponent,
     LucideAngularModule,
   ],
   templateUrl: './pedido-form.component.html',
@@ -50,6 +52,8 @@ export default class PedidoFormPage implements OnInit {
   Trash2 = Trash2;
   Minus = Minus;
   ShoppingCart = ShoppingCart;
+
+  titleLabel = 'Pedido';
 
 
   loading = false;
@@ -121,6 +125,10 @@ export default class PedidoFormPage implements OnInit {
     });
   }
 
+  /**
+   * Carga promociones vigentes para mostrar badges visuales
+   * IMPORTANTE: Solo para UI, el backend aplica los descuentos reales al crear el pedido
+   */
   private loadPromociones(): void {
     this.promosApi.obtenerVigentes().subscribe({
       next: (arr) => {
@@ -132,6 +140,10 @@ export default class PedidoFormPage implements OnInit {
       },
       error: (err) => {
         console.error('Error al cargar promociones vigentes:', err);
+        // No mostramos error al usuario, continúa sin promociones
+        // El backend aplicará las promociones al crear el pedido de todas formas
+        this.promocionesVigentes.clear();
+        this.cdr.markForCheck();
       },
     });
   }
@@ -238,6 +250,10 @@ export default class PedidoFormPage implements OnInit {
     }
   }
 
+  /**
+   * Calcula subtotal ESTIMADO para mostrar en UI (sin descuentos de promoción)
+   * NOTA: El precio real lo calcula el backend al crear el pedido
+   */
   calcularSubtotal(item: CartItem): number {
     const precioBase = item.precioBase * item.cantidad;
     const precioExtras = item.extras.reduce((sum, extra) => {
@@ -246,10 +262,17 @@ export default class PedidoFormPage implements OnInit {
     return precioBase + precioExtras;
   }
 
+  /**
+   * Calcula total ESTIMADO del carrito (sin descuentos de promoción)
+   * NOTA: El precio real lo calcula el backend al crear el pedido
+   */
   calcularTotal(): number {
     return this.carrito.reduce((sum, item) => sum + this.calcularSubtotal(item), 0);
   }
 
+  /**
+   * Calcula total ESTIMADO de extras temporales para preview
+   */
   calcularTotalExtrasTemp(): number {
     const cantidadPlato = this.platoForm.controls.cantidad.value;
     return this.extrasTemp.reduce((sum, extra) => {
@@ -257,6 +280,9 @@ export default class PedidoFormPage implements OnInit {
     }, 0);
   }
 
+  /**
+   * Calcula precio ESTIMADO de preview antes de agregar al carrito
+   */
   calcularPrecioPreview(): number {
     const platoId = this.platoForm.controls.platoId.value;
     const cantidadPlato = this.platoForm.controls.cantidad.value;
@@ -273,6 +299,8 @@ export default class PedidoFormPage implements OnInit {
       return;
     }
 
+    // IMPORTANTE: Solo enviamos platoId, cantidad y extras (ingredienteId, cantidad)
+    // El backend calcula precios, aplica promociones vigentes y valida stock
     const dto: PedidoCreate = {
       items: this.carrito.map((item) => ({
         platoId: item.platoId,

@@ -5,9 +5,9 @@
         [soft]="true" [disabled]="loading" [includeNull]="true" nullLabel="-- Seleccione un ingrediente --"
         labelKey="nombre" valueKey="id" [required]="true">
         <ng-template #itemTemplate let-item>
-          <div class="flex justify-between items-center w-full">
-            <span class="font-medium">{{ item.nombre }}</span>
-            <span class="text-xs text-slate-500">Stock: {{ item.stockActual }} {{ item.unidad }}</span>
+          <div>
+            <span>{{ item.nombre }}</span>
+            <span class="form-help">Stock: {{ item.stockActual }} {{ item.unidad }}</span>
           </div>
         </ng-template>
       </app-select>
@@ -20,25 +20,22 @@
         [disabled]="loading" [min]="1" placeholder="0" [required]="true">
         <ng-template #helpText>
           <span *ngIf="form.controls.tipoAjuste.value === 'SUMAR'">
-            <lucide-icon [img]="Plus" [size]="12" class="inline"></lucide-icon>
+            <lucide-icon [img]="Plus" [size]="12"></lucide-icon>
             Cantidad a sumar al inventario
           </span>
           <span *ngIf="form.controls.tipoAjuste.value === 'RESTAR'">
-            <lucide-icon [img]="Minus" [size]="12" class="inline"></lucide-icon>
+            <lucide-icon [img]="Minus" [size]="12"></lucide-icon>
             Cantidad a restar del inventario (merma, vencimiento, etc.)
           </span>
         </ng-template>
       </app-input>
 
       <div class="form-field" *ngIf="form.controls.tipoAjuste.value === 'RESTAR'">
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" formControlName="permitirNegativo" [disabled]="loading"
-            class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
-          <span class="text-sm font-medium text-slate-700">
-            Permitir stock negativo
-          </span>
+        <label>
+          <input type="checkbox" formControlName="permitirNegativo" [disabled]="loading">
+          <span>Permitir stock negativo</span>
         </label>
-        <p class="form-help text-xs mt-1">
+        <p class="form-help">
           Marque esta opción solo si desea permitir que el stock quede en negativo después del ajuste
         </p>
       </div>
@@ -54,36 +51,33 @@
 
   <app-section-container *ngIf="form.controls.ingredienteId.value" [heading]="'Vista Previa del Ajuste'"
     [compact]="true" [divider]="true" [inset]="true">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="card p-4 bg-blue-50 border-blue-200">
-        <p class="text-sm text-slate-600 font-medium mb-1">Stock Actual</p>
-        <p class="text-2xl font-bold text-blue-600">{{ getStockActual() }} {{ getUnidad() }}</p>
-      </div>
-      <div class="card p-4"
-        [ngClass]="calcularStockResultante() < 0 ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-300'">
-        <p class="text-sm text-slate-600 font-medium mb-1">Stock Resultante</p>
-        <p class="text-2xl font-bold"
-          [ngClass]="calcularStockResultante() < 0 ? 'text-red-600' : 'text-green-600'">
-          {{ calcularStockResultante() }} {{ getUnidad() }}
-        </p>
-      </div>
+    <div class="fg">
+      <app-summary label="Stock Actual" [value]="getStockActual() + ' ' + getUnidad()"
+        variant="info" size="sm">
+      </app-summary>
+
+      <app-summary label="Stock Resultante"
+        [value]="calcularStockResultante() + ' ' + getUnidad()"
+        [variant]="calcularStockResultante() < 0 ? 'danger' : 'success'"
+        size="sm">
+      </app-summary>
     </div>
 
-    <div *ngIf="calcularStockResultante() < 0" class="mt-4 card p-4 bg-red-50 border-red-300">
-      <p class="text-red-700 font-semibold">
-        ⚠️ Advertencia: El stock resultante es negativo ({{ calcularStockResultante() }}).
+    <div *ngIf="calcularStockResultante() < 0" class="pill pill--danger">
+      <p>
+        Advertencia: El stock resultante es negativo ({{ calcularStockResultante() }}).
       </p>
-      <p class="text-red-600 text-sm mt-2" *ngIf="!form.controls.permitirNegativo.value">
+      <p *ngIf="!form.controls.permitirNegativo.value">
         Para permitir que el stock quede negativo, marque la opción "Permitir stock negativo" arriba.
         De lo contrario, el backend rechazará esta operación.
       </p>
-      <p class="text-red-600 text-sm mt-2" *ngIf="form.controls.permitirNegativo.value">
+      <p *ngIf="form.controls.permitirNegativo.value">
         Está permitiendo que el stock quede negativo. Use esta opción con precaución.
       </p>
     </div>
   </app-section-container>
 
-  <app-save-cancel [saveLabel]="'Ajustar Inventario'" [cancelLabel]="'Cancelar'" [loading]="loading"
+  <app-save-cancel [saveLabel]="'Guardar Ajuste'" [cancelLabel]="'Cancelar'" [loading]="loading"
     [disabled]="form.invalid" [sticky]="true" (cancel)="cancel()">
   </app-save-cancel>
 </form>

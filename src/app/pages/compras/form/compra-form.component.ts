@@ -12,6 +12,8 @@ import { SectionContainerComponent } from '../../../shared/ui/section-container/
 import { InputComponent } from '../../../shared/ui/fields/input/input.component';
 import { AppSelectComponent } from '../../../shared/ui/fields/select/select.component';
 import { SaveCancelComponent } from '../../../shared/ui/buttons/ui-button-save-cancel/save-cancel.component';
+import { SummaryComponent } from '../../../shared/ui/summary/summary.component';
+import { UiButtonComponent } from '../../../shared/ui/buttons/ui-button/ui-button.component';
 import { LucideAngularModule, X, Plus } from 'lucide-angular';
 import { ProveedoresService } from '../../../services/proveedores.service';
 
@@ -25,6 +27,8 @@ import { ProveedoresService } from '../../../services/proveedores.service';
     InputComponent,
     AppSelectComponent,
     SaveCancelComponent,
+    SummaryComponent,
+    UiButtonComponent,
     LucideAngularModule,
   ],
   templateUrl: './compra-form.component.html',

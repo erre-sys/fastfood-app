@@ -151,6 +151,7 @@ export default class PromoProgramadaListPage extends BaseListComponent implement
             ...r,
             platoNombre: this.platoNombre.get(r.platoId) ?? '',
           }));
+          this.cdr.markForCheck();
         }
       },
       error: () => {},

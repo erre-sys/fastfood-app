@@ -24,27 +24,12 @@
   <!-- Filtros de Búsqueda -->
   <app-section-container [heading]="'Filtros de Búsqueda'" [compact]="true" [inset]="true">
     <div class="fg">
-      <!-- Búsqueda por ID -->
-      <div class="form-field">
-        <label class="form-label">Buscar por ID</label>
-        <input type="text" class="field field--soft" placeholder="ID del pedido"
-          [formControl]="searchForm.controls.q">
-        <p class="form-help text-xs">Buscar por número de pedido</p>
-      </div>
-
-      <!-- Fecha Desde -->
-      <div class="form-field">
-        <label class="form-label">Fecha Desde</label>
-        <input type="date" class="field field--soft" [formControl]="searchForm.controls.fechaDesde">
-        <p class="form-help text-xs">Inicio del rango</p>
-      </div>
-
-      <!-- Fecha Hasta -->
-      <div class="form-field">
-        <label class="form-label">Fecha Hasta</label>
-        <input type="date" class="field field--soft" [formControl]="searchForm.controls.fechaHasta">
-        <p class="form-help text-xs">Fin del rango</p>
-      </div>
+        <app-date-range labelFrom="Fecha Desde" labelTo="Fecha Hasta" [valueFrom]="searchForm.controls.fechaDesde.value"
+          [valueTo]="searchForm.controls.fechaHasta.value"
+          (valueFromChange)="searchForm.controls.fechaDesde.setValue($event)"
+          (valueToChange)="searchForm.controls.fechaHasta.setValue($event)" hintFrom="Inicio del rango"
+          hintTo="Fin del rango">
+        </app-date-range>
     </div>
   </app-section-container>
 
@@ -52,9 +37,17 @@
   <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay pedidos registrados'"
     [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
     <ng-template #actionsTpl let-r>
+
+      <!-- Badge de completamente pagado -->
+      <span *ngIf="r.estado === 'E' && r.montoPendiente !== undefined && r.montoPendiente <= 0"
+        class="pill pill--success text-xs font-semibold">
+        ✓ Pagado
+      </span>
+
       <ui-button [icon]="Eye" label="Ver" variant="warning" size="sm" [to]="['/pedidos', r.id, 'detalle']"
         [ariaLabel]="'Ver detalle del pedido #' + r.id">
       </ui-button>
+
 
       <!-- C -> L (Creado a Listo) - NO descuenta inventario -->
       <ui-button *ngIf="r.estado === 'C'" [icon]="Check" label="Listo" variant="outline" size="sm" type="button"
@@ -68,19 +61,13 @@
 
       <!-- E -> Pagar (Solo pedidos entregados y con saldo pendiente) -->
       <ui-button *ngIf="r.estado === 'E' && (r.montoPendiente === undefined || r.montoPendiente > 0)"
-        [icon]="DollarSign" label="Pagar" variant="primary" size="sm" type="button"
-        (clicked)="onPagar(r)" [title]="'Registrar pago del pedido'">
+        [icon]="DollarSign" label="Pagar" variant="primary" size="sm" type="button" (clicked)="onPagar(r)"
+        [title]="'Registrar pago del pedido'">
       </ui-button>
 
-      <!-- Badge de completamente pagado -->
-      <span *ngIf="r.estado === 'E' && r.montoPendiente !== undefined && r.montoPendiente <= 0"
-        class="pill pill--success text-xs font-semibold">
-        ✓ Pagado
-      </span>
-
       <!-- C, L -> A (Anular) -->
-      <ui-button *ngIf="r.estado === 'C' || r.estado === 'L'" [icon]="XIcon" label="Anular" variant="outline"
-        size="sm" type="button" (clicked)="onAnular(r)" [title]="'Anular pedido'">
+      <ui-button *ngIf="r.estado === 'C' || r.estado === 'L'" [icon]="XIcon" label="Anular" variant="outline" size="sm"
+        type="button" (clicked)="onAnular(r)" [title]="'Anular pedido'">
       </ui-button>
     </ng-template>
   </app-table>

@@ -21,10 +21,9 @@
   <app-section-container [heading]="'Items de Compra'" [compact]="true" [divider]="true" [inset]="true"
     [actionsTpl]="headerActions">
     <ng-template #headerActions>
-      <button type="button" class="btn btn--sm btn--primary" (click)="agregarItem()" [disabled]="loading">
-        <lucide-icon [img]="Plus" [size]="16"></lucide-icon>
-        <span>Agregar Item</span>
-      </button>
+      <ui-button label="Agregar Item" [icon]="Plus" variant="primary" size="sm"
+        (clicked)="agregarItem()" [disabled]="loading">
+      </ui-button>
     </ng-template>
 
     <div formArrayName="items" class="space-y-4">
@@ -66,11 +65,10 @@
     </div>
 
     <!-- Total General -->
-    <div *ngIf="items.length > 0" class="card p-4 bg-blue-50 border-blue-200 mt-6">
-      <div class="flex justify-between items-center">
-        <span class="text-lg font-semibold text-slate-700">Total de Compra:</span>
-        <span class="text-2xl font-bold text-blue-600">${{ calcularTotal().toFixed(2) }}</span>
-      </div>
+    <div *ngIf="items.length > 0" class="mt-6">
+      <app-summary label="Total de Compra" [value]="'$' + calcularTotal().toFixed(2)"
+        variant="primary" size="md">
+      </app-summary>
     </div>
   </app-section-container>
 

@@ -1,5 +1,5 @@
 import Keycloak, { KeycloakInstance } from 'keycloak-js';
-import { environment } from '../../../environments/environments';
+import { environment } from '../../../environments/environments.development';
 
 class AuthService {
   private kc: KeycloakInstance | null = null;

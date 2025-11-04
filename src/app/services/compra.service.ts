@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environments';
+import { environment } from '../../environments/environments.development';
 import { Pager } from '../interfaces/pagination.interface';
 import { CompraCreate } from '../interfaces/compra.interface';
 import { withSuccess } from '../core/interceptors/toast-context';

@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Pager, Filtro } from '../interfaces/pagination.interface';
-import { environment } from '../../environments/environments';
+import { environment } from '../../environments/environments.development';
 import { Pedido, PedidoCreate, PedidoItemCreate, PedidoItemExtraCreate } from '../interfaces/pedido.interface';
 
 @Injectable({  providedIn: 'root'})

@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environments';
+import { environment } from '../../environments/environments.development';
 import { PagoCliente, PagoClienteCreate } from '../interfaces/pago-cliente.interface';
 import { Pager } from '../interfaces/pagination.interface';
 

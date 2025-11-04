@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'http://localhost:8081/fastfood/api',
+  apiBaseUrl: 'https://api.erre.com/fastfood/api',
   keycloak: {
     url: 'https://auth.erre.com',
     realm: 'fastfood',

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
-import { environment } from '../../environments/environments';
+import { environment } from '../../environments/environments.development';
 import { withSuccess } from '../core/interceptors/toast-context';
 import { Filtro, Pager } from '../interfaces/pagination.interface';
 import { PromoProgramada, PromoProgramadaCreate, PromoProgramadaUpdate, Estado } from '../interfaces/promo-programada.interface';

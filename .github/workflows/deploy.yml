@@ -21,23 +21,6 @@ jobs:
       - name: Install deps
         run: npm install
 
-      # Angular 18: el prod vive en environment.ts
-      - name: Write production environments.ts
-        run: |
-          cat > src/environments/environments.ts <<'TS'
-          export const environment = {
-            production: true,
-            apiBaseUrl: 'https://api.erre.com',
-            keycloak: {
-              url: 'https://auth.erre.com',
-              realm: 'fastfood',
-              clientId: 'web-fastfood'
-            }
-          };
-          TS
-          echo "----- environments.ts -----"
-          cat src/environments/environments.ts
-
       - name: Build (production)
         run: npm run build -- --configuration production
 

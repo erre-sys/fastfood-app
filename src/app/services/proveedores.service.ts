@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environments';
+import { environment } from '../../environments/environments.development';
 import { Proveedor, ProveedorCreate, PagerAndSort, CriterioBusqueda, Pagina } from '../interfaces/proveedor.interface';
 
 @Injectable({ providedIn: 'root' })

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { environment } from '../../environments/environments';
+import { environment } from '../../environments/environments.development';
 import { withSuccess } from '../core/interceptors/toast-context';
 import { GrupoPlato, GrupoPlatoCreate, GrupoPlatoUpdate, Estado } from '../interfaces/grupo-plato.interface';
 import { Filtro, Pager } from '../interfaces/pagination.interface';

@@ -9,16 +9,8 @@
         <div class="space-y-4">
 
           <!-- Selector de Plato -->
-          <app-select
-            label="Plato"
-            [formGroup]="platoForm"
-            controlName="platoId"
-            [items]="platos"
-            [soft]="true"
-            [disabled]="loading"
-            [includeNull]="true"
-            nullLabel="-- Seleccione un plato --"
-            labelKey="nombre"
+          <app-select label="Plato" [formGroup]="platoForm" controlName="platoId" [items]="platos" [soft]="true"
+            [disabled]="loading" [includeNull]="true" nullLabel="-- Seleccione un plato --" labelKey="nombre"
             valueKey="id">
           </app-select>
 
@@ -26,13 +18,8 @@
           <div *ngIf="platoForm.controls.platoId.value">
             <label class="form-label">Cantidad</label>
             <div class="flex items-center justify-center gap-4 py-2">
-              <button
-                type="button"
-                class="btn"
-                data-variant="outline"
-                data-size="lg"
-                (click)="ajustarCantidad(platoForm, -1)"
-                [disabled]="platoForm.controls.cantidad.value <= 1 || loading">
+              <button type="button" class="btn" data-variant="outline" data-size="lg"
+                (click)="ajustarCantidad(platoForm, -1)" [disabled]="platoForm.controls.cantidad.value <= 1 || loading">
                 <lucide-icon [img]="Minus" [size]="20"></lucide-icon>
               </button>
 
@@ -43,13 +30,8 @@
                 <span class="text-xs text-[rgb(var(--fg-muted-rgb))] mt-1">unidades</span>
               </div>
 
-              <button
-                type="button"
-                class="btn"
-                data-variant="outline"
-                data-size="lg"
-                (click)="ajustarCantidad(platoForm, 1)"
-                [disabled]="loading">
+              <button type="button" class="btn" data-variant="outline" data-size="lg"
+                (click)="ajustarCantidad(platoForm, 1)" [disabled]="loading">
                 <lucide-icon [img]="Plus" [size]="20"></lucide-icon>
               </button>
             </div>
@@ -61,7 +43,8 @@
               <div class="flex-1">
                 <p class="text-sm font-semibold text-[rgb(var(--brand-rgb))]">Precio Estimado</p>
                 <p class="text-xs text-[rgb(var(--fg-muted-rgb))] mt-1">
-                  <span *ngIf="promocionesVigentes.get(platoForm.controls.platoId.value)" class="flex items-center gap-1 text-[rgb(var(--success-rgb))] font-semibold">
+                  <span *ngIf="promocionesVigentes.get(platoForm.controls.platoId.value)"
+                    class="flex items-center gap-1 text-[rgb(var(--success-rgb))] font-semibold">
                     <lucide-icon [img]="Check" [size]="14"></lucide-icon>
                     ¡{{promocionesVigentes.get(platoForm.controls.platoId.value)}}% OFF!
                   </span>
@@ -81,16 +64,14 @@
       </app-section-container>
 
       <!-- Ingredientes Adicionales -->
-      <app-section-container
-        [heading]="'Ingredientes Adicionales (Opcional)'"
-        [compact]="false"
-        [divider]="false"
+      <app-section-container [heading]="'Ingredientes Adicionales (Opcional)'" [compact]="false" [divider]="false"
         [inset]="true">
         <div class="space-y-4">
 
           <!-- Mensaje si no hay plato seleccionado -->
           <div *ngIf="!platoForm.controls.platoId.value" class="text-center py-8">
-            <lucide-icon [img]="Plus" [size]="40" class="text-[rgb(var(--fg-muted-rgb))] mx-auto mb-2 opacity-30"></lucide-icon>
+            <lucide-icon [img]="Plus" [size]="40"
+              class="text-[rgb(var(--fg-muted-rgb))] mx-auto mb-2 opacity-30"></lucide-icon>
             <p class="text-sm text-[rgb(var(--fg-muted-rgb))]">Seleccione un plato primero</p>
           </div>
 
@@ -98,40 +79,20 @@
           <div *ngIf="platoForm.controls.platoId.value" class="space-y-3">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
               <div class="md:col-span-6">
-                <app-select
-                  label="Ingrediente"
-                  [formGroup]="extraForm"
-                  controlName="ingredienteId"
-                  [items]="ingredientes"
-                  [soft]="true"
-                  [disabled]="loading"
-                  [includeNull]="true"
-                  nullLabel="-- Seleccione ingrediente --"
-                  labelKey="nombre"
-                  valueKey="id">
+                <app-select label="Ingrediente" [formGroup]="extraForm" controlName="ingredienteId"
+                  [items]="ingredientes" [soft]="true" [disabled]="loading" [includeNull]="true"
+                  nullLabel="-- Seleccione ingrediente --" labelKey="nombre" valueKey="id">
                 </app-select>
               </div>
 
               <div class="md:col-span-3">
-                <app-input
-                  type="numeric"
-                  label="Cantidad"
-                  [formGroup]="extraForm"
-                  controlName="cantidad"
-                  [soft]="true"
-                  [disabled]="loading"
-                  [min]="1"
-                  placeholder="1">
+                <app-input type="numeric" label="Cantidad" [formGroup]="extraForm" controlName="cantidad" [soft]="true"
+                  [disabled]="loading" [min]="1" placeholder="1">
                 </app-input>
               </div>
 
               <div class="md:col-span-3">
-                <ui-button
-                  label="Agregar"
-                  [icon]="Plus"
-                  variant="secondary"
-                  size="md"
-                  type="button"
+                <ui-button label="Agregar" [icon]="Plus" variant="secondary" size="md" type="button"
                   (clicked)="agregarExtraTemp()"
                   [disabled]="!extraForm.controls.ingredienteId.value || extraForm.controls.cantidad.value <= 0 || loading">
                 </ui-button>
@@ -153,14 +114,8 @@
                     <span class="text-[rgb(var(--accent-rgb))] font-bold text-lg">
                       +${{ (extra.precioExtra * extra.cantidad).toFixed(2) }}
                     </span>
-                    <button
-                      type="button"
-                      class="btn"
-                      data-variant="danger"
-                      data-size="sm"
-                      (click)="removerExtraTemp(i)"
-                      [disabled]="loading"
-                      title="Quitar">
+                    <button type="button" class="btn" data-variant="danger" data-size="sm" (click)="removerExtraTemp(i)"
+                      [disabled]="loading" title="Quitar">
                       <lucide-icon [img]="Trash2" [size]="16"></lucide-icon>
                     </button>
                   </div>
@@ -170,12 +125,7 @@
 
             <!-- Botón Agregar al carrito -->
             <div class="pt-2">
-              <ui-button
-                label="Agregar al Pedido"
-                [icon]="ShoppingCart"
-                variant="primary"
-                size="lg"
-                type="button"
+              <ui-button label="Agregar al Pedido" [icon]="ShoppingCart" variant="primary" size="lg" type="button"
                 (clicked)="agregarPlatoAlCarrito()"
                 [disabled]="!platoForm.controls.platoId.value || platoForm.controls.cantidad.value <= 0 || loading"
                 class="w-full">
@@ -191,7 +141,8 @@
 
       <!-- Carrito vacío -->
       <div *ngIf="carrito.length === 0" class="text-center py-16">
-        <lucide-icon [img]="ShoppingCart" [size]="64" class="text-[rgb(var(--fg-muted-rgb))] mx-auto mb-4 opacity-20"></lucide-icon>
+        <lucide-icon [img]="ShoppingCart" [size]="64"
+          class="text-[rgb(var(--fg-muted-rgb))] mx-auto mb-4 opacity-20"></lucide-icon>
         <p class="text-lg text-[rgb(var(--fg-muted-rgb))] font-medium">El carrito está vacío</p>
         <p class="text-sm text-[rgb(var(--fg-muted-rgb))] mt-2">Agregue platos para crear un pedido</p>
       </div>
@@ -238,25 +189,15 @@
                 <!-- Cantidad con botones -->
                 <td>
                   <div class="flex items-center justify-center gap-2">
-                    <button
-                      type="button"
-                      class="btn"
-                      data-variant="ghost"
-                      data-size="xs"
-                      (click)="disminuirCantidad(item)"
-                      [disabled]="loading || item.cantidad <= 1">
+                    <button type="button" class="btn" data-variant="ghost" data-size="xs"
+                      (click)="disminuirCantidad(item)" [disabled]="loading || item.cantidad <= 1">
                       <lucide-icon [img]="Minus" [size]="14"></lucide-icon>
                     </button>
                     <span class="font-bold text-lg min-w-[2.5rem] text-center text-[rgb(var(--fg-rgb))]">
                       {{ item.cantidad }}
                     </span>
-                    <button
-                      type="button"
-                      class="btn"
-                      data-variant="ghost"
-                      data-size="xs"
-                      (click)="aumentarCantidad(item)"
-                      [disabled]="loading">
+                    <button type="button" class="btn" data-variant="ghost" data-size="xs"
+                      (click)="aumentarCantidad(item)" [disabled]="loading">
                       <lucide-icon [img]="Plus" [size]="14"></lucide-icon>
                     </button>
                   </div>
@@ -265,7 +206,8 @@
                 <!-- Extras -->
                 <td>
                   <div *ngIf="item.extras.length > 0" class="flex flex-wrap gap-1">
-                    <span *ngFor="let extra of item.extras" class="text-xs bg-tint-accent text-[rgb(var(--accent-rgb))] px-2 py-1 rounded font-medium">
+                    <span *ngFor="let extra of item.extras"
+                      class="text-xs bg-tint-accent text-[rgb(var(--accent-rgb))] px-2 py-1 rounded font-medium">
                       +{{ extra.ingredienteNombre }} ×{{ extra.cantidad }}
                     </span>
                   </div>
@@ -281,14 +223,8 @@
 
                 <!-- Acciones -->
                 <td class="td--actions">
-                  <button
-                    type="button"
-                    class="btn"
-                    data-variant="danger"
-                    data-size="sm"
-                    (click)="removerDelCarrito(i)"
-                    [disabled]="loading"
-                    title="Eliminar">
+                  <button type="button" class="btn" data-variant="danger" data-size="sm" (click)="removerDelCarrito(i)"
+                    [disabled]="loading" title="Eliminar">
                     <lucide-icon [img]="Trash2" [size]="16"></lucide-icon>
                   </button>
                 </td>
@@ -302,24 +238,21 @@
           <!-- Nota informativa -->
           <div class="bg-tint-info border border-info rounded-lg p-4">
             <div class="flex items-start gap-2">
-              <lucide-icon [img]="ShoppingCart" [size]="18" class="text-[rgb(var(--info-rgb))] mt-0.5 shrink-0"></lucide-icon>
+              <lucide-icon [img]="ShoppingCart" [size]="18"
+                class="text-[rgb(var(--info-rgb))] mt-0.5 shrink-0"></lucide-icon>
               <div>
                 <p class="text-sm font-semibold text-[rgb(var(--info-rgb))] mb-1">Precio Estimado</p>
                 <p class="text-xs text-[rgb(var(--fg-muted-rgb))]">
-                  Los precios mostrados son estimados. El total final incluirá los descuentos de promociones vigentes y será calculado al crear el pedido.
+                  Los precios mostrados son estimados. El total final incluirá los descuentos de promociones vigentes y
+                  será calculado al crear el pedido.
                 </p>
               </div>
             </div>
           </div>
 
           <!-- Total -->
-          <app-summary
-            [label]="'Total Estimado'"
-            [value]="'$' + calcularTotal().toFixed(2)"
-            [variant]="'accent'"
-            [icon]="ShoppingCart"
-            [iconSize]="28"
-            [size]="'lg'">
+          <app-summary [label]="'Total Estimado'" [value]="'$' + calcularTotal().toFixed(2)" [variant]="'accent'"
+            [icon]="ShoppingCart" [iconSize]="28" [size]="'lg'">
           </app-summary>
         </div>
       </div>
@@ -327,12 +260,7 @@
   </div>
 
   <!-- Botones de acción sticky -->
-  <app-save-cancel
-    [saveLabel]="'Crear Pedido'"
-    [cancelLabel]="'Cancelar'"
-    [loading]="loading"
-    [disabled]="carrito.length === 0"
-    [sticky]="true"
-    (cancel)="cancel()">
+  <app-save-cancel [saveLabel]="'Crear Pedido'" [cancelLabel]="'Cancelar'" [loading]="loading"
+    [disabled]="carrito.length === 0" [sticky]="true" (cancel)="cancel()">
   </app-save-cancel>
 </form>

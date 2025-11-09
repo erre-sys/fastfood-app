@@ -4,7 +4,8 @@
 <ng-template #headerT>
   <app-title [titleLabel]="titleLabel" [subtitle]="subTitleLabel" [showBack]="true" variant="tinted" tone="brand"
     (cancel)="goBack()">
-    <ui-button [icon]="Plus" label="Nuevo" variant="primary" size="md" [to]="['/platos/nuevo']"></ui-button>
+    <!-- Botón Nuevo - Solo ADMIN -->
+    <ui-button *hasRole="['ADMIN']" [icon]="Plus" label="Nuevo" variant="primary" size="md" [to]="['/platos/nuevo']"></ui-button>
   </app-title>
 </ng-template>
 
@@ -27,10 +28,12 @@
   <app-table [columns]="columns" [rows]="rows" [loading]="loading" [emptyText]="'No hay platos'"
     [sort]="{ key: sortKey, dir: sortDir }" (sortChange)="onSort($event)" [actionsTpl]="actionsTpl">
     <ng-template #actionsTpl let-r>
-      <ui-button [icon]="Pencil" label="Editar" variant="primary" size="sm" [to]="['/platos', r.id, 'editar']"
+      <!-- Botón Editar - Solo ADMIN -->
+      <ui-button *hasRole="['ADMIN']" [icon]="Pencil" label="Editar" variant="primary" size="sm" [to]="['/platos', r.id, 'editar']"
         [ariaLabel]="'Editar ' + r.nombre">
       </ui-button>
-      <ui-button [icon]="ChefHat" label="Receta" variant="outline" size="sm" [to]="['/platos', r.id, 'receta']"
+      <!-- Botón Ver Receta - Solo ADMIN -->
+      <ui-button *hasRole="['ADMIN']" [icon]="ChefHat" label="Receta" variant="outline" size="sm" [to]="['/platos', r.id, 'receta']"
         [ariaLabel]="'Ver receta de ' + r.nombre">
       </ui-button>
     </ng-template>

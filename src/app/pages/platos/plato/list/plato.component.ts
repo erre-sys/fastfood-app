@@ -18,13 +18,14 @@ import { UiButtonComponent } from '../../../../shared/ui/buttons/ui-button/ui-bu
 import { TabsFilterComponent } from '../../../../shared/ui/tabs-filter/tabs-filter.component';
 import { ColumnDef, TabStatus } from '../../../../shared/ui/table/column-def';
 import { Plato } from '../../../../interfaces/plato.interface';
+import { HasRoleDirective } from '../../../../core/auth/has-role.directive';
 
 @Component({
   selector: 'app-platos-list',
   standalone: true,
   imports: [ CommonModule, ReactiveFormsModule,
     PageLayoutComponent, TitleComponent, TableComponent, SearchComponent, PaginatorComponent,
-    LucideAngularModule, UiButtonComponent, TabsFilterComponent],
+    LucideAngularModule, UiButtonComponent, TabsFilterComponent, HasRoleDirective],
   templateUrl: './plato.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })

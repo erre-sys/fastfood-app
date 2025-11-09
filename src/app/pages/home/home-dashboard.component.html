@@ -336,6 +336,16 @@
       <span class="text-sm font-medium">Compras</span>
     </button>
 
+    <!-- Rentabilidad - Solo ADMIN -->
+    <button
+      *hasRole="['ADMIN']"
+      class="btn p-4 h-auto flex-col gap-2"
+      data-variant="outline"
+      (click)="navegarA('/platos/rentabilidad')">
+      <lucide-icon [img]="TrendingUp" [size]="24" class="text-[rgb(var(--success-rgb))]"></lucide-icon>
+      <span class="text-sm font-medium">Rentabilidad</span>
+    </button>
+
     <!-- Promociones - Todos pueden ver -->
     <button
       class="btn p-4 h-auto flex-col gap-2"

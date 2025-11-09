@@ -1,0 +1,181 @@
+<app-page-layout [headerTemplate]="headerT" [contentTemplate]="contentT"></app-page-layout>
+
+<!-- HEADER -->
+<ng-template #headerT>
+  <app-title
+    [titleLabel]="titleLabel"
+    [subtitle]="subTitleLabel"
+    [showBack]="true"
+    variant="tinted"
+    tone="brand"
+    (cancel)="goBack()">
+  </app-title>
+</ng-template>
+
+<!-- CONTENT -->
+<ng-template #contentT>
+  <!-- Estadísticas Resumen -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <!-- Total Platos -->
+    <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">Total Platos</p>
+          <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ stats.totalPlatos }}</p>
+        </div>
+        <div class="w-12 h-12 rounded-full bg-brand/10 flex items-center justify-center">
+          <lucide-icon [img]="DollarSign" class="w-6 h-6 text-brand"></lucide-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- Con Receta -->
+    <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">Con Receta</p>
+          <p class="text-2xl font-bold text-green-600">{{ stats.conReceta }}</p>
+        </div>
+        <div class="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+          <lucide-icon [img]="TrendingUp" class="w-6 h-6 text-green-600"></lucide-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- Margen Promedio -->
+    <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">Margen Promedio</p>
+          <p class="text-2xl font-bold text-accent">${{ stats.margenPromedio | number:'1.2-2' }}</p>
+        </div>
+        <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
+          <lucide-icon [img]="DollarSign" class="w-6 h-6 text-accent"></lucide-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- % Ganancia Promedio -->
+    <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">% Ganancia Prom.</p>
+          <p class="text-2xl font-bold text-brand">{{ stats.porcentajePromedio | number:'1.0-0' }}%</p>
+        </div>
+        <div class="w-12 h-12 rounded-full bg-brand/10 flex items-center justify-center">
+          <lucide-icon [img]="TrendingUp" class="w-6 h-6 text-brand"></lucide-icon>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerta Platos sin Receta -->
+  <div *ngIf="stats.sinReceta > 0" class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6 flex items-start gap-3">
+    <lucide-icon [img]="AlertCircle" class="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0"></lucide-icon>
+    <div>
+      <p class="text-sm font-medium text-yellow-900 dark:text-yellow-200">
+        {{ stats.sinReceta }} plato{{ stats.sinReceta > 1 ? 's' : '' }} sin receta configurada
+      </p>
+      <p class="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+        Para calcular la rentabilidad, asegúrate de que todos los platos tengan una receta con ingredientes.
+      </p>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <app-search
+    class="w-full max-w-md mb-4"
+    placeholder="Buscar por nombre o código"
+    [value]="searchForm.controls.q.value"
+    (valueChange)="onSearch($event)">
+  </app-search>
+
+  <!-- Tabla -->
+  <app-table
+    [columns]="columns"
+    [rows]="rows"
+    [loading]="loading"
+    [emptyText]="'No hay datos de rentabilidad'"
+    [sort]="{ key: sortKey, dir: sortDir }"
+    (sortChange)="onSort($event)"
+    [customCellTpl]="customCellTpl">
+  </app-table>
+
+  <!-- Template personalizado para columna % Ganancia -->
+  <ng-template #customCellTpl let-row let-col="col">
+    <ng-container *ngIf="col.key === 'porcentajeGanancia'">
+      <div class="flex items-center justify-center gap-2">
+        <span class="text-sm font-semibold"
+          [ngClass]="{
+            'text-green-600': row.porcentajeGanancia >= 60,
+            'text-blue-600': row.porcentajeGanancia >= 40 && row.porcentajeGanancia < 60,
+            'text-yellow-600': row.porcentajeGanancia >= 20 && row.porcentajeGanancia < 40,
+            'text-red-600': row.porcentajeGanancia >= 0 && row.porcentajeGanancia < 20,
+            'text-slate-400': row.porcentajeGanancia < 0
+          }">
+          {{ row.porcentajeGanancia | number:'1.1-1' }}%
+        </span>
+        <lucide-icon
+          *ngIf="row.porcentajeGanancia >= 40"
+          [img]="TrendingUp"
+          class="w-4 h-4"
+          [ngClass]="{
+            'text-green-600': row.porcentajeGanancia >= 60,
+            'text-blue-600': row.porcentajeGanancia >= 40 && row.porcentajeGanancia < 60
+          }">
+        </lucide-icon>
+        <lucide-icon
+          *ngIf="row.porcentajeGanancia < 40 && row.porcentajeGanancia >= 0"
+          [img]="TrendingDown"
+          class="w-4 h-4"
+          [ngClass]="{
+            'text-yellow-600': row.porcentajeGanancia >= 20,
+            'text-red-600': row.porcentajeGanancia < 20
+          }">
+        </lucide-icon>
+      </div>
+    </ng-container>
+  </ng-template>
+
+  <!-- Paginación -->
+  <app-paginator
+    class="mt-4"
+    [from]="from()"
+    [to]="to()"
+    [total]="total"
+    [pageIndex]="page"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[10, 20, 30, 50]"
+    [maxPage]="maxPage()"
+    (sizeChange)="setPageSize($event)"
+    (prev)="prev()"
+    (next)="next()">
+  </app-paginator>
+
+  <!-- Leyenda de Estados -->
+  <div class="mt-6 bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+    <p class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Leyenda de Estados:</p>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-green-500"></span>
+        <span class="text-xs text-slate-600 dark:text-slate-400">Excelente (≥60%)</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+        <span class="text-xs text-slate-600 dark:text-slate-400">Bueno (40-59%)</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+        <span class="text-xs text-slate-600 dark:text-slate-400">Bajo (20-39%)</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-red-500"></span>
+        <span class="text-xs text-slate-600 dark:text-slate-400">Crítico (0-19%)</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-slate-400"></span>
+        <span class="text-xs text-slate-600 dark:text-slate-400">Sin Datos</span>
+      </div>
+    </div>
+  </div>
+</ng-template>

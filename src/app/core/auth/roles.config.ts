@@ -26,88 +26,88 @@ export type AppRole = typeof APP_ROLES[keyof typeof APP_ROLES];
 export const PERMISSIONS = {
   // DASHBOARD
   DASHBOARD: {
-    VER: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR],
+    VER: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR] as string[],
   },
 
   // PROVEEDORES - Solo ADMIN
   PROVEEDORES: {
-    VER: [APP_ROLES.ADMIN],
-    CREAR: [APP_ROLES.ADMIN],
-    EDITAR: [APP_ROLES.ADMIN],
-    ELIMINAR: [APP_ROLES.ADMIN],
+    VER: [APP_ROLES.ADMIN] as string[],
+    CREAR: [APP_ROLES.ADMIN] as string[],
+    EDITAR: [APP_ROLES.ADMIN] as string[],
+    ELIMINAR: [APP_ROLES.ADMIN] as string[],
   },
 
   // PAGOS PROVEEDOR - Solo ADMIN
   PAGOS_PROVEEDOR: {
-    VER: [APP_ROLES.ADMIN],
-    CREAR: [APP_ROLES.ADMIN],
+    VER: [APP_ROLES.ADMIN] as string[],
+    CREAR: [APP_ROLES.ADMIN] as string[],
   },
 
   // COMPRAS - Solo ADMIN
   COMPRAS: {
-    VER: [APP_ROLES.ADMIN],
-    CREAR: [APP_ROLES.ADMIN],
-    DETALLE: [APP_ROLES.ADMIN],
+    VER: [APP_ROLES.ADMIN] as string[],
+    CREAR: [APP_ROLES.ADMIN] as string[],
+    DETALLE: [APP_ROLES.ADMIN] as string[],
   },
 
   // GRUPOS (Ingredientes y Platos) - Solo ADMIN
   GRUPOS: {
-    VER: [APP_ROLES.ADMIN],
-    CREAR: [APP_ROLES.ADMIN],
-    EDITAR: [APP_ROLES.ADMIN],
-    ELIMINAR: [APP_ROLES.ADMIN],
+    VER: [APP_ROLES.ADMIN] as string[],
+    CREAR: [APP_ROLES.ADMIN] as string[],
+    EDITAR: [APP_ROLES.ADMIN] as string[],
+    ELIMINAR: [APP_ROLES.ADMIN] as string[],
   },
 
   // INGREDIENTES - Solo ADMIN
   INGREDIENTES: {
-    VER: [APP_ROLES.ADMIN],
-    CREAR: [APP_ROLES.ADMIN],
-    EDITAR: [APP_ROLES.ADMIN],
-    ELIMINAR: [APP_ROLES.ADMIN],
+    VER: [APP_ROLES.ADMIN] as string[],
+    CREAR: [APP_ROLES.ADMIN] as string[],
+    EDITAR: [APP_ROLES.ADMIN] as string[],
+    ELIMINAR: [APP_ROLES.ADMIN] as string[],
   },
 
   // PLATOS - ADMIN puede todo, VENDEDOR/CAJERO solo ver
   PLATOS: {
-    VER: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR],
-    CREAR: [APP_ROLES.ADMIN],
-    EDITAR: [APP_ROLES.ADMIN],
-    ELIMINAR: [APP_ROLES.ADMIN],
-    VER_RECETA: [APP_ROLES.ADMIN], // VENDEDOR/CAJERO NO pueden ver receta
+    VER: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR] as string[],
+    CREAR: [APP_ROLES.ADMIN] as string[],
+    EDITAR: [APP_ROLES.ADMIN] as string[],
+    ELIMINAR: [APP_ROLES.ADMIN] as string[],
+    VER_RECETA: [APP_ROLES.ADMIN] as string[], // VENDEDOR/CAJERO NO pueden ver receta
   },
 
   // PROMOCIONES - ADMIN puede editar, VENDEDOR/CAJERO solo ver
   PROMOCIONES: {
-    VER: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR],
-    CREAR: [APP_ROLES.ADMIN],
-    EDITAR: [APP_ROLES.ADMIN],
-    ELIMINAR: [APP_ROLES.ADMIN],
+    VER: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR] as string[],
+    CREAR: [APP_ROLES.ADMIN] as string[],
+    EDITAR: [APP_ROLES.ADMIN] as string[],
+    ELIMINAR: [APP_ROLES.ADMIN] as string[],
   },
 
   // INVENTARIO - ADMIN puede todo, VENDEDOR/CAJERO solo ver stock
   INVENTARIO: {
-    VER_STOCK: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR],
-    AJUSTAR: [APP_ROLES.ADMIN],
-    VER_KARDEX: [APP_ROLES.ADMIN],
+    VER_STOCK: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR] as string[],
+    AJUSTAR: [APP_ROLES.ADMIN] as string[],
+    VER_KARDEX: [APP_ROLES.ADMIN] as string[],
   },
 
   // PEDIDOS - Todos pueden ver y crear, solo ADMIN puede anular
   PEDIDOS: {
-    VER: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR],
-    CREAR: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR],
-    MARCAR_LISTO: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR],
-    ENTREGAR: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR],
-    ANULAR: [APP_ROLES.ADMIN],
-    VER_DETALLE: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR],
+    VER: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR] as string[],
+    CREAR: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR] as string[],
+    MARCAR_LISTO: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR] as string[],
+    ENTREGAR: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR] as string[],
+    ANULAR: [APP_ROLES.ADMIN] as string[],
+    VER_DETALLE: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR] as string[],
   },
 
   // PAGOS CLIENTE - Todos pueden ver, CAJERO/ADMIN pueden crear y aprobar
   PAGOS_CLIENTE: {
-    VER: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR],
-    CREAR: [APP_ROLES.ADMIN, APP_ROLES.CAJERO],
-    APROBAR: [APP_ROLES.ADMIN, APP_ROLES.CAJERO],
-    RECHAZAR: [APP_ROLES.ADMIN],
+    VER: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR] as string[],
+    CREAR: [APP_ROLES.ADMIN, APP_ROLES.CAJERO] as string[],
+    APROBAR: [APP_ROLES.ADMIN, APP_ROLES.CAJERO] as string[],
+    RECHAZAR: [APP_ROLES.ADMIN] as string[],
   },
-} as const;
+};
 
 // ============================================
 // PASO 3: Helper para verificar permisos
@@ -211,6 +211,11 @@ export const MENU_ITEMS: MenuItem[] = [
   },
 
   // Solo ADMIN ve estas secciones
+  {
+    label: 'Rentabilidad',
+    route: '/platos/rentabilidad',
+    requiredRoles: [APP_ROLES.ADMIN],
+  },
   {
     label: 'Proveedores',
     route: '/proveedores',

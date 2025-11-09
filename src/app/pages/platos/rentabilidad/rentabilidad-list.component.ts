@@ -81,11 +81,10 @@ export default class RentabilidadListPage extends BaseListComponent implements O
       type: 'money'
     },
     {
-      key: 'porcentajeGanancia',
+      key: 'porcentajeGananciaDisplay',
       header: '% Ganancia',
       widthPx: 110,
-      align: 'center',
-      type: 'custom'
+      align: 'center'
     },
     {
       key: 'estado',
@@ -95,10 +94,17 @@ export default class RentabilidadListPage extends BaseListComponent implements O
       type: 'badge',
       badgeMap: {
         EXCELENTE: 'ok',
-        BUENO: 'info',
+        BUENO: 'ok',
         BAJO: 'warn',
-        CRITICO: 'error',
+        CRITICO: 'danger',
         SIN_DATOS: 'muted'
+      },
+      valueMap: {
+        EXCELENTE: 'Excelente',
+        BUENO: 'Bueno',
+        BAJO: 'Bajo',
+        CRITICO: 'Crítico',
+        SIN_DATOS: 'Sin Datos'
       }
     },
   ];
@@ -126,7 +132,11 @@ export default class RentabilidadListPage extends BaseListComponent implements O
 
     this.api.calcularRentabilidadPlatos().subscribe({
       next: (data) => {
-        this.allRows = data;
+        // Agregar campo display para porcentaje con formato
+        this.allRows = data.map(r => ({
+          ...r,
+          porcentajeGananciaDisplay: `${r.porcentajeGanancia.toFixed(1)}%`
+        })) as any;
         this.filterRows();
         this.calcularEstadisticas();
         this.loading = false;
@@ -231,18 +241,5 @@ export default class RentabilidadListPage extends BaseListComponent implements O
       this.page++;
       this.filterRows();
     }
-  }
-
-  // Helper para el template
-  getEstadoColor(estado: RentabilidadPlato['estado']): string {
-    return this.api.getEstadoColor(estado);
-  }
-
-  getEstadoLabel(estado: RentabilidadPlato['estado']): string {
-    return this.api.getEstadoLabel(estado);
-  }
-
-  getEstadoIcon(estado: RentabilidadPlato['estado']): string {
-    return this.api.getEstadoIcon(estado);
   }
 }

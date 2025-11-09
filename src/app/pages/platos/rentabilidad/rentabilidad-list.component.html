@@ -97,45 +97,8 @@
     [loading]="loading"
     [emptyText]="'No hay datos de rentabilidad'"
     [sort]="{ key: sortKey, dir: sortDir }"
-    (sortChange)="onSort($event)"
-    [customCellTpl]="customCellTpl">
+    (sortChange)="onSort($event)">
   </app-table>
-
-  <!-- Template personalizado para columna % Ganancia -->
-  <ng-template #customCellTpl let-row let-col="col">
-    <ng-container *ngIf="col.key === 'porcentajeGanancia'">
-      <div class="flex items-center justify-center gap-2">
-        <span class="text-sm font-semibold"
-          [ngClass]="{
-            'text-green-600': row.porcentajeGanancia >= 60,
-            'text-blue-600': row.porcentajeGanancia >= 40 && row.porcentajeGanancia < 60,
-            'text-yellow-600': row.porcentajeGanancia >= 20 && row.porcentajeGanancia < 40,
-            'text-red-600': row.porcentajeGanancia >= 0 && row.porcentajeGanancia < 20,
-            'text-slate-400': row.porcentajeGanancia < 0
-          }">
-          {{ row.porcentajeGanancia | number:'1.1-1' }}%
-        </span>
-        <lucide-icon
-          *ngIf="row.porcentajeGanancia >= 40"
-          [img]="TrendingUp"
-          class="w-4 h-4"
-          [ngClass]="{
-            'text-green-600': row.porcentajeGanancia >= 60,
-            'text-blue-600': row.porcentajeGanancia >= 40 && row.porcentajeGanancia < 60
-          }">
-        </lucide-icon>
-        <lucide-icon
-          *ngIf="row.porcentajeGanancia < 40 && row.porcentajeGanancia >= 0"
-          [img]="TrendingDown"
-          class="w-4 h-4"
-          [ngClass]="{
-            'text-yellow-600': row.porcentajeGanancia >= 20,
-            'text-red-600': row.porcentajeGanancia < 20
-          }">
-        </lucide-icon>
-      </div>
-    </ng-container>
-  </ng-template>
 
   <!-- Paginación -->
   <app-paginator

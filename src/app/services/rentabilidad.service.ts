@@ -70,7 +70,7 @@ export class RentabilidadService {
     // Si no tenemos los datos del plato, los obtenemos
     const plato$ = platoData
       ? of(platoData)
-      : this.platoApi.obtenerPorId(platoId);
+      : this.platoApi.obtener(platoId);
 
     return plato$.pipe(
       map((plato: any) => {

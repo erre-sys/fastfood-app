@@ -1,33 +1,31 @@
 <form class="form" (ngSubmit)="onSubmit()" autocomplete="off">
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="space-y-6">
 
-    <!-- COLUMNA IZQUIERDA: Selección de Platos (2/3) -->
-    <div class="lg:col-span-2 space-y-6">
+    <!-- SECCIÓN SUPERIOR: Agregar Platos -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-      <!-- Sección: Seleccionar Plato -->
+      <!-- Seleccionar Plato y Cantidad -->
       <app-section-container [heading]="'Seleccionar Plato'" [compact]="false" [divider]="false" [inset]="true">
         <div class="space-y-4">
 
-          <!-- Plato -->
-          <div>
-            <app-select
-              label="Plato"
-              [formGroup]="platoForm"
-              controlName="platoId"
-              [items]="platos"
-              [soft]="true"
-              [disabled]="loading"
-              [includeNull]="true"
-              nullLabel="-- Seleccione un plato --"
-              labelKey="nombre"
-              valueKey="id">
-            </app-select>
-          </div>
+          <!-- Selector de Plato -->
+          <app-select
+            label="Plato"
+            [formGroup]="platoForm"
+            controlName="platoId"
+            [items]="platos"
+            [soft]="true"
+            [disabled]="loading"
+            [includeNull]="true"
+            nullLabel="-- Seleccione un plato --"
+            labelKey="nombre"
+            valueKey="id">
+          </app-select>
 
-          <!-- Cantidad -->
+          <!-- Cantidad (solo visible si hay plato seleccionado) -->
           <div *ngIf="platoForm.controls.platoId.value">
             <label class="form-label">Cantidad</label>
-            <div class="flex items-center justify-start gap-4">
+            <div class="flex items-center justify-center gap-4 py-2">
               <button
                 type="button"
                 class="btn"
@@ -38,11 +36,11 @@
                 <lucide-icon [img]="Minus" [size]="20"></lucide-icon>
               </button>
 
-              <div class="flex flex-col items-center">
-                <span class="text-4xl font-bold text-[rgb(var(--brand-rgb))]">
+              <div class="flex flex-col items-center min-w-[80px]">
+                <span class="text-5xl font-bold text-[rgb(var(--brand-rgb))]">
                   {{ platoForm.controls.cantidad.value }}
                 </span>
-                <span class="text-xs text-[rgb(var(--fg-muted-rgb))]">unidades</span>
+                <span class="text-xs text-[rgb(var(--fg-muted-rgb))] mt-1">unidades</span>
               </div>
 
               <button
@@ -59,15 +57,15 @@
 
           <!-- Preview del precio con descuento -->
           <div *ngIf="platoForm.controls.platoId.value" class="bg-tint-brand border-2 border-brand rounded-xl p-4">
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center gap-3">
               <div class="flex-1">
-                <p class="text-sm font-medium text-[rgb(var(--fg-muted-rgb))]">Precio por unidad</p>
+                <p class="text-sm font-semibold text-[rgb(var(--brand-rgb))]">Precio Estimado</p>
                 <p class="text-xs text-[rgb(var(--fg-muted-rgb))] mt-1">
-                  <span *ngIf="promocionesVigentes.get(platoForm.controls.platoId.value)" class="text-ok font-semibold flex items-center gap-1">
-                    <lucide-icon [img]="Check" [size]="14" class="text-[rgb(var(--success-rgb))]"></lucide-icon>
-                    ¡{{promocionesVigentes.get(platoForm.controls.platoId.value)}}% de descuento aplicado!
+                  <span *ngIf="promocionesVigentes.get(platoForm.controls.platoId.value)" class="flex items-center gap-1 text-[rgb(var(--success-rgb))] font-semibold">
+                    <lucide-icon [img]="Check" [size]="14"></lucide-icon>
+                    ¡{{promocionesVigentes.get(platoForm.controls.platoId.value)}}% OFF!
                   </span>
-                  <span *ngIf="!promocionesVigentes.get(platoForm.controls.platoId.value)" class="text-[rgb(var(--fg-muted-rgb))]">
+                  <span *ngIf="!promocionesVigentes.get(platoForm.controls.platoId.value)">
                     Sin promoción
                   </span>
                 </p>
@@ -76,153 +74,170 @@
                 <p class="text-3xl font-bold text-[rgb(var(--brand-rgb))]">
                   ${{ calcularPrecioPreview().toFixed(2) }}
                 </p>
-                <p class="text-xs text-[rgb(var(--fg-muted-rgb))]">Total estimado</p>
               </div>
             </div>
           </div>
         </div>
       </app-section-container>
 
-      <!-- Sección: Ingredientes Adicionales -->
+      <!-- Ingredientes Adicionales -->
       <app-section-container
-        *ngIf="platoForm.controls.platoId.value"
-        [heading]="'Ingredientes Adicionales'"
+        [heading]="'Ingredientes Adicionales (Opcional)'"
         [compact]="false"
         [divider]="false"
         [inset]="true">
         <div class="space-y-4">
 
-          <!-- Selector de ingredientes -->
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-            <div class="md:col-span-7">
-              <app-select
-                label="Ingrediente"
-                [formGroup]="extraForm"
-                controlName="ingredienteId"
-                [items]="ingredientes"
-                [soft]="true"
-                [disabled]="loading"
-                [includeNull]="true"
-                nullLabel="-- Seleccione ingrediente --"
-                labelKey="nombre"
-                valueKey="id">
-              </app-select>
-            </div>
-
-            <div class="md:col-span-2">
-              <app-input
-                type="numeric"
-                label="Cantidad"
-                [formGroup]="extraForm"
-                controlName="cantidad"
-                [soft]="true"
-                [disabled]="loading"
-                [min]="1"
-                placeholder="1">
-              </app-input>
-            </div>
-
-            <div class="md:col-span-3">
-              <ui-button
-                label="Agregar"
-                [icon]="Plus"
-                variant="secondary"
-                size="md"
-                type="button"
-                (clicked)="agregarExtraTemp()"
-                [disabled]="!extraForm.controls.ingredienteId.value || extraForm.controls.cantidad.value <= 0 || loading">
-              </ui-button>
-            </div>
+          <!-- Mensaje si no hay plato seleccionado -->
+          <div *ngIf="!platoForm.controls.platoId.value" class="text-center py-8">
+            <lucide-icon [img]="Plus" [size]="40" class="text-[rgb(var(--fg-muted-rgb))] mx-auto mb-2 opacity-30"></lucide-icon>
+            <p class="text-sm text-[rgb(var(--fg-muted-rgb))]">Seleccione un plato primero</p>
           </div>
 
-          <!-- Lista de extras temporales -->
-          <div *ngIf="extrasTemp.length > 0" class="space-y-2">
-            <label class="form-label text-sm">Extras agregados:</label>
-            <div class="space-y-2">
-              <div *ngFor="let extra of extrasTemp; let i = index"
-                class="flex items-center justify-between gap-3 px-4 py-3 bg-tint-accent border border-accent rounded-lg transition-all hover:shadow-md">
-                <div class="flex items-center gap-3 flex-1">
-                  <lucide-icon [img]="Plus" [size]="16" class="text-[rgb(var(--accent-rgb))]"></lucide-icon>
-                  <span class="font-semibold text-[rgb(var(--fg-rgb))]">{{ extra.ingredienteNombre }}</span>
-                  <span class="text-[rgb(var(--fg-muted-rgb))]">×{{ extra.cantidad }}</span>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="text-[rgb(var(--accent-rgb))] font-bold text-lg">
-                    +${{ (extra.precioExtra * extra.cantidad).toFixed(2) }}
-                  </span>
-                  <button
-                    type="button"
-                    class="btn"
-                    data-variant="danger"
-                    data-size="sm"
-                    (click)="removerExtraTemp(i)"
-                    [disabled]="loading"
-                    title="Quitar">
-                    <lucide-icon [img]="Trash2" [size]="16"></lucide-icon>
-                  </button>
+          <!-- Selector de ingredientes (solo si hay plato) -->
+          <div *ngIf="platoForm.controls.platoId.value" class="space-y-3">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+              <div class="md:col-span-6">
+                <app-select
+                  label="Ingrediente"
+                  [formGroup]="extraForm"
+                  controlName="ingredienteId"
+                  [items]="ingredientes"
+                  [soft]="true"
+                  [disabled]="loading"
+                  [includeNull]="true"
+                  nullLabel="-- Seleccione ingrediente --"
+                  labelKey="nombre"
+                  valueKey="id">
+                </app-select>
+              </div>
+
+              <div class="md:col-span-3">
+                <app-input
+                  type="numeric"
+                  label="Cantidad"
+                  [formGroup]="extraForm"
+                  controlName="cantidad"
+                  [soft]="true"
+                  [disabled]="loading"
+                  [min]="1"
+                  placeholder="1">
+                </app-input>
+              </div>
+
+              <div class="md:col-span-3">
+                <ui-button
+                  label="Agregar"
+                  [icon]="Plus"
+                  variant="secondary"
+                  size="md"
+                  type="button"
+                  (clicked)="agregarExtraTemp()"
+                  [disabled]="!extraForm.controls.ingredienteId.value || extraForm.controls.cantidad.value <= 0 || loading">
+                </ui-button>
+              </div>
+            </div>
+
+            <!-- Lista de extras temporales -->
+            <div *ngIf="extrasTemp.length > 0" class="space-y-2">
+              <label class="form-label text-sm">Extras agregados:</label>
+              <div class="space-y-2">
+                <div *ngFor="let extra of extrasTemp; let i = index"
+                  class="flex items-center justify-between gap-3 px-4 py-3 bg-tint-accent border border-accent rounded-lg transition-all hover:shadow-md">
+                  <div class="flex items-center gap-3 flex-1">
+                    <lucide-icon [img]="Plus" [size]="16" class="text-[rgb(var(--accent-rgb))]"></lucide-icon>
+                    <span class="font-semibold text-[rgb(var(--fg-rgb))]">{{ extra.ingredienteNombre }}</span>
+                    <span class="text-[rgb(var(--fg-muted-rgb))]">×{{ extra.cantidad }}</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="text-[rgb(var(--accent-rgb))] font-bold text-lg">
+                      +${{ (extra.precioExtra * extra.cantidad).toFixed(2) }}
+                    </span>
+                    <button
+                      type="button"
+                      class="btn"
+                      data-variant="danger"
+                      data-size="sm"
+                      (click)="removerExtraTemp(i)"
+                      [disabled]="loading"
+                      title="Quitar">
+                      <lucide-icon [img]="Trash2" [size]="16"></lucide-icon>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Botón Agregar al carrito -->
-          <div class="pt-4">
-            <ui-button
-              label="Agregar al Pedido"
-              [icon]="ShoppingCart"
-              variant="primary"
-              size="lg"
-              type="button"
-              (clicked)="agregarPlatoAlCarrito()"
-              [disabled]="!platoForm.controls.platoId.value || platoForm.controls.cantidad.value <= 0 || loading"
-              class="w-full">
-            </ui-button>
+            <!-- Botón Agregar al carrito -->
+            <div class="pt-2">
+              <ui-button
+                label="Agregar al Pedido"
+                [icon]="ShoppingCart"
+                variant="primary"
+                size="lg"
+                type="button"
+                (clicked)="agregarPlatoAlCarrito()"
+                [disabled]="!platoForm.controls.platoId.value || platoForm.controls.cantidad.value <= 0 || loading"
+                class="w-full">
+              </ui-button>
+            </div>
           </div>
         </div>
       </app-section-container>
     </div>
 
-    <!-- COLUMNA DERECHA: Carrito (1/3) -->
-    <div class="lg:col-span-1">
-      <div class="sticky top-4">
-        <app-section-container [heading]="'Resumen del Pedido'" [compact]="false" [divider]="false" [inset]="true">
+    <!-- SECCIÓN INFERIOR: Carrito del Pedido -->
+    <app-section-container [heading]="'Carrito del Pedido'" [compact]="false" [divider]="false" [inset]="true">
 
-          <!-- Carrito vacío -->
-          <div *ngIf="carrito.length === 0" class="text-center py-12">
-            <lucide-icon [img]="ShoppingCart" [size]="48" class="text-[rgb(var(--fg-muted-rgb))] mx-auto mb-3 opacity-30"></lucide-icon>
-            <p class="text-[rgb(var(--fg-muted-rgb))] font-medium">El carrito está vacío</p>
-            <p class="text-xs text-[rgb(var(--fg-muted-rgb))] mt-1">Agregue platos para crear un pedido</p>
-          </div>
+      <!-- Carrito vacío -->
+      <div *ngIf="carrito.length === 0" class="text-center py-16">
+        <lucide-icon [img]="ShoppingCart" [size]="64" class="text-[rgb(var(--fg-muted-rgb))] mx-auto mb-4 opacity-20"></lucide-icon>
+        <p class="text-lg text-[rgb(var(--fg-muted-rgb))] font-medium">El carrito está vacío</p>
+        <p class="text-sm text-[rgb(var(--fg-muted-rgb))] mt-2">Agregue platos para crear un pedido</p>
+      </div>
 
-          <!-- Items del carrito -->
-          <div *ngIf="carrito.length > 0" class="space-y-4">
+      <!-- Items del carrito -->
+      <div *ngIf="carrito.length > 0" class="space-y-4">
 
-            <!-- Lista de items -->
-            <div class="space-y-3 max-h-96 overflow-y-auto pr-2">
-              <div *ngFor="let item of carrito; let i = index"
-                class="bg-[rgb(var(--surface2-rgb))] border border-[rgb(var(--line-rgb))] rounded-lg p-3 space-y-2">
+        <!-- Tabla de items -->
+        <div class="table-wrap">
+          <table class="table table--hover">
+            <thead>
+              <tr>
+                <th class="w-16">#</th>
+                <th>Plato</th>
+                <th class="text-right">Precio Unit.</th>
+                <th class="text-center w-40">Cantidad</th>
+                <th>Extras</th>
+                <th class="text-right">Subtotal</th>
+                <th class="w-24"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of carrito; let i = index">
+                <!-- Número -->
+                <td class="text-center font-bold text-[rgb(var(--fg-muted-rgb))]">{{ i + 1 }}</td>
 
-                <!-- Plato y badge de descuento -->
-                <div class="flex items-start justify-between gap-2">
-                  <div class="flex-1">
-                    <h4 class="font-semibold text-sm text-[rgb(var(--fg-rgb))]">{{ item.platoNombre }}</h4>
-                    <p class="text-xs text-[rgb(var(--fg-muted-rgb))]">${{ item.precioBase.toFixed(2) }} c/u</p>
+                <!-- Plato con badge de descuento -->
+                <td>
+                  <div class="flex flex-col gap-1">
+                    <div class="flex items-center gap-2">
+                      <span class="font-semibold text-[rgb(var(--fg-rgb))]">{{ item.platoNombre }}</span>
+                      <span *ngIf="item.descuentoPct" class="pill pill--success text-xs">
+                        -{{ item.descuentoPct }}% OFF
+                      </span>
+                    </div>
                   </div>
-                  <span *ngIf="item.descuentoPct" class="pill pill--success text-xs shrink-0">
-                    -{{ item.descuentoPct }}%
-                  </span>
-                </div>
+                </td>
 
-                <!-- Extras -->
-                <div *ngIf="item.extras.length > 0" class="flex flex-wrap gap-1">
-                  <span *ngFor="let extra of item.extras" class="text-xs bg-tint-accent text-[rgb(var(--accent-rgb))] px-2 py-1 rounded">
-                    +{{ extra.ingredienteNombre }} ×{{ extra.cantidad }}
-                  </span>
-                </div>
+                <!-- Precio unitario -->
+                <td class="text-right">
+                  <span class="text-[rgb(var(--fg-muted-rgb))]">${{ item.precioBase.toFixed(2) }}</span>
+                </td>
 
-                <!-- Controles de cantidad -->
-                <div class="flex items-center justify-between pt-2 border-t border-[rgb(var(--line-rgb))]">
-                  <div class="flex items-center gap-2">
+                <!-- Cantidad con botones -->
+                <td>
+                  <div class="flex items-center justify-center gap-2">
                     <button
                       type="button"
                       class="btn"
@@ -232,7 +247,7 @@
                       [disabled]="loading || item.cantidad <= 1">
                       <lucide-icon [img]="Minus" [size]="14"></lucide-icon>
                     </button>
-                    <span class="font-bold text-base min-w-[2rem] text-center text-[rgb(var(--fg-rgb))]">
+                    <span class="font-bold text-lg min-w-[2.5rem] text-center text-[rgb(var(--fg-rgb))]">
                       {{ item.cantidad }}
                     </span>
                     <button
@@ -245,47 +260,70 @@
                       <lucide-icon [img]="Plus" [size]="14"></lucide-icon>
                     </button>
                   </div>
+                </td>
 
-                  <div class="flex items-center gap-2">
-                    <span class="font-bold text-[rgb(var(--brand-rgb))]">${{ calcularSubtotal(item).toFixed(2) }}</span>
-                    <button
-                      type="button"
-                      class="btn"
-                      data-variant="danger"
-                      data-size="xs"
-                      (click)="removerDelCarrito(i)"
-                      [disabled]="loading"
-                      title="Eliminar">
-                      <lucide-icon [img]="Trash2" [size]="14"></lucide-icon>
-                    </button>
+                <!-- Extras -->
+                <td>
+                  <div *ngIf="item.extras.length > 0" class="flex flex-wrap gap-1">
+                    <span *ngFor="let extra of item.extras" class="text-xs bg-tint-accent text-[rgb(var(--accent-rgb))] px-2 py-1 rounded font-medium">
+                      +{{ extra.ingredienteNombre }} ×{{ extra.cantidad }}
+                    </span>
                   </div>
-                </div>
-              </div>
-            </div>
+                  <span *ngIf="item.extras.length === 0" class="text-[rgb(var(--fg-muted-rgb))] text-sm">-</span>
+                </td>
 
-            <!-- Nota informativa -->
-            <div class="bg-tint-info border border-info rounded-lg p-3">
-              <div class="flex items-start gap-2">
-                <lucide-icon [img]="ShoppingCart" [size]="16" class="text-[rgb(var(--info-rgb))] mt-0.5 shrink-0"></lucide-icon>
+                <!-- Subtotal -->
+                <td class="text-right">
+                  <span class="font-bold text-lg text-[rgb(var(--brand-rgb))]">
+                    ${{ calcularSubtotal(item).toFixed(2) }}
+                  </span>
+                </td>
+
+                <!-- Acciones -->
+                <td class="td--actions">
+                  <button
+                    type="button"
+                    class="btn"
+                    data-variant="danger"
+                    data-size="sm"
+                    (click)="removerDelCarrito(i)"
+                    [disabled]="loading"
+                    title="Eliminar">
+                    <lucide-icon [img]="Trash2" [size]="16"></lucide-icon>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Footer: Nota + Total -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- Nota informativa -->
+          <div class="bg-tint-info border border-info rounded-lg p-4">
+            <div class="flex items-start gap-2">
+              <lucide-icon [img]="ShoppingCart" [size]="18" class="text-[rgb(var(--info-rgb))] mt-0.5 shrink-0"></lucide-icon>
+              <div>
+                <p class="text-sm font-semibold text-[rgb(var(--info-rgb))] mb-1">Precio Estimado</p>
                 <p class="text-xs text-[rgb(var(--fg-muted-rgb))]">
-                  Los precios son estimados. El total final incluirá descuentos vigentes.
+                  Los precios mostrados son estimados. El total final incluirá los descuentos de promociones vigentes y será calculado al crear el pedido.
                 </p>
               </div>
             </div>
-
-            <!-- Total -->
-            <app-summary
-              [label]="'Total Estimado'"
-              [value]="'$' + calcularTotal().toFixed(2)"
-              [variant]="'accent'"
-              [icon]="ShoppingCart"
-              [iconSize]="24"
-              [size]="'md'">
-            </app-summary>
           </div>
-        </app-section-container>
+
+          <!-- Total -->
+          <app-summary
+            [label]="'Total Estimado'"
+            [value]="'$' + calcularTotal().toFixed(2)"
+            [variant]="'accent'"
+            [icon]="ShoppingCart"
+            [iconSize]="28"
+            [size]="'lg'">
+          </app-summary>
+        </div>
       </div>
-    </div>
+    </app-section-container>
   </div>
 
   <!-- Botones de acción sticky -->

@@ -192,6 +192,9 @@ export default class PedidoFormPage implements OnInit {
     const plato = this.platos.find((p) => p.id === platoId);
     if (!plato) return;
 
+    // Verificar si hay promoción vigente para este plato
+    const descuentoPct = this.promocionesVigentes.get(platoId);
+
     // Verificar si ya existe en el carrito (mismo plato y mismos extras)
     const existe = this.carrito.find(
       (item) =>
@@ -201,10 +204,9 @@ export default class PedidoFormPage implements OnInit {
 
     if (existe) {
       existe.cantidad += cantidad;
+      // Actualizar el descuento por si cambió
+      existe.descuentoPct = descuentoPct;
     } else {
-      // Verificar si hay promoción vigente para este plato
-      const descuentoPct = this.promocionesVigentes.get(platoId);
-
       this.carrito.push({
         platoId: platoId,
         platoNombre: plato.nombre,

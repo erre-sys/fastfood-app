@@ -14,7 +14,7 @@
   <!-- Tabs -->
   <app-tabs-filter [items]="[
     { key:'all', label:'Todos',       count:counters.all, tone:'brand'   },
-    { key:'S',   label:'Solicitados', count:counters.S,   tone:'warn'    },
+    { key:'S',   label:'Por Pagar', count:counters.S,   tone:'warn'    },
     { key:'P',   label:'Pagados',     count:counters.P,   tone:'success' },
     { key:'F',   label:'Fiados',      count:counters.F,   tone:'danger'  }
   ]" [active]="tab" (activeChange)="setTab($any($event))">

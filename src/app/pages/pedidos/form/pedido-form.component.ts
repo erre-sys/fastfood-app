@@ -17,7 +17,7 @@ import { SaveCancelComponent } from '../../../shared/ui/buttons/ui-button-save-c
 import { SummaryComponent } from '../../../shared/ui/summary/summary.component';
 import { PedidoCartComponent, CartItem, CartExtra } from '../../../shared/ui/pedido-cart/pedido-cart.component';
 import { UiButtonComponent } from '../../../shared/ui/buttons/ui-button/ui-button.component';
-import { LucideAngularModule, Plus, Trash2, Minus, ShoppingCart } from 'lucide-angular';
+import { LucideAngularModule, Plus, Trash2, Minus, ShoppingCart, Check } from 'lucide-angular';
 
 @Component({
   selector: 'app-pedido-form',
@@ -52,6 +52,7 @@ export default class PedidoFormPage implements OnInit {
   Trash2 = Trash2;
   Minus = Minus;
   ShoppingCart = ShoppingCart;
+  Check = Check;
 
   titleLabel = 'Pedido';
 
@@ -251,19 +252,27 @@ export default class PedidoFormPage implements OnInit {
   }
 
   /**
-   * Calcula subtotal ESTIMADO para mostrar en UI (sin descuentos de promoción)
+   * Calcula subtotal ESTIMADO para mostrar en UI (con descuentos de promoción)
    * NOTA: El precio real lo calcula el backend al crear el pedido
    */
   calcularSubtotal(item: CartItem): number {
-    const precioBase = item.precioBase * item.cantidad;
+    let precioBase = item.precioBase * item.cantidad;
+
+    // Aplicar descuento si existe
+    if (item.descuentoPct && item.descuentoPct > 0) {
+      const descuento = precioBase * (item.descuentoPct / 100);
+      precioBase = precioBase - descuento;
+    }
+
     const precioExtras = item.extras.reduce((sum, extra) => {
       return sum + (extra.precioExtra * extra.cantidad * item.cantidad);
     }, 0);
+
     return precioBase + precioExtras;
   }
 
   /**
-   * Calcula total ESTIMADO del carrito (sin descuentos de promoción)
+   * Calcula total ESTIMADO del carrito (con descuentos de promoción)
    * NOTA: El precio real lo calcula el backend al crear el pedido
    */
   calcularTotal(): number {
@@ -281,7 +290,7 @@ export default class PedidoFormPage implements OnInit {
   }
 
   /**
-   * Calcula precio ESTIMADO de preview antes de agregar al carrito
+   * Calcula precio ESTIMADO de preview antes de agregar al carrito (con descuento si aplica)
    */
   calcularPrecioPreview(): number {
     const platoId = this.platoForm.controls.platoId.value;
@@ -290,7 +299,17 @@ export default class PedidoFormPage implements OnInit {
     if (!platoId) return 0;
     const plato = this.platos.find(p => p.id === platoId);
     if (!plato) return 0;
-    return (plato.precioBase * cantidadPlato) + this.calcularTotalExtrasTemp();
+
+    let precioBase = plato.precioBase * cantidadPlato;
+
+    // Aplicar descuento si existe
+    const descuentoPct = this.promocionesVigentes.get(platoId);
+    if (descuentoPct && descuentoPct > 0) {
+      const descuento = precioBase * (descuentoPct / 100);
+      precioBase = precioBase - descuento;
+    }
+
+    return precioBase + this.calcularTotalExtrasTemp();
   }
 
   onSubmit(): void {

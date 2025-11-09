@@ -349,26 +349,25 @@ export default class PedidosListPage extends BaseListComponent implements OnInit
       return;
     }
 
-    // Solicitar monto
-    const montoInput = prompt(`Monto a pagar (Total pedido: $${pedido.totalNeto.toFixed(2)}):`);
-    if (!montoInput) {
-      return;
-    }
+    // El monto siempre es el total del pedido
+    const monto = pedido.totalNeto;
 
-    const monto = Number(montoInput);
-    if (isNaN(monto) || monto <= 0) {
-      this.notify.warning('El monto debe ser mayor a 0');
-      return;
-    }
+    // Construir referencia automática
+    let referencia = `Pedido ${pedido.id}`;
 
-    if (monto > pedido.totalNeto) {
-      if (!confirm(`El monto ($${monto.toFixed(2)}) es mayor al total del pedido ($${pedido.totalNeto.toFixed(2)}). ¿Continuar?`)) {
-        return;
-      }
-    }
+    // Verificar si hay descuentos (totalBruto - totalExtras > totalNeto)
+    const totalSinExtras = pedido.totalBruto;
+    const totalConExtras = pedido.totalBruto + pedido.totalExtras;
+    const tieneDescuentos = totalConExtras > pedido.totalNeto;
+    const tieneExtras = pedido.totalExtras > 0;
 
-    // Solicitar referencia (opcional)
-    const referencia = prompt('Referencia (opcional):') || undefined;
+    // Agregar información de descuentos y extras si existen
+    if (tieneDescuentos || tieneExtras) {
+      const detalles = [];
+      if (tieneDescuentos) detalles.push('descuentos');
+      if (tieneExtras) detalles.push('extras');
+      referencia += ` y ${detalles.join(' y ')}`;
+    }
 
     // Obtener el sub del usuario autenticado
     const userSub = authService.getSub();

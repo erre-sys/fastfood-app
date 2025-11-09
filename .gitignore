@@ -1,5 +1,7 @@
 # Compiled output
 /dist
+/build
+/out
 /tmp
 /out-tsc
 /bazel-out
@@ -30,9 +32,13 @@ testem.log
 *.launch
 .settings/
 *.sublime-workspace
+*.sublime-project
 *.swp
 *.swo
 *~
+*~.nib
+*.tmp
+*.temp
 
 # Visual Studio Code
 .vscode/*
@@ -46,14 +52,20 @@ testem.log
 .DS_Store
 Thumbs.db
 *.log
+*.log*
+logs/
 
 # Env files (NO subir secretos locales)
 .env
 .env.*
+.env.local
+.env.*.local
 !.env.example
 # NOTE: Los archivos environment.ts sí se suben (con valores de desarrollo)
 # Solo ignorar si tiene datos de producción reales:
 # environments.production.ts
+environment.local.ts
+environments.local.ts
 
 # Archivos sensibles
 *.key

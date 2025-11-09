@@ -1,60 +1,122 @@
 <!-- ===== Header del Dashboard ===== -->
-<header class="mb-6">
-  <h1 class="text-2xl font-bold text-fg mb-1">Dashboard</h1>
-  <p class="text-sm text-muted">Resumen de operaciones - {{ now() | date:'EEEE, d \'de\' MMMM \'de\' y' }}</p>
+<header class="mb-8">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-[rgb(var(--brand-rgb))]">Dashboard</h1>
+      <p class="text-sm text-[rgb(var(--fg-muted-rgb))] mt-1">
+        {{ now() | date:'EEEE, d \'de\' MMMM \'de\' y' }} • <span class="font-semibold">{{ getUserRole() }}</span>
+      </p>
+    </div>
+  </div>
 </header>
 
 <!-- ===== Métricas Principales ===== -->
-<section aria-labelledby="dash-metrics" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-  <!-- Pedidos del Día - Visible para ADMIN, CAJERO, COCINERO -->
-  <app-home-card *hasRole="['ADMIN', 'CAJERO', 'COCINERO']"
-    [title]="'Pedidos del Día'"
-    [total]="pedidosHoyCount()"
-    [icon]="ShoppingBag"
-    variant="primary"
-    [buttonText]="'Ver Pedidos'"
-    buttonVariant="outline"
-    (navigate)="navegarA('/pedidos')"
-  />
+<section aria-labelledby="dash-metrics" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
 
-  <!-- Ventas del Día - Visible para ADMIN, CAJERO, REPORTES -->
-  <app-home-card *hasRole="['ADMIN', 'CAJERO', 'REPORTES']"
-    [title]="'Ventas del Día'"
-    [total]="ventasDelDia()"
-    [icon]="DollarSign"
-    variant="success"
-    [buttonText]="'Ver Pagos'"
-    buttonVariant="outline"
-    (navigate)="navegarA('/pagos-cliente')"
-  />
+  <!-- Pedidos del Día - Todos -->
+  <div class="card p-6 border-l-4 border-[rgb(var(--brand-rgb))] bg-gradient-to-br from-[rgb(var(--surface-rgb))] to-[rgb(var(--surface2-rgb))]">
+    <div class="flex items-center justify-between mb-4">
+      <div class="w-12 h-12 rounded-xl bg-tint-brand flex items-center justify-center">
+        <lucide-icon [img]="ShoppingBag" [size]="24" class="text-[rgb(var(--brand-rgb))]"></lucide-icon>
+      </div>
+      <button
+        class="btn"
+        data-variant="ghost"
+        data-size="sm"
+        (click)="navegarA('/pedidos')"
+        title="Ver pedidos">
+        Ver →
+      </button>
+    </div>
+    <h3 class="text-sm font-medium text-[rgb(var(--fg-muted-rgb))]">Pedidos del Día</h3>
+    <p class="text-3xl font-bold text-[rgb(var(--brand-rgb))] mt-2">{{ pedidosHoyCount() }}</p>
+    <p class="text-xs text-[rgb(var(--fg-muted-rgb))] mt-1">
+      {{ pedidosPendientes() }} pendientes
+    </p>
+  </div>
 
-  <!-- Pedidos Listos - Visible para ADMIN, CAJERO, COCINERO -->
-  <app-home-card *hasRole="['ADMIN', 'CAJERO', 'COCINERO']"
-    [title]="'Pedidos Listos'"
-    [total]="pedidosListosCount()"
-    [icon]="CalendarClock"
-    variant="warning"
-    [buttonText]="'Ver Listos'"
-    buttonVariant="outline"
-    (navigate)="navegarA('/pedidos')"
-  />
+  <!-- Ventas del Día - ADMIN y CAJERO -->
+  <div *hasRole="['ADMIN', 'CAJERO']" class="card p-6 border-l-4 border-[rgb(var(--success-rgb))] bg-gradient-to-br from-[rgb(var(--surface-rgb))] to-[rgb(var(--surface2-rgb))]">
+    <div class="flex items-center justify-between mb-4">
+      <div class="w-12 h-12 rounded-xl bg-tint-ok flex items-center justify-center">
+        <lucide-icon [img]="DollarSign" [size]="24" class="text-[rgb(var(--success-rgb))]"></lucide-icon>
+      </div>
+      <button
+        class="btn"
+        data-variant="ghost"
+        data-size="sm"
+        (click)="navegarA('/pagos-cliente')"
+        title="Ver pagos">
+        Ver →
+      </button>
+    </div>
+    <h3 class="text-sm font-medium text-[rgb(var(--fg-muted-rgb))]">Ventas del Día</h3>
+    <p class="text-3xl font-bold text-[rgb(var(--success-rgb))] mt-2">${{ ventasDelDia().toFixed(2) }}</p>
+    <p class="text-xs text-[rgb(var(--fg-muted-rgb))] mt-1">
+      {{ pedidosEntregados() }} pedidos entregados
+    </p>
+  </div>
+
+  <!-- Pedidos Listos - Todos -->
+  <div class="card p-6 border-l-4 border-[rgb(var(--accent-rgb))] bg-gradient-to-br from-[rgb(var(--surface-rgb))] to-[rgb(var(--surface2-rgb))]">
+    <div class="flex items-center justify-between mb-4">
+      <div class="w-12 h-12 rounded-xl bg-tint-accent flex items-center justify-center">
+        <lucide-icon [img]="CalendarClock" [size]="24" class="text-[rgb(var(--accent-rgb))]"></lucide-icon>
+      </div>
+      <button
+        class="btn"
+        data-variant="ghost"
+        data-size="sm"
+        (click)="navegarA('/pedidos')"
+        title="Ver listos">
+        Ver →
+      </button>
+    </div>
+    <h3 class="text-sm font-medium text-[rgb(var(--fg-muted-rgb))]">Pedidos Listos</h3>
+    <p class="text-3xl font-bold text-[rgb(var(--accent-rgb))] mt-2">{{ pedidosListosCount() }}</p>
+    <p class="text-xs text-[rgb(var(--fg-muted-rgb))] mt-1">
+      Para entregar
+    </p>
+  </div>
+
+  <!-- Stock Bajo - Todos (pueden ver) -->
+  <div class="card p-6 border-l-4 border-[rgb(var(--warning-rgb))] bg-gradient-to-br from-[rgb(var(--surface-rgb))] to-[rgb(var(--surface2-rgb))]">
+    <div class="flex items-center justify-between mb-4">
+      <div class="w-12 h-12 rounded-xl bg-tint-warn flex items-center justify-center">
+        <lucide-icon [img]="AlertCircle" [size]="24" class="text-[rgb(var(--warning-rgb))]"></lucide-icon>
+      </div>
+      <button
+        class="btn"
+        data-variant="ghost"
+        data-size="sm"
+        (click)="navegarA('/inventario')"
+        title="Ver inventario">
+        Ver →
+      </button>
+    </div>
+    <h3 class="text-sm font-medium text-[rgb(var(--fg-muted-rgb))]">Stock Bajo</h3>
+    <p class="text-3xl font-bold text-[rgb(var(--warning-rgb))] mt-2">{{ stockBajo() }}</p>
+    <p class="text-xs text-[rgb(var(--fg-muted-rgb))] mt-1">
+      Ingredientes con stock < 10
+    </p>
+  </div>
 
 </section>
 
-<!-- ===== Grid de Tablas ===== -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<!-- ===== Grid de Contenido ===== -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-  <!-- ===== Pedidos Recientes ===== -->
-  <section class="card overflow-hidden">
-    <header class="px-6 py-4 border-b border-line bg-surface2">
+  <!-- ===== Pedidos Recientes (2/3) ===== -->
+  <section class="lg:col-span-2 card overflow-hidden">
+    <header class="px-6 py-4 border-b border-[rgb(var(--line-rgb))] bg-[rgb(var(--surface2-rgb))]">
       <div class="flex items-center justify-between">
         <div>
-          <h2 class="text-lg font-semibold text-fg">Pedidos Recientes</h2>
-          <p class="text-xs text-muted mt-1">Últimos 10 pedidos del día</p>
+          <h2 class="text-lg font-semibold text-[rgb(var(--fg-rgb))]">Pedidos Recientes</h2>
+          <p class="text-xs text-[rgb(var(--fg-muted-rgb))] mt-1">Últimos pedidos del día</p>
         </div>
         <button
-          class="btn btn--sm btn--outline"
-          data-variant="outline"
+          class="btn"
+          data-variant="secondary"
           data-size="sm"
           (click)="navegarA('/pedidos')">
           Ver todos
@@ -63,40 +125,52 @@
     </header>
 
     <div class="overflow-x-auto">
-      <div *ngIf="loading()" class="p-8 text-center text-muted">
-        <div class="skeleton skeleton-line mx-auto" style="width: 200px;"></div>
+      <!-- Loading State -->
+      <div *ngIf="loading()" class="p-8 text-center text-[rgb(var(--fg-muted-rgb))]">
+        <div class="skeleton skeleton-line mx-auto mb-3" style="width: 200px;"></div>
+        <div class="skeleton skeleton-line mx-auto" style="width: 150px;"></div>
       </div>
 
-      <div *ngIf="!loading() && pedidosHoy().length === 0" class="p-8 text-center text-muted">
-        <lucide-icon [img]="ShoppingBag" [size]="48" class="mx-auto opacity-30 mb-3"></lucide-icon>
-        <p class="font-medium">No hay pedidos registrados hoy</p>
-        <!-- Solo ADMIN y CAJERO pueden crear pedidos -->
-        <button *hasRole="['ADMIN', 'CAJERO']" class="btn btn--primary btn--sm mt-4" (click)="navegarA('/pedidos/nuevo')">
-          Crear Primer Pedido
+      <!-- Empty State -->
+      <div *ngIf="!loading() && pedidosHoy().length === 0" class="p-12 text-center text-[rgb(var(--fg-muted-rgb))]">
+        <div class="w-20 h-20 rounded-full bg-tint-brand mx-auto mb-4 flex items-center justify-center">
+          <lucide-icon [img]="ShoppingBag" [size]="40" class="text-[rgb(var(--brand-rgb))] opacity-50"></lucide-icon>
+        </div>
+        <p class="text-lg font-medium">No hay pedidos registrados hoy</p>
+        <p class="text-sm mt-2">Crea el primer pedido del día</p>
+        <button
+          *hasRole="['ADMIN', 'CAJERO', 'VENDEDOR']"
+          class="btn mt-4"
+          data-variant="primary"
+          data-size="md"
+          (click)="navegarA('/pedidos/nuevo')">
+          <lucide-icon [img]="ShoppingBag" [size]="18"></lucide-icon>
+          Crear Pedido
         </button>
       </div>
 
-      <table *ngIf="!loading() && pedidosHoy().length > 0" class="table table--dense w-full">
+      <!-- Table -->
+      <table *ngIf="!loading() && pedidosHoy().length > 0" class="table table--hover w-full">
         <thead>
           <tr>
             <th scope="col" class="w-20">ID</th>
-            <th scope="col" class="w-32">Estado</th>
-            <th scope="col" class="w-24">Hora</th>
+            <th scope="col">Estado</th>
+            <th scope="col" class="w-28">Hora</th>
             <th scope="col" class="text-right">Total</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let pedido of pedidosHoy().slice(0, 10)" class="row-hover">
-            <td class="font-semibold text-brand">#{{ pedido.id }}</td>
+          <tr *ngFor="let pedido of pedidosHoy().slice(0, 10)" class="cursor-pointer" (click)="navegarA('/pedidos/' + pedido.id + '/detalle')">
+            <td class="font-bold text-[rgb(var(--brand-rgb))]">#{{ pedido.id }}</td>
             <td>
               <span class="pill" [ngClass]="getEstadoBadgeClass(pedido.estado)">
                 {{ getEstadoLabel(pedido.estado) }}
               </span>
             </td>
-            <td class="text-muted text-xs">
+            <td class="text-[rgb(var(--fg-muted-rgb))] text-sm">
               {{ pedido.creadoEn | date:'HH:mm' }}
             </td>
-            <td class="text-right font-bold text-accent">
+            <td class="text-right font-bold text-[rgb(var(--accent-rgb))]">
               ${{ pedido.totalNeto.toFixed(2) }}
             </td>
           </tr>
@@ -104,22 +178,18 @@
       </table>
     </div>
 
-    <footer *ngIf="!loading() && pedidosHoy().length > 10" class="px-6 py-3 bg-surface2 border-t border-line text-center">
-      <button class="text-sm text-brand font-medium hover:underline" (click)="navegarA('/pedidos')">
+    <footer *ngIf="!loading() && pedidosHoy().length > 10" class="px-6 py-3 bg-[rgb(var(--surface2-rgb))] border-t border-[rgb(var(--line-rgb))] text-center">
+      <button class="text-sm text-[rgb(var(--brand-rgb))] font-medium hover:underline" (click)="navegarA('/pedidos')">
         Ver todos los pedidos ({{ pedidosHoyCount() }})
       </button>
     </footer>
   </section>
 
-  <!-- ===== Resumen por Estado ===== -->
+  <!-- ===== Resumen por Estado (1/3) ===== -->
   <section class="card overflow-hidden">
-    <header class="px-6 py-4 border-b border-line bg-surface2">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-lg font-semibold text-fg">Estado de Pedidos</h2>
-          <p class="text-xs text-muted mt-1">Distribución por estado actual</p>
-        </div>
-      </div>
+    <header class="px-6 py-4 border-b border-[rgb(var(--line-rgb))] bg-[rgb(var(--surface2-rgb))]">
+      <h2 class="text-lg font-semibold text-[rgb(var(--fg-rgb))]">Estado de Pedidos</h2>
+      <p class="text-xs text-[rgb(var(--fg-muted-rgb))] mt-1">Distribución actual</p>
     </header>
 
     <div class="p-6">
@@ -129,61 +199,61 @@
         <div class="skeleton skeleton-line"></div>
       </div>
 
-      <div *ngIf="!loading()" class="space-y-4">
-        <!-- Creados -->
-        <div class="flex items-center justify-between p-4 rounded-lg bg-tint-warn border border-border-warn">
+      <div *ngIf="!loading()" class="space-y-3">
+        <!-- Creados (Pendientes) -->
+        <div class="flex items-center justify-between p-4 rounded-lg bg-tint-warn border border-[rgb(var(--warning-rgb))] hover:shadow-md transition-shadow">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center">
-              <lucide-icon [img]="CalendarClock" [size]="20" class="text-warning"></lucide-icon>
+            <div class="w-10 h-10 rounded-full bg-[rgb(var(--warning-rgb))]/20 flex items-center justify-center shrink-0">
+              <lucide-icon [img]="CalendarClock" [size]="20" class="text-[rgb(var(--warning-rgb))]"></lucide-icon>
             </div>
             <div>
-              <p class="font-semibold text-fg">Creados</p>
-              <p class="text-xs text-muted">Pendientes de preparar</p>
+              <p class="font-semibold text-[rgb(var(--fg-rgb))] text-sm">Pendientes</p>
+              <p class="text-xs text-[rgb(var(--fg-muted-rgb))]">Por preparar</p>
             </div>
           </div>
-          <span class="text-2xl font-bold text-warning">{{ contarPorEstado('C') }}</span>
+          <span class="text-2xl font-bold text-[rgb(var(--warning-rgb))]">{{ contarPorEstado('C') }}</span>
         </div>
 
         <!-- Listos -->
-        <div class="flex items-center justify-between p-4 rounded-lg bg-tint-info border border-border-info">
+        <div class="flex items-center justify-between p-4 rounded-lg bg-tint-accent border border-[rgb(var(--accent-rgb))] hover:shadow-md transition-shadow">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-info/20 flex items-center justify-center">
-              <lucide-icon [img]="CalendarClock" [size]="20" class="text-info"></lucide-icon>
+            <div class="w-10 h-10 rounded-full bg-[rgb(var(--accent-rgb))]/20 flex items-center justify-center shrink-0">
+              <lucide-icon [img]="Package" [size]="20" class="text-[rgb(var(--accent-rgb))]"></lucide-icon>
             </div>
             <div>
-              <p class="font-semibold text-fg">Listos</p>
-              <p class="text-xs text-muted">Para entregar</p>
+              <p class="font-semibold text-[rgb(var(--fg-rgb))] text-sm">Listos</p>
+              <p class="text-xs text-[rgb(var(--fg-muted-rgb))]">Para entregar</p>
             </div>
           </div>
-          <span class="text-2xl font-bold text-info">{{ contarPorEstado('L') }}</span>
+          <span class="text-2xl font-bold text-[rgb(var(--accent-rgb))]">{{ contarPorEstado('L') }}</span>
         </div>
 
         <!-- Entregados -->
-        <div class="flex items-center justify-between p-4 rounded-lg bg-tint-ok border border-border-ok">
+        <div class="flex items-center justify-between p-4 rounded-lg bg-tint-ok border border-[rgb(var(--success-rgb))] hover:shadow-md transition-shadow">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center">
-              <lucide-icon [img]="ShoppingBag" [size]="20" class="text-success"></lucide-icon>
+            <div class="w-10 h-10 rounded-full bg-[rgb(var(--success-rgb))]/20 flex items-center justify-center shrink-0">
+              <lucide-icon [img]="TrendingUp" [size]="20" class="text-[rgb(var(--success-rgb))]"></lucide-icon>
             </div>
             <div>
-              <p class="font-semibold text-fg">Entregados</p>
-              <p class="text-xs text-muted">Completados hoy</p>
+              <p class="font-semibold text-[rgb(var(--fg-rgb))] text-sm">Entregados</p>
+              <p class="text-xs text-[rgb(var(--fg-muted-rgb))]">Completados</p>
             </div>
           </div>
-          <span class="text-2xl font-bold text-success">{{ contarPorEstado('E') }}</span>
+          <span class="text-2xl font-bold text-[rgb(var(--success-rgb))]">{{ contarPorEstado('E') }}</span>
         </div>
 
-        <!-- Anulados -->
-        <div *ngIf="contarPorEstado('A') > 0" class="flex items-center justify-between p-4 rounded-lg bg-tint-danger border border-border-danger">
+        <!-- Anulados (solo si hay) -->
+        <div *ngIf="contarPorEstado('A') > 0" class="flex items-center justify-between p-4 rounded-lg bg-tint-danger border border-[rgb(var(--danger-rgb))] hover:shadow-md transition-shadow">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-danger/20 flex items-center justify-center">
-              <lucide-icon [img]="Square" [size]="20" class="text-danger"></lucide-icon>
+            <div class="w-10 h-10 rounded-full bg-[rgb(var(--danger-rgb))]/20 flex items-center justify-center shrink-0">
+              <lucide-icon [img]="AlertCircle" [size]="20" class="text-[rgb(var(--danger-rgb))]"></lucide-icon>
             </div>
             <div>
-              <p class="font-semibold text-fg">Anulados</p>
-              <p class="text-xs text-muted">Cancelados</p>
+              <p class="font-semibold text-[rgb(var(--fg-rgb))] text-sm">Anulados</p>
+              <p class="text-xs text-[rgb(var(--fg-muted-rgb))]">Cancelados</p>
             </div>
           </div>
-          <span class="text-2xl font-bold text-danger">{{ contarPorEstado('A') }}</span>
+          <span class="text-2xl font-bold text-[rgb(var(--danger-rgb))]">{{ contarPorEstado('A') }}</span>
         </div>
       </div>
     </div>
@@ -192,31 +262,88 @@
 </div>
 
 <!-- ===== Acciones Rápidas ===== -->
-<section class="mt-6 card p-6">
-  <h2 class="text-lg font-semibold text-fg mb-4">Acciones Rápidas</h2>
+<section class="mt-8 card p-6 bg-gradient-to-br from-[rgb(var(--surface-rgb))] to-[rgb(var(--surface2-rgb))]">
+  <h2 class="text-lg font-semibold text-[rgb(var(--fg-rgb))] mb-4 flex items-center gap-2">
+    <lucide-icon [img]="List" [size]="20" class="text-[rgb(var(--brand-rgb))]"></lucide-icon>
+    Acciones Rápidas
+  </h2>
   <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-    <!-- Nuevo Pedido - Solo ADMIN y CAJERO -->
-    <button *hasRole="['ADMIN', 'CAJERO']" class="btn btn--outline" data-variant="outline" (click)="navegarA('/pedidos/nuevo')">
-      <lucide-icon [img]="ShoppingBag" [size]="18"></lucide-icon>
-      <span>Nuevo Pedido</span>
+
+    <!-- Nuevo Pedido - Todos -->
+    <button
+      *hasRole="['ADMIN', 'CAJERO', 'VENDEDOR']"
+      class="btn p-4 h-auto flex-col gap-2"
+      data-variant="outline"
+      (click)="navegarA('/pedidos/nuevo')">
+      <lucide-icon [img]="ShoppingBag" [size]="24" class="text-[rgb(var(--brand-rgb))]"></lucide-icon>
+      <span class="text-sm font-medium">Nuevo Pedido</span>
     </button>
 
-    <!-- Ver Stock - ADMIN, INVENTARIO, REPORTES -->
-    <button *hasRole="['ADMIN', 'INVENTARIO', 'REPORTES']" class="btn btn--outline" data-variant="outline" (click)="navegarA('/inventario')">
-      <lucide-icon [img]="List" [size]="18"></lucide-icon>
-      <span>Ver Stock</span>
+    <!-- Ver Pedidos - Todos -->
+    <button
+      class="btn p-4 h-auto flex-col gap-2"
+      data-variant="outline"
+      (click)="navegarA('/pedidos')">
+      <lucide-icon [img]="List" [size]="24" class="text-[rgb(var(--accent-rgb))]"></lucide-icon>
+      <span class="text-sm font-medium">Ver Pedidos</span>
     </button>
 
-    <!-- Ver Kardex - ADMIN, INVENTARIO, REPORTES -->
-    <button *hasRole="['ADMIN', 'INVENTARIO', 'REPORTES']" class="btn btn--outline" data-variant="outline" (click)="navegarA('/kardex')">
-      <lucide-icon [img]="Square" [size]="18"></lucide-icon>
-      <span>Ver Kardex</span>
+    <!-- Ver Stock - Todos -->
+    <button
+      class="btn p-4 h-auto flex-col gap-2"
+      data-variant="outline"
+      (click)="navegarA('/inventario')">
+      <lucide-icon [img]="Package" [size]="24" class="text-[rgb(var(--warning-rgb))]"></lucide-icon>
+      <span class="text-sm font-medium">Ver Stock</span>
     </button>
 
-    <!-- Ver Platos - Todos pueden ver (acceso general) -->
-    <button class="btn btn--outline" data-variant="outline" (click)="navegarA('/platos')">
-      <lucide-icon [img]="ShoppingBag" [size]="18"></lucide-icon>
-      <span>Ver Platos</span>
+    <!-- Ver Platos - Todos -->
+    <button
+      class="btn p-4 h-auto flex-col gap-2"
+      data-variant="outline"
+      (click)="navegarA('/platos')">
+      <lucide-icon [img]="ShoppingBag" [size]="24" class="text-[rgb(var(--success-rgb))]"></lucide-icon>
+      <span class="text-sm font-medium">Ver Platos</span>
     </button>
+
+    <!-- Pagos Cliente - Solo ADMIN y CAJERO -->
+    <button
+      *hasRole="['ADMIN', 'CAJERO']"
+      class="btn p-4 h-auto flex-col gap-2"
+      data-variant="outline"
+      (click)="navegarA('/pagos-cliente')">
+      <lucide-icon [img]="DollarSign" [size]="24" class="text-[rgb(var(--success-rgb))]"></lucide-icon>
+      <span class="text-sm font-medium">Pagos Cliente</span>
+    </button>
+
+    <!-- Kardex - Solo ADMIN -->
+    <button
+      *hasRole="['ADMIN']"
+      class="btn p-4 h-auto flex-col gap-2"
+      data-variant="outline"
+      (click)="navegarA('/kardex')">
+      <lucide-icon [img]="List" [size]="24" class="text-[rgb(var(--brand-rgb))]"></lucide-icon>
+      <span class="text-sm font-medium">Ver Kardex</span>
+    </button>
+
+    <!-- Compras - Solo ADMIN -->
+    <button
+      *hasRole="['ADMIN']"
+      class="btn p-4 h-auto flex-col gap-2"
+      data-variant="outline"
+      (click)="navegarA('/compras')">
+      <lucide-icon [img]="ShoppingBag" [size]="24" class="text-[rgb(var(--info-rgb))]"></lucide-icon>
+      <span class="text-sm font-medium">Compras</span>
+    </button>
+
+    <!-- Promociones - Todos pueden ver -->
+    <button
+      class="btn p-4 h-auto flex-col gap-2"
+      data-variant="outline"
+      (click)="navegarA('/promo-programada')">
+      <lucide-icon [img]="TrendingUp" [size]="24" class="text-[rgb(var(--accent-rgb))]"></lucide-icon>
+      <span class="text-sm font-medium">Promociones</span>
+    </button>
+
   </div>
 </section>

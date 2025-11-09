@@ -1,15 +1,15 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { NgIf, NgFor, DatePipe, CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { LucideAngularModule, Square, List, ShoppingBag, CalendarClock, DollarSign } from 'lucide-angular';
+import { LucideAngularModule, Square, List, ShoppingBag, CalendarClock, DollarSign, Package, TrendingUp, AlertCircle } from 'lucide-angular';
 
-import { GrupoIngredienteService } from '../../services/grupo-ingrediente.service';
-import { IngredienteService } from '../../services/ingrediente.service';
 import { PedidoService } from '../../services/pedido.service';
+import { InventarioService } from '../../services/inventario.service';
 import { HomeCardComponent } from '../../shared/ui/home-card/home-card.component';
 import { Pedido, EstadoPedido } from '../../interfaces/pedido.interface';
 import { NotifyService } from '../../core/notify/notify.service';
 import { HasRoleDirective } from '../../core/auth/has-role.directive';
+import { PermissionService } from '../../core/auth/roles.config';
 import { getTodayDateStringECT, dateToBackendDateTimeStart, dateToBackendDateTimeEnd } from '../../shared/utils/date-format.util';
 
 
@@ -23,19 +23,15 @@ import { getTodayDateStringECT, dateToBackendDateTimeStart, dateToBackendDateTim
   templateUrl: './home-dashboard.component.html',
 })
 export default class HomeDashboardComponent implements OnInit {
-  // ---- Servicios reales disponibles ----
-  private gruposApi = inject(GrupoIngredienteService);
-  private ingredientesApi = inject(IngredienteService);
   private pedidosApi = inject(PedidoService);
+  private inventarioApi = inject(InventarioService);
   private router = inject(Router);
   private notify = inject(NotifyService);
 
   // ---- Estado reactivo ----
-  gruposCount = signal<number>(0);
-  ingredientesCount = signal<number>(0);
   pedidosHoyCount = signal<number>(0);
   pedidosHoy = signal<Pedido[]>([]);
-
+  stockBajo = signal<number>(0);
   loading = signal(true);
 
   // ---- Computed signals ----
@@ -46,8 +42,16 @@ export default class HomeDashboardComponent implements OnInit {
       .reduce((sum, p) => sum + p.totalNeto, 0);
   });
 
+  pedidosPendientes = computed(() => {
+    return this.pedidosHoy().filter(p => p.estado === 'C').length;
+  });
+
   pedidosListosCount = computed(() => {
     return this.pedidosHoy().filter(p => p.estado === 'L').length;
+  });
+
+  pedidosEntregados = computed(() => {
+    return this.pedidosHoy().filter(p => p.estado === 'E').length;
   });
 
   // ---- Iconos ----
@@ -56,8 +60,13 @@ export default class HomeDashboardComponent implements OnInit {
   ShoppingBag = ShoppingBag;
   CalendarClock = CalendarClock;
   DollarSign = DollarSign;
+  Package = Package;
+  TrendingUp = TrendingUp;
+  AlertCircle = AlertCircle;
 
-  // ---- Métodos ----
+  // ---- Permisos ----
+  PermissionService = PermissionService;
+
   ngOnInit(): void {
     this.cargarDatos();
   }
@@ -65,45 +74,20 @@ export default class HomeDashboardComponent implements OnInit {
   cargarDatos(): void {
     this.loading.set(true);
 
-    // Grupos de ingredientes
-    this.gruposApi.listar().subscribe({
-      next: (data: string | any[]) => {
-        this.gruposCount.set(data?.length ?? 0);
-      },
-      error: (err) => {
-        console.error('Error al consultar grupos de ingredientes:', err);
-        this.notify.handleError(err, 'Error al cargar grupos de ingredientes');
-        this.gruposCount.set(0);
-      },
-    });
-
-    // Ingredientes
-    this.ingredientesApi.listar().subscribe({
-      next: (data) => {
-        this.ingredientesCount.set(data?.length ?? 0);
-      },
-      error: (err) => {
-        console.error('Error al consultar ingredientes:', err);
-        this.notify.handleError(err, 'Error al cargar ingredientes');
-        this.ingredientesCount.set(0);
-      },
-    });
-
-    // Pedidos del día
+    // Cargar pedidos del día (todos los roles)
     this.cargarPedidosDelDia();
+
+    // Cargar stock bajo (solo si puede ver inventario)
+    if (PermissionService.can('INVENTARIO', 'VER_STOCK')) {
+      this.cargarStockBajo();
+    }
   }
 
   cargarPedidosDelDia(): void {
-    // Obtener fecha de hoy en zona horaria de Ecuador (UTC-5)
     const fechaHoy = getTodayDateStringECT();
-
-    // Convertir a formato DateTime del backend (inicio y fin del día)
     const fechaInicio = dateToBackendDateTimeStart(fechaHoy);
     const fechaFin = dateToBackendDateTimeEnd(fechaHoy);
 
-    console.log('Rango de fechas (ECT):', fechaInicio, 'a', fechaFin);
-
-    // Filtros para pedidos creados hoy (rango de fechas)
     const filtros = [
       { llave: 'creadoEn', operacion: '>=' as const, valor: fechaInicio },
       { llave: 'creadoEn', operacion: '<=' as const, valor: fechaFin }
@@ -113,7 +97,6 @@ export default class HomeDashboardComponent implements OnInit {
 
     this.pedidosApi.buscarPaginado(pager, filtros).subscribe({
       next: (response) => {
-
         const contenido = (response?.contenido ?? []) as any[];
         const pedidos = contenido.map((r: any) => ({
           id: Number(r?.id ?? -1),
@@ -138,6 +121,21 @@ export default class HomeDashboardComponent implements OnInit {
         this.pedidosHoy.set([]);
         this.pedidosHoyCount.set(0);
         this.loading.set(false);
+      },
+    });
+  }
+
+  cargarStockBajo(): void {
+    // Buscar ingredientes con stock bajo usando el flag soloBajoMinimo
+    const pager = { page: 0, size: 100, orderBy: 'stockActual', direction: 'asc' as 'asc' | 'desc' };
+
+    this.inventarioApi.buscarInventarioPaginado(pager, undefined, true).subscribe({
+      next: (response: any) => {
+        this.stockBajo.set(response?.totalRegistros ?? response?.totalElements ?? 0);
+      },
+      error: (err: any) => {
+        console.error('Error al consultar stock bajo:', err);
+        this.stockBajo.set(0);
       },
     });
   }
@@ -172,5 +170,12 @@ export default class HomeDashboardComponent implements OnInit {
 
   navegarA(ruta: string): void {
     this.router.navigate([ruta]);
+  }
+
+  getUserRole(): string {
+    if (PermissionService.isAdmin()) return 'Administrador';
+    if (PermissionService.isCajero()) return 'Cajero';
+    if (PermissionService.isVendedor()) return 'Vendedor';
+    return 'Usuario';
   }
 }

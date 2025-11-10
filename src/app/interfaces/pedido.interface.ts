@@ -37,6 +37,7 @@ export interface Pedido {
   // Información de pagos
   totalPagado?: number; // Suma de pagos aprobados (estado P)
   montoPendiente?: number; // totalNeto - totalPagado
+  tienePagosRegistrados?: boolean; // Si tiene al menos un pago registrado (cualquier estado)
 }
 
 export interface PedidoCreate {

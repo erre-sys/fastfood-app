@@ -214,12 +214,13 @@ export default class PedidosListPage extends BaseListComponent implements OnInit
             .reduce((sum, pago) => sum + pago.montoTotal, 0);
 
           const montoPendiente = pedido.totalNeto - totalPagado;
-
+          const tienePagosRegistrados = pagos.length > 0; // Si tiene al menos un pago (cualquier estado)
 
           return {
             ...pedido,
             totalPagado,
             montoPendiente,
+            tienePagosRegistrados,
           };
         });
 

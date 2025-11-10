@@ -141,11 +141,17 @@
                     (clicked)="onEntregar(pedido)" [title]="'Entregar pedido (SÍ descuenta inventario)'">
                   </ui-button>
 
-                  <!-- E -> Pagar -->
-                  <ui-button *ngIf="pedido.estado === 'E' && (pedido.montoPendiente === undefined || pedido.montoPendiente > 0)"
+                  <!-- E -> Pagar (solo si NO tiene pagos registrados) -->
+                  <ui-button *ngIf="pedido.estado === 'E' && !pedido.tienePagosRegistrados"
                     [icon]="DollarSign" label="Pagar" variant="primary" size="sm" type="button" (clicked)="onPagar(pedido)"
                     [title]="'Registrar pago del pedido'">
                   </ui-button>
+
+                  <!-- Badge de pago registrado (pendiente de aprobación) -->
+                  <span *ngIf="pedido.estado === 'E' && pedido.tienePagosRegistrados && pedido.montoPendiente !== undefined && pedido.montoPendiente > 0"
+                    class="pill pill--warning text-xs font-semibold">
+                    ⏳ Pago Registrado
+                  </span>
 
                   <!-- C, L -> A (Anular) -->
                   <ui-button *ngIf="pedido.estado === 'C' || pedido.estado === 'L'" [icon]="XIcon" label="Anular" variant="outline" size="sm"

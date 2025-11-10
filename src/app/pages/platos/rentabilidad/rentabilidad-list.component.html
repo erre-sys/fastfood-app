@@ -14,64 +14,75 @@
 
 <!-- CONTENT -->
 <ng-template #contentT>
+
   <!-- Estadísticas Resumen -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" aria-label="Estadísticas de rentabilidad">
+
     <!-- Total Platos -->
-    <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+    <article class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">Total Platos</p>
+          <h3 class="text-sm text-slate-600 dark:text-slate-400 mb-1">Total Platos</h3>
           <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ stats.totalPlatos }}</p>
         </div>
-        <div class="w-12 h-12 rounded-full bg-brand/10 flex items-center justify-center">
+        <div class="w-12 h-12 rounded-full bg-brand/10 flex items-center justify-center" aria-hidden="true">
           <lucide-icon [img]="DollarSign" class="w-6 h-6 text-brand"></lucide-icon>
         </div>
       </div>
-    </div>
+    </article>
 
     <!-- Con Receta -->
-    <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+    <article class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">Con Receta</p>
+          <h3 class="text-sm text-slate-600 dark:text-slate-400 mb-1">Con Receta</h3>
           <p class="text-2xl font-bold text-green-600">{{ stats.conReceta }}</p>
         </div>
-        <div class="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+        <div class="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center" aria-hidden="true">
           <lucide-icon [img]="TrendingUp" class="w-6 h-6 text-green-600"></lucide-icon>
         </div>
       </div>
-    </div>
+    </article>
 
     <!-- Margen Promedio -->
-    <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+    <article class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">Margen Promedio</p>
+          <h3 class="text-sm text-slate-600 dark:text-slate-400 mb-1">Margen Promedio</h3>
           <p class="text-2xl font-bold text-accent">${{ stats.margenPromedio | number:'1.2-2' }}</p>
         </div>
-        <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
+        <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center" aria-hidden="true">
           <lucide-icon [img]="DollarSign" class="w-6 h-6 text-accent"></lucide-icon>
         </div>
       </div>
-    </div>
+    </article>
 
     <!-- % Ganancia Promedio -->
-    <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+    <article class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">% Ganancia Prom.</p>
+          <h3 class="text-sm text-slate-600 dark:text-slate-400 mb-1">% Ganancia Prom.</h3>
           <p class="text-2xl font-bold text-brand">{{ stats.porcentajePromedio | number:'1.0-0' }}%</p>
         </div>
-        <div class="w-12 h-12 rounded-full bg-brand/10 flex items-center justify-center">
+        <div class="w-12 h-12 rounded-full bg-brand/10 flex items-center justify-center" aria-hidden="true">
           <lucide-icon [img]="TrendingUp" class="w-6 h-6 text-brand"></lucide-icon>
         </div>
       </div>
-    </div>
-  </div>
+    </article>
+
+  </section>
 
   <!-- Alerta Platos sin Receta -->
-  <div *ngIf="stats.sinReceta > 0" class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6 flex items-start gap-3">
-    <lucide-icon [img]="AlertCircle" class="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0"></lucide-icon>
+  <aside
+    *ngIf="stats.sinReceta > 0"
+    class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6 flex items-start gap-3"
+    role="alert"
+    aria-live="polite">
+    <lucide-icon
+      [img]="AlertCircle"
+      class="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0"
+      aria-hidden="true">
+    </lucide-icon>
     <div>
       <p class="text-sm font-medium text-yellow-900 dark:text-yellow-200">
         {{ stats.sinReceta }} plato{{ stats.sinReceta > 1 ? 's' : '' }} sin receta configurada
@@ -80,65 +91,71 @@
         Para calcular la rentabilidad, asegúrate de que todos los platos tengan una receta con ingredientes.
       </p>
     </div>
+  </aside>
+
+  <!-- Búsqueda -->
+  <div class="mb-4">
+    <app-search
+      class="w-full max-w-md"
+      placeholder="Buscar por nombre o código"
+      [value]="searchForm.controls.q.value"
+      (valueChange)="onSearch($event)">
+    </app-search>
   </div>
 
-  <!-- Search -->
-  <app-search
-    class="w-full max-w-md mb-4"
-    placeholder="Buscar por nombre o código"
-    [value]="searchForm.controls.q.value"
-    (valueChange)="onSearch($event)">
-  </app-search>
-
-  <!-- Tabla -->
-  <app-table
-    [columns]="columns"
-    [rows]="rows"
-    [loading]="loading"
-    [emptyText]="'No hay datos de rentabilidad'"
-    [sort]="{ key: sortKey, dir: sortDir }"
-    (sortChange)="onSort($event)">
-  </app-table>
+  <!-- Tabla de Rentabilidad -->
+  <section aria-label="Tabla de rentabilidad de platos">
+    <app-table
+      [columns]="columns"
+      [rows]="rows"
+      [loading]="loading"
+      [emptyText]="'No hay datos de rentabilidad'"
+      [sort]="{ key: sortKey, dir: sortDir }"
+      (sortChange)="onSort($event)">
+    </app-table>
+  </section>
 
   <!-- Paginación -->
-  <app-paginator
-    class="mt-4"
-    [from]="from()"
-    [to]="to()"
-    [total]="total"
-    [pageIndex]="page"
-    [pageSize]="pageSize"
-    [pageSizeOptions]="[10, 20, 30, 50]"
-    [maxPage]="maxPage()"
-    (sizeChange)="setPageSize($event)"
-    (prev)="prev()"
-    (next)="next()">
-  </app-paginator>
+  <nav aria-label="Paginación de resultados" class="mt-4">
+    <app-paginator
+      [from]="from()"
+      [to]="to()"
+      [total]="total"
+      [pageIndex]="page"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[10, 20, 30, 50]"
+      [maxPage]="maxPage()"
+      (sizeChange)="setPageSize($event)"
+      (prev)="prev()"
+      (next)="next()">
+    </app-paginator>
+  </nav>
 
   <!-- Leyenda de Estados -->
-  <div class="mt-6 bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
-    <p class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Leyenda de Estados:</p>
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-      <div class="flex items-center gap-2">
-        <span class="w-3 h-3 rounded-full bg-green-500"></span>
+  <aside class="mt-6 bg-slate-50 dark:bg-slate-800 rounded-lg p-4" aria-label="Leyenda de estados de rentabilidad">
+    <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Leyenda de Estados:</h3>
+    <ul class="grid grid-cols-2 md:grid-cols-5 gap-3" role="list">
+      <li class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-green-500" aria-hidden="true"></span>
         <span class="text-xs text-slate-600 dark:text-slate-400">Excelente (≥60%)</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+      </li>
+      <li class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-blue-500" aria-hidden="true"></span>
         <span class="text-xs text-slate-600 dark:text-slate-400">Bueno (40-59%)</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+      </li>
+      <li class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-yellow-500" aria-hidden="true"></span>
         <span class="text-xs text-slate-600 dark:text-slate-400">Bajo (20-39%)</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="w-3 h-3 rounded-full bg-red-500"></span>
+      </li>
+      <li class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-red-500" aria-hidden="true"></span>
         <span class="text-xs text-slate-600 dark:text-slate-400">Crítico (0-19%)</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="w-3 h-3 rounded-full bg-slate-400"></span>
+      </li>
+      <li class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-slate-400" aria-hidden="true"></span>
         <span class="text-xs text-slate-600 dark:text-slate-400">Sin Datos</span>
-      </div>
-    </div>
-  </div>
+      </li>
+    </ul>
+  </aside>
+
 </ng-template>

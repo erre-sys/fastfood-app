@@ -54,3 +54,7 @@ export interface PedidoItemExtraCreate {
   ingredienteId: number;
   cantidad: number;
 }
+
+export interface PedidoEntregarDTO {
+  entregadoPorSub: string; 
+}

@@ -139,7 +139,7 @@ export default class AjusteInventarioPage implements OnInit {
           unidad: ingredienteData?.unidad ?? 'UND',
         };
       })
-      .filter((ing) => ing.nombre !== ''); // Filtrar ingredientes sin nombre (inactivos)
+      .filter((ing) => ing.nombre !== '');
   }
 
   onSubmit(): void {

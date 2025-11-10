@@ -4,6 +4,15 @@ import { roleGuard } from './core/auth/role.guard';
 import { PERMISSIONS } from './core/auth/roles.config';
 
 export const routes: Routes = [
+  // UNAUTHORIZED - Sin protección (debe ser accesible sin roles)
+  {
+    path: 'unauthorized',
+    loadComponent: () =>
+      import('./pages/unauthorized/unauthorized.component').then(
+        (m) => m.default
+      ),
+  },
+
   {
     path: '',
     component: AppShellComponent,

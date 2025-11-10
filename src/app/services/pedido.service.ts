@@ -70,9 +70,12 @@ export class PedidoService {
 
   /**
    * Entregar pedido (L -> E) - SÍ descuenta inventario, valida stock
+   * @param pedidoId ID del pedido a entregar
+   * @param entregadoPor Nombre o identificador del usuario que entrega
    */
-  entregar(pedidoId: number): Observable<any> {
-    return this.http.post(`${this.base}/${pedidoId}/entregar`, {});
+  entregar(pedidoId: number, entregadoPor: string): Observable<any> {
+    const params = new HttpParams().set('entregadoPor', entregadoPor);
+    return this.http.post(`${this.base}/${pedidoId}/entregar`, {}, { params });
   }
 
   /**

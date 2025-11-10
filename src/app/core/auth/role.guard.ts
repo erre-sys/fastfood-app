@@ -25,9 +25,9 @@ export function roleGuard(allowedRoles: string[]): CanActivateFn {
       return true;
     }
 
-    // Redirigir a página de acceso denegado o home
+    // Redirigir a página de acceso denegado
     console.warn(`Acceso denegado. Roles requeridos: ${allowedRoles.join(', ')}`);
-    router.navigate(['/']);
+    router.navigate(['/unauthorized']);
     return false;
   };
 }
@@ -51,7 +51,7 @@ export function requireAllRolesGuard(requiredRoles: string[]): CanActivateFn {
     }
 
     console.warn(`Acceso denegado. Se requieren todos los roles: ${requiredRoles.join(', ')}`);
-    router.navigate(['/']);
+    router.navigate(['/unauthorized']);
     return false;
   };
 }

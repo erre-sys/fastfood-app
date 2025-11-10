@@ -16,12 +16,10 @@ import { BaseListComponent } from '../../../shared/base/base-list.component';
 
 import { PageLayoutComponent } from '../../../shared/ui/page-layout/page-layout.component';
 import { TitleComponent } from '../../../shared/ui/fields/title/title.component';
-import { TableComponent } from '../../../shared/ui/table/table.component';
-import { SearchComponent } from '../../../shared/ui/fields/searchbox/search.component';
 import { PaginatorComponent } from '../../../shared/ui/paginator/paginator.component';
 import { TabsFilterComponent } from '../../../shared/ui/tabs-filter/tabs-filter.component';
 import { SectionContainerComponent } from '../../../shared/ui/section-container/section-container.component';
-import { LucideAngularModule, Eye, Plus, Check, X as XIcon, DollarSign } from 'lucide-angular';
+import { LucideAngularModule, Eye, Plus, Check, X as XIcon, DollarSign, ChevronDown, ChevronUp } from 'lucide-angular';
 import { UiButtonComponent } from '../../../shared/ui/buttons/ui-button/ui-button.component';
 import { ColumnDef, TabStatus } from '../../../shared/ui/table/column-def';
 import { DateRangeComponent } from '../../../shared';
@@ -36,7 +34,6 @@ import { isoToSimpleDate } from '../../../shared/utils/date-format.util';
     ReactiveFormsModule,
     PageLayoutComponent,
     TitleComponent,
-    TableComponent,
     DateRangeComponent,
     PaginatorComponent,
     TabsFilterComponent,
@@ -59,6 +56,7 @@ export default class PedidosListPage extends BaseListComponent implements OnInit
   // UI
   tab: TabStatus | 'C' | 'L' | 'E' | 'A' = 'all';
   rows: Pedido[] = [];
+  expandedRows = new Set<number>(); // IDs de pedidos expandidos
 
   // Íconos
   Eye = Eye;
@@ -66,6 +64,8 @@ export default class PedidosListPage extends BaseListComponent implements OnInit
   Check = Check;
   XIcon = XIcon;
   DollarSign = DollarSign;
+  ChevronDown = ChevronDown;
+  ChevronUp = ChevronUp;
 
   searchForm = new FormGroup({
     q: new FormControl<string>('', { nonNullable: true }),
@@ -281,7 +281,14 @@ export default class PedidosListPage extends BaseListComponent implements OnInit
     }
 
     if (confirm(`¿Entregar pedido #${pedido.id}? Esto descontará el inventario.`)) {
-      this.api.entregar(pedido.id).subscribe({
+      const userSub = authService.getSub();
+
+      if (!userSub) {
+        this.notify.error('No se pudo obtener el usuario autenticado');
+        return;
+      }
+
+      this.api.entregar(pedido.id, userSub).subscribe({
         next: () => {
           this.notify.success(`Pedido #${pedido.id} entregado correctamente`);
           this.load();
@@ -355,8 +362,7 @@ export default class PedidosListPage extends BaseListComponent implements OnInit
     // Construir referencia automática
     let referencia = `Pedido ${pedido.id}`;
 
-    // Verificar si hay descuentos (totalBruto - totalExtras > totalNeto)
-    const totalSinExtras = pedido.totalBruto;
+    // Verificar si hay descuentos (totalBruto + totalExtras > totalNeto)
     const totalConExtras = pedido.totalBruto + pedido.totalExtras;
     const tieneDescuentos = totalConExtras > pedido.totalNeto;
     const tieneExtras = pedido.totalExtras > 0;
@@ -390,5 +396,64 @@ export default class PedidosListPage extends BaseListComponent implements OnInit
         this.notify.handleError(err, 'Error al registrar pago');
       },
     });
+  }
+
+  /**
+   * Toggle expansión de fila - carga detalles si no están cargados
+   */
+  toggleExpand(pedido: Pedido) {
+    if (this.expandedRows.has(pedido.id)) {
+      this.expandedRows.delete(pedido.id);
+      this.cdr.markForCheck();
+    } else {
+      // Si no tiene items cargados, cargar del servidor
+      if (!pedido.items || pedido.items.length === 0) {
+        this.api.obtener(pedido.id).subscribe({
+          next: (detalle) => {
+            // Actualizar el pedido en rows con los items
+            const index = this.rows.findIndex(p => p.id === pedido.id);
+            if (index !== -1) {
+              this.rows[index] = { ...this.rows[index], items: detalle.items };
+            }
+            this.expandedRows.add(pedido.id);
+            this.cdr.markForCheck();
+          },
+          error: (err) => {
+            console.error('Error al cargar detalle del pedido:', err);
+            this.notify.handleError(err, 'Error al cargar detalle');
+          }
+        });
+      } else {
+        this.expandedRows.add(pedido.id);
+        this.cdr.markForCheck();
+      }
+    }
+  }
+
+  /**
+   * Verifica si una fila está expandida
+   */
+  isExpanded(pedido: Pedido): boolean {
+    return this.expandedRows.has(pedido.id);
+  }
+
+  /**
+   * Calcula el subtotal de un item (precio base + extras)
+   */
+  calcularSubtotalItem(item: any): number {
+    const precioBase = (item.precioUnitario || 0) * (item.cantidad || 0);
+    const precioExtras = (item.extras || []).reduce((sum: number, extra: any) => {
+      return sum + ((extra.precioExtra || 0) * (extra.cantidad || 0) * (item.cantidad || 0));
+    }, 0);
+    return precioBase + precioExtras;
+  }
+
+  /**
+   * Calcula el total de extras de un item
+   */
+  calcularTotalExtrasItem(item: any): number {
+    return (item.extras || []).reduce((sum: number, extra: any) => {
+      return sum + ((extra.precioExtra || 0) * (extra.cantidad || 0) * (item.cantidad || 0));
+    }, 0);
   }
 }

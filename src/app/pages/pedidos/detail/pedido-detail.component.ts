@@ -8,6 +8,7 @@ import { PlatoService } from '../../../services/plato.service';
 import { IngredienteService } from '../../../services/ingrediente.service';
 import { Pedido } from '../../../interfaces/pedido.interface';
 import { NotifyService } from '../../../core/notify/notify.service';
+import { authService } from '../../../core/auth/auth.service';
 
 import { SectionContainerComponent } from '../../../shared/ui/section-container/section-container.component';
 import { DetailHeaderComponent, DetailHeaderField } from '../../../shared/ui/detail-header/detail-header.component';
@@ -42,8 +43,6 @@ export default class PedidoDetailPage implements OnInit {
   }
 
   private loadData(id: number): void {
-    console.log('🔍 [PEDIDO-DETAIL] Cargando datos para pedido ID:', id);
-
     this.loading = true;
     this.cdr.markForCheck();
 
@@ -52,9 +51,6 @@ export default class PedidoDetailPage implements OnInit {
       ingredientes: this.ingredientesApi.listar(),
     }).subscribe({
       next: ({ platos, ingredientes }) => {
-        console.log('✅ [PEDIDO-DETAIL] Platos recibidos:', platos);
-        console.log('✅ [PEDIDO-DETAIL] Ingredientes recibidos:', ingredientes);
-
         this.platoNombre = new Map(
           (platos ?? []).map((p: any) => [Number(p?.id ?? p?.platoId), p?.nombre ?? ''])
         );
@@ -62,13 +58,11 @@ export default class PedidoDetailPage implements OnInit {
           (ingredientes ?? []).map((ing: any) => [Number(ing?.id ?? ing?.ingredienteId), ing?.nombre ?? ''])
         );
 
-        console.log('📊 [PEDIDO-DETAIL] Mapa de nombres de platos creado:', this.platoNombre);
-        console.log('📊 [PEDIDO-DETAIL] Mapa de nombres de ingredientes creado:', this.ingredienteNombre);
-
         this.loadPedido(id);
       },
       error: (err) => {
-        console.error('❌ [PEDIDO-DETAIL] Error al cargar datos de platos/ingredientes:', err);
+        console.error('Error al cargar datos de platos/ingredientes:', err);
+        this.notify.handleError(err, 'Error al cargar datos');
         this.loading = false;
         this.cdr.markForCheck();
         this.router.navigate(['/pedidos']);
@@ -200,19 +194,15 @@ export default class PedidoDetailPage implements OnInit {
       return;
     }
 
-    console.log('🔄 [PEDIDO-DETAIL] Marcar como listo solicitado para pedido:', this.pedido.id);
-
     if (confirm(`¿Marcar pedido #${this.pedido.id} como Listo?`)) {
-      console.log('✅ [PEDIDO-DETAIL] Usuario confirmó marcar como listo');
 
       this.api.marcarListo(this.pedido.id).subscribe({
-        next: (response) => {
-          console.log('✅ [PEDIDO-DETAIL] Pedido marcado como listo exitosamente:', response);
+        next: () => {
           this.notify.success(`Pedido #${this.pedido!.id} marcado como Listo`);
           this.loadData(this.pedido!.id);
         },
         error: (err) => {
-          console.error('❌ [PEDIDO-DETAIL] Error al marcar como listo:', err);
+          console.error('Error al marcar como listo:', err);
           this.notify.handleError(err, 'Error al marcar como listo');
         },
       });
@@ -228,19 +218,20 @@ export default class PedidoDetailPage implements OnInit {
       return;
     }
 
-    console.log('📦 [PEDIDO-DETAIL] Entregar pedido solicitado para pedido:', this.pedido.id);
-
     if (confirm(`¿Entregar pedido #${this.pedido.id}? Esto descontará el inventario.`)) {
-      console.log('✅ [PEDIDO-DETAIL] Usuario confirmó entrega');
+      const userSub = authService.getSub();
 
-      this.api.entregar(this.pedido.id).subscribe({
-        next: (response) => {
-          console.log('✅ [PEDIDO-DETAIL] Pedido entregado exitosamente:', response);
+      if (!userSub) {
+        this.notify.error('No se pudo obtener el usuario autenticado');
+        return;
+      }
+
+      this.api.entregar(this.pedido.id, userSub).subscribe({
+        next: () => {
           this.notify.success(`Pedido #${this.pedido!.id} entregado correctamente`);
           this.loadData(this.pedido!.id);
         },
         error: (err) => {
-          console.error('❌ [PEDIDO-DETAIL] Error al entregar pedido:', err);
           this.notify.handleError(err, 'Error al entregar pedido');
         },
       });
@@ -256,19 +247,14 @@ export default class PedidoDetailPage implements OnInit {
       return;
     }
 
-    console.log('❌ [PEDIDO-DETAIL] Anular pedido solicitado para pedido:', this.pedido.id);
-
     if (confirm(`¿ANULAR pedido #${this.pedido.id}? Esta acción no se puede deshacer.`)) {
-      console.log('✅ [PEDIDO-DETAIL] Usuario confirmó anulación');
-
       this.api.anular(this.pedido.id).subscribe({
-        next: (response) => {
-          console.log('✅ [PEDIDO-DETAIL] Pedido anulado exitosamente:', response);
+        next: () => {
           this.notify.success(`Pedido #${this.pedido!.id} anulado`);
           this.loadData(this.pedido!.id);
         },
         error: (err) => {
-          console.error('❌ [PEDIDO-DETAIL] Error al anular pedido:', err);
+          console.error('Error al anular pedido:', err);
           this.notify.handleError(err, 'Error al anular pedido');
         },
       });

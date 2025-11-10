@@ -15,9 +15,10 @@ import { AppSelectComponent } from '../../../shared/ui/fields/select/select.comp
 import { InputComponent } from '../../../shared/ui/fields/input/input.component';
 import { SaveCancelComponent } from '../../../shared/ui/buttons/ui-button-save-cancel/save-cancel.component';
 import { SummaryComponent } from '../../../shared/ui/summary/summary.component';
-import { PedidoCartComponent, CartItem, CartExtra } from '../../../shared/ui/pedido-cart/pedido-cart.component';
+import { CartItem, CartExtra } from '../../../shared/ui/pedido-cart/pedido-cart.component';
 import { UiButtonComponent } from '../../../shared/ui/buttons/ui-button/ui-button.component';
 import { LucideAngularModule, Plus, Trash2, Minus, ShoppingCart, Check } from 'lucide-angular';
+import { authService } from '../../../core/auth';
 
 @Component({
   selector: 'app-pedido-form',
@@ -31,7 +32,6 @@ import { LucideAngularModule, Plus, Trash2, Minus, ShoppingCart, Check } from 'l
     InputComponent,
     SaveCancelComponent,
     SummaryComponent,
-    PedidoCartComponent,
     UiButtonComponent,
     LucideAngularModule,
   ],
@@ -128,7 +128,6 @@ export default class PedidoFormPage implements OnInit {
 
   /**
    * Carga promociones vigentes para mostrar badges visuales
-   * IMPORTANTE: Solo para UI, el backend aplica los descuentos reales al crear el pedido
    */
   private loadPromociones(): void {
     this.promosApi.obtenerVigentes().subscribe({
@@ -314,14 +313,16 @@ export default class PedidoFormPage implements OnInit {
     return precioBase + this.calcularTotalExtrasTemp();
   }
 
+
   onSubmit(): void {
     if (this.carrito.length === 0) {
       this.notify.warning('Agregue al menos un plato al pedido');
       return;
     }
 
-    // IMPORTANTE: Solo enviamos platoId, cantidad y extras (ingredienteId, cantidad)
-    // El backend calcula precios, aplica promociones vigentes y valida stock
+    // Obtener el sub del usuario autenticado
+    const userSub = authService.getSub();
+    
     const dto: PedidoCreate = {
       items: this.carrito.map((item) => ({
         platoId: item.platoId,
@@ -334,6 +335,7 @@ export default class PedidoFormPage implements OnInit {
               }))
             : undefined,
       })),
+      creadoPorSub: userSub,
     };
 
     this.loading = true;

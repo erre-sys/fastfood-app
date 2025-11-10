@@ -43,6 +43,7 @@ export interface Pedido {
 export interface PedidoCreate {
   observaciones?: string;
   items?: PedidoItemCreate[];
+  creadoPorSub?: string;
 }
 
 export interface PedidoItemCreate {

@@ -378,6 +378,10 @@ export default class PedidosListPage extends BaseListComponent implements OnInit
 
     // Obtener el sub del usuario autenticado
     const userSub = authService.getSub();
+    if (!userSub) {
+      this.notify.error('No se pudo obtener el usuario autenticado');
+      return;
+    }
 
     const dto: PagoClienteCreate = {
       pedidoId: pedido.id,

@@ -70,7 +70,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-
   deploy:
     name: Deploy on VPS
     needs: build-push
@@ -82,16 +81,16 @@ jobs:
       - name: Deploy Web
         run: |
           set -e
-          COMPOSE_ENV="/opt/palaspapas/infra/.compose.env-web"
-          TAG='${{ needs.build-push.outputs.tag_sha }}'
 
-          mkdir -p /opt/palaspapas/infra
+          BASE="/opt/palaspapas/apps/web"
+          COMPOSE_ENV="$BASE/.compose.env-web"
+          TAG='${{ needs.build-push.outputs.tag_sha }}'
 
           echo "IMAGE_TAG_WEB=${TAG##*:}" > "$COMPOSE_ENV"
 
-          echo " Desplegando Web: $TAG"
+          echo "Desplegando Web: $TAG"
 
-          cd /opt/palaspapas/infra
+          cd "$BASE"
 
           docker compose pull web
           docker compose up -d --force-recreate web
@@ -99,9 +98,9 @@ jobs:
 
           sleep 5
           if ! docker compose ps web | grep -q "Up"; then
-            echo " Error: web no está corriendo"
+            echo "Error: web no está corriendo"
             docker compose logs --tail=50 web
             exit 1
           fi
 
-          echo " Despliegue Web exitoso"
+          echo "Despliegue Web exitoso"

@@ -7,7 +7,7 @@ export const authTokenInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown
   const isApi =
     req.url.startsWith('/api') ||                    
     req.url.includes('localhost:8081') ||            
-    req.url.includes('api.erre.com');                
+    req.url.includes('api.erre.cloud');                
 
   if (!isApi) return next(req);
 

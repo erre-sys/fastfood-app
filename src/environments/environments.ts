@@ -1,9 +1,9 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://api.erre.com/fastfood/api',
+  apiBaseUrl: 'https://api.erre.cloud/fastfood/api',
   keycloak: {
-    url: 'https://auth.erre.com',
-    realm: 'fastfood',
-    clientId: 'web-fastfood'
+    url: 'https://auth.erre.cloud',
+    realm: 'palaspapas',
+    clientId: 'api-palaspapas'
   }
 };

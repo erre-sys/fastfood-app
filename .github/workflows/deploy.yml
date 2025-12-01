@@ -31,19 +31,20 @@ jobs:
 
       - name: Build (production)
         run: npm run build -- --configuration production
-      - name: List dist contents
-        run: |
-          echo "=== dist ==="
-          ls -R dist || true
-
 
       - name: Prepare Docker build context
         run: |
           rm -rf docker-dist
           mkdir -p docker-dist
+          
+          echo "=== Copiando dist/webapp/browser ==="
           cp -r dist/webapp/browser/* docker-dist/
+          
+          echo "=== Copiando index.html (por si acaso) ==="
           cp dist/webapp/index.html docker-dist/ 2>/dev/null || true
 
+          echo "=== Contenido final de docker-dist/ ==="
+          ls -R docker-dist
 
       - uses: docker/setup-buildx-action@v3
 
@@ -94,7 +95,6 @@ jobs:
           INFRA_DIR="/opt/palaspapas/infra"
           COMPOSE_ENV="$APP_DIR/.compose.env-web"
 
-          
           TAG='${{ needs.build-push.outputs.tag_sha }}'
           echo "IMAGE_TAG_WEB=${TAG##*:}" > "$COMPOSE_ENV"
 

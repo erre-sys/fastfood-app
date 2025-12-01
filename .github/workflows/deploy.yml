@@ -91,17 +91,13 @@ jobs:
         run: |
           set -e
 
-          APP_DIR="/opt/palaspapas/apps/web"
           INFRA_DIR="/opt/palaspapas/infra"
-          COMPOSE_ENV="$APP_DIR/.compose.env-web"
+          ENV_FILE="$INFRA_DIR/.env"
 
           TAG='${{ needs.build-push.outputs.tag_sha }}'
-          echo "IMAGE_TAG_WEB=${TAG##*:}" > "$COMPOSE_ENV"
-
-          echo "Desplegando Web: $TAG"
+          echo "IMAGE_TAG_WEB=${TAG##*:}" > "$ENV_FILE"
 
           cd "$INFRA_DIR"
-
           docker compose pull web
           docker compose up -d --force-recreate web
           docker image prune -f

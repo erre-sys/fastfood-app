@@ -4,6 +4,6 @@ export const environment = {
   keycloak: {
     url: 'https://auth.erre.cloud',
     realm: 'palaspapas',
-    clientId: 'api-palaspapas'
+    clientId: 'app-palaspapas'
   }
 };

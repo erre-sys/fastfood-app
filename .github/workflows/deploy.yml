@@ -39,8 +39,11 @@ jobs:
 
       - name: Prepare Docker build context
         run: |
+          rm -rf docker-dist
           mkdir -p docker-dist
-          cp -r dist/webapp/browser/webapp/* docker-dist/
+          cp -r dist/webapp/browser/* docker-dist/
+          cp dist/webapp/index.html docker-dist/ 2>/dev/null || true
+
 
       - uses: docker/setup-buildx-action@v3
 

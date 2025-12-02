@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, ShieldX, LogOut } from 'lucide-angular';
+import { LucideAngularModule, ShieldX, LogOut, Home } from 'lucide-angular';
 import { authService } from '../../core/auth/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-unauthorized',
@@ -13,7 +14,9 @@ export default class UnauthorizedPage implements OnInit {
   // Icons
   readonly ShieldX = ShieldX;
   readonly LogOut = LogOut;
+  readonly Home = Home;
 
+   private router = inject(Router);
   // Data
   username = '';
   roles: string[] = [];
@@ -40,5 +43,9 @@ export default class UnauthorizedPage implements OnInit {
     } catch (err) {
       console.error('Error al cerrar sesión:', err);
     }
+  }
+
+  home(): void {
+    this.router.navigateByUrl('/');
   }
 }

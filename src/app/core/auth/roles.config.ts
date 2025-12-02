@@ -124,7 +124,7 @@ export class PermissionService {
   static can(module: keyof typeof PERMISSIONS, action: string): boolean {
     const permission = (PERMISSIONS[module] as any)[action];
     if (!permission) {
-      console.warn(`⚠️ Permiso no encontrado: ${module}.${action}`);
+      console.warn(` Permiso no encontrado: ${module}.${action}`);
       return false;
     }
     return authService.hasAnyRole(permission);
@@ -192,7 +192,7 @@ export const MENU_ITEMS: MenuItem[] = [
   {
     label: 'Pagos Cliente',
     route: '/pagos-cliente',
-    requiredRoles: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR],
+    requiredRoles: [APP_ROLES.ADMIN, APP_ROLES.CAJERO],
   },
   {
     label: 'Platos',
@@ -209,8 +209,6 @@ export const MENU_ITEMS: MenuItem[] = [
     route: '/inventario',
     requiredRoles: [APP_ROLES.ADMIN, APP_ROLES.CAJERO, APP_ROLES.VENDEDOR],
   },
-
-  // Solo ADMIN ve estas secciones
   {
     label: 'Rentabilidad',
     route: '/platos/rentabilidad',

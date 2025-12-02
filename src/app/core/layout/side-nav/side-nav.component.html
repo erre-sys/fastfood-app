@@ -2,10 +2,10 @@
   <span class="brand__logo" aria-hidden="true">🍔</span>
 
   <div class="flex-1">
-    <a [routerLink]="homeRoute" class="brand__title" (click)="close.emit()">Inicio</a>
+    <a routerLink="/home" class="brand__title">Inicio</a>
     <div class="brand__subtitle">Pa las papas</div>
   </div>
-
+  <!-- Botón cerrar (solo móvil) -->
   <button class="icon-btn lg:hidden" (click)="close.emit()" aria-label="Cerrar menú">
     <lucide-icon [img]="XIcon" size="20"></lucide-icon>
   </button>
@@ -24,4 +24,3 @@
       </li>
     </ul>
   </nav>
-</ng-container>

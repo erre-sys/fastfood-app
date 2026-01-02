@@ -1,202 +1,177 @@
-name: web-ci
+name: api-ci
 
 on:
   push:
-    branches: [ develop, main ]
+    branches: [develop, main]
   pull_request:
-    branches: [ develop, main ]
+    branches: [develop, main]
   workflow_dispatch:
-
-concurrency:
-  group: web-${{ github.ref }}
-  cancel-in-progress: true
 
 permissions:
   contents: read
   packages: write
   security-events: write
 
+concurrency:
+  group: api-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
-  IMAGE_NAME: fastfood-web
+  MODULE: bootstrap
+  IMAGE_NAME: fastfood-api
   INFRA_DIR: /opt/palaspapas/infra
-  COMPOSE_SERVICE: web
-  ENV_FILE_DEV: /opt/palaspapas/infra/.env.develop
-  ENV_FILE_PROD: /opt/palaspapas/infra/.env.prod
+  COMPOSE_SERVICE: api
 
 jobs:
-  build-push:
+  # 1) Escaneo del repo (código, configs, posibles secretos) -> GitHub Security (SARIF)
+  trivy-repo-scan:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    outputs:
-      tag_latest: ${{ steps.meta.outputs.tag_latest }}
-      tag_sha: ${{ steps.meta.outputs.tag_sha }}
     steps:
-      - name: Checkout
+      - name: Checkout del repositorio
         uses: actions/checkout@v4
 
-      - name: Setup Buildx
+      - name: Trivy (FS) - escaneo del repositorio
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-repo-results.sarif
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          limit-severities-for-sarif: true
+
+      - name: Publicar SARIF en GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-repo-results.sarif
+
+  # 2) Build & push a GHCR (en PR NO pushea; en push sí)
+  build-push:
+    runs-on: ubuntu-latest
+    outputs:
+      tag_sha: ${{ steps.meta.outputs.tag_sha }}
+      tag_channel: ${{ steps.meta.outputs.tag_channel }}
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Compilar JAR (sin tests)
+        run: ./mvnw -B -pl "${MODULE}" -am package -DskipTests
+
+      - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login GHCR (solo push)
-        if: github.event_name != 'pull_request'
+      - name: Login a GHCR
+        if: ${{ github.event_name != 'pull_request' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Tags
+      - name: Calcular tags (SHA + canal develop/prod)
         id: meta
+        shell: bash
         run: |
-          IMAGE="ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}"
-          SHORT="${GITHUB_SHA::7}"
-          echo "tag_latest=$IMAGE:latest" >> "$GITHUB_OUTPUT"
-          echo "tag_sha=$IMAGE:sha-$SHORT" >> "$GITHUB_OUTPUT"
+          OWNER_LC="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
+          IMAGE="ghcr.io/${OWNER_LC}/${IMAGE_NAME}"
+          SHA_SHORT="${GITHUB_SHA::7}"
 
-      - name: Build (y push si aplica)
+          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+            CHANNEL="prod"
+          else
+            CHANNEL="develop"
+          fi
+
+          echo "tag_sha=${IMAGE}:sha-${SHA_SHORT}" >> "$GITHUB_OUTPUT"
+          echo "tag_channel=${IMAGE}:${CHANNEL}" >> "$GITHUB_OUTPUT"
+
+      - name: Docker build (y push solo en push)
         uses: docker/build-push-action@v6
         with:
           context: .
           file: Dockerfile
+          platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ${{ steps.meta.outputs.tag_latest }}
+            ${{ steps.meta.outputs.tag_channel }}
             ${{ steps.meta.outputs.tag_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-            trivy-fs:
-    name: trivy-fs
+  # 3) Trivy Image scan (solo cuando ya existe imagen en GHCR) -> GitHub Security (SARIF)
+  trivy-image-scan:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
+    needs: [build-push]
+    if: ${{ github.event_name == 'push' }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Trivy FS (vuln + secret + config)
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          scan-type: fs
-          scan-ref: .
-          format: sarif
-          output: trivy-fs.sarif
-          scanners: vuln,secret,config
-          ignore-unfixed: true
-          severity: CRITICAL,HIGH
-          exit-code: "0"   # modo reporte (no rompe el build al inicio)
-
-      - name: Upload SARIF (FS)
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: trivy-fs.sarif
-
-  trivy-image:
-    name: trivy-image
-    needs: [build-push, trivy-fs, trivy-image]
-    if: github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: read
-      security-events: write
-    steps:
-      - name: Login GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Trivy Image
-        uses: aquasecurity/trivy-action@0.28.0
+      - name: Trivy (IMAGE) - escaneo de la imagen publicada
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           image-ref: ${{ needs.build-push.outputs.tag_sha }}
           format: sarif
-          output: trivy-image.sarif
-          ignore-unfixed: true
+          output: trivy-image-results.sarif
           severity: CRITICAL,HIGH
-          exit-code: "0"   # modo reporte (luego lo volvemos gate)
-      - name: Upload SARIF (Image)
+          ignore-unfixed: true
+          limit-severities-for-sarif: true
+
+      - name: Publicar SARIF en GitHub Security
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: trivy-image.sarif
+          sarif_file: trivy-image-results.sarif
 
+  # 4) Deploy a laptop (develop)
   deploy-develop:
-    needs: build-push
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
-    runs-on: [ self-hosted, develop ]
+    runs-on: [self-hosted, develop]
+    needs: [build-push, trivy-image-scan]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
     environment: develop
-    permissions:
-      contents: read
-      packages: read
     steps:
-      - name: Login GHCR
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-
-      - name: Deploy WEB (develop)
+      - name: Deploy backend en ambiente develop (laptop)
         shell: bash
+        env:
+          TAG: ${{ needs.build-push.outputs.tag_sha }}
         run: |
           set -euo pipefail
-          INFRA_DIR="${{ env.INFRA_DIR }}"
-          ENV_FILE="${{ env.ENV_FILE_DEV }}"
-          SERVICE="${{ env.COMPOSE_SERVICE }}"
-          TAG="${{ needs.build-push.outputs.tag_sha }}"
+          cd "${INFRA_DIR}"
+
           TAG_VALUE="${TAG##*:}"
+          export IMAGE_TAG="${TAG_VALUE}"
 
-          mkdir -p "$INFRA_DIR"
-          docker network inspect palaspapas_net >/dev/null 2>&1 || docker network create palaspapas_net
+          docker compose pull "${COMPOSE_SERVICE}"
+          docker compose up -d --force-recreate --no-deps "${COMPOSE_SERVICE}"
 
-          touch "$ENV_FILE"
-          grep -v '^IMAGE_TAG_WEB=' "$ENV_FILE" > "$ENV_FILE.tmp" || true
-          echo "IMAGE_TAG_WEB=$TAG_VALUE" >> "$ENV_FILE.tmp"
-          mv "$ENV_FILE.tmp" "$ENV_FILE"
+          docker image prune -f || true
+          docker builder prune -f || true
 
-          cd "$INFRA_DIR"
-          docker compose --env-file "$ENV_FILE" pull "$SERVICE"
-          docker compose --env-file "$ENV_FILE" up -d --force-recreate "$SERVICE"
-
-          sleep 5
-          docker compose ps "$SERVICE"
-          docker image prune -f
-
+  # 5) Deploy a VPS (prod)
   deploy-prod:
-    needs: [build-push, trivy-fs, trivy-image]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: [ self-hosted, prod ]
+    runs-on: [self-hosted, prod]
+    needs: [build-push, trivy-image-scan]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     environment: production
-    permissions:
-      contents: read
-      packages: read
     steps:
-      - name: Login GHCR
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-
-      - name: Deploy WEB (prod)
+      - name: Deploy backend en ambiente prod (VPS)
         shell: bash
+        env:
+          TAG: ${{ needs.build-push.outputs.tag_sha }}
         run: |
           set -euo pipefail
-          INFRA_DIR="${{ env.INFRA_DIR }}"
-          ENV_FILE="${{ env.ENV_FILE_PROD }}"
-          SERVICE="${{ env.COMPOSE_SERVICE }}"
-          TAG="${{ needs.build-push.outputs.tag_sha }}"
+          cd "${INFRA_DIR}"
+
           TAG_VALUE="${TAG##*:}"
+          export IMAGE_TAG="${TAG_VALUE}"
 
-          mkdir -p "$INFRA_DIR"
-          docker network inspect palaspapas_net >/dev/null 2>&1 || docker network create palaspapas_net
+          docker compose pull "${COMPOSE_SERVICE}"
+          docker compose up -d --force-recreate --no-deps "${COMPOSE_SERVICE}"
 
-          touch "$ENV_FILE"
-          grep -v '^IMAGE_TAG_WEB=' "$ENV_FILE" > "$ENV_FILE.tmp" || true
-          echo "IMAGE_TAG_WEB=$TAG_VALUE" >> "$ENV_FILE.tmp"
-          mv "$ENV_FILE.tmp" "$ENV_FILE"
-
-          cd "$INFRA_DIR"
-          docker compose --env-file "$ENV_FILE" pull "$SERVICE"
-          docker compose --env-file "$ENV_FILE" up -d --force-recreate "$SERVICE"
-
-          sleep 5
-          docker compose ps "$SERVICE"
-          docker image prune -f
+          docker image prune -f || true
+          docker builder prune -f || true

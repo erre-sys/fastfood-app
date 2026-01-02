@@ -13,6 +13,8 @@ concurrency:
 
 permissions:
   contents: read
+  packages: write
+  security-events: write
 
 env:
   IMAGE_NAME: fastfood-web
@@ -65,6 +67,64 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+            trivy-fs:
+    name: trivy-fs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Trivy FS (vuln + secret + config)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-fs.sarif
+          scanners: vuln,secret,config
+          ignore-unfixed: true
+          severity: CRITICAL,HIGH
+          exit-code: "0"   # modo reporte (no rompe el build al inicio)
+
+      - name: Upload SARIF (FS)
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-fs.sarif
+
+  trivy-image:
+    name: trivy-image
+    needs: [build-push, trivy-fs, trivy-image]
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      security-events: write
+    steps:
+      - name: Login GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trivy Image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ needs.build-push.outputs.tag_sha }}
+          format: sarif
+          output: trivy-image.sarif
+          ignore-unfixed: true
+          severity: CRITICAL,HIGH
+          exit-code: "0"   # modo reporte (luego lo volvemos gate)
+      - name: Upload SARIF (Image)
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-image.sarif
+
   deploy-develop:
     needs: build-push
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
@@ -104,7 +164,7 @@ jobs:
           docker image prune -f
 
   deploy-prod:
-    needs: build-push
+    needs: [build-push, trivy-fs, trivy-image]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: [ self-hosted, prod ]
     environment: production

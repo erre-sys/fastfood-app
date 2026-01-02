@@ -1,4 +1,4 @@
-name: web-ci
+name: api-ci
 
 on:
   push:
@@ -13,16 +13,17 @@ permissions:
   security-events: write
 
 concurrency:
-  group: web-ci-${{ github.ref }}
+  group: api-ci-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  IMAGE_NAME: fastfood-app
+  MODULE: bootstrap
+  IMAGE_NAME: fastfood-api
   INFRA_DIR: /opt/palaspapas/infra
-  COMPOSE_SERVICE: web
+  COMPOSE_SERVICE: api
 
 jobs:
-  # 1) Escaneo del repo -> GitHub Security (SARIF)
+  # 1) Escaneo del repo (código, configs, posibles secretos) -> GitHub Security (SARIF)
   trivy-repo-scan:
     runs-on: ubuntu-latest
     steps:
@@ -54,6 +55,16 @@ jobs:
     steps:
       - name: Checkout del repositorio
         uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Compilar JAR (sin tests)
+        run: ./mvnw -B -pl "${MODULE}" -am package -DskipTests
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -96,7 +107,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # 3) Trivy Image scan (solo push) -> GitHub Security (SARIF)
+  # 3) Trivy Image scan (solo cuando ya existe imagen en GHCR) -> GitHub Security (SARIF)
   trivy-image-scan:
     runs-on: ubuntu-latest
     needs: [build-push]
@@ -124,7 +135,7 @@ jobs:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
     environment: develop
     steps:
-      - name: Deploy frontend en ambiente develop (laptop)
+      - name: Deploy backend en ambiente develop (laptop)
         shell: bash
         env:
           TAG: ${{ needs.build-push.outputs.tag_sha }}
@@ -133,7 +144,7 @@ jobs:
           cd "${INFRA_DIR}"
 
           TAG_VALUE="${TAG##*:}"
-          export IMAGE_TAG_WEB="${TAG_VALUE}"
+          export IMAGE_TAG="${TAG_VALUE}"
 
           docker compose pull "${COMPOSE_SERVICE}"
           docker compose up -d --force-recreate --no-deps "${COMPOSE_SERVICE}"
@@ -148,7 +159,7 @@ jobs:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     environment: production
     steps:
-      - name: Deploy frontend en ambiente prod (VPS)
+      - name: Deploy backend en ambiente prod (VPS)
         shell: bash
         env:
           TAG: ${{ needs.build-push.outputs.tag_sha }}
@@ -157,7 +168,7 @@ jobs:
           cd "${INFRA_DIR}"
 
           TAG_VALUE="${TAG##*:}"
-          export IMAGE_TAG_WEB="${TAG_VALUE}"
+          export IMAGE_TAG="${TAG_VALUE}"
 
           docker compose pull "${COMPOSE_SERVICE}"
           docker compose up -d --force-recreate --no-deps "${COMPOSE_SERVICE}"

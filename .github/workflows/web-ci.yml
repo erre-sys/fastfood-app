@@ -1,0 +1,177 @@
+name: APP - CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+concurrency:
+  group: web-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  IMAGE_NAME: fastfood-web
+
+jobs:
+  trivy_repo_scan:
+    name: Trivy - Repo Scan (FS/Config/Secrets)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Trivy (filesystem)
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-repo.sarif
+          scanners: vuln,secret,config
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+
+      - name: Upload SARIF (Trivy Repo)
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-repo.sarif
+
+  build_and_sonar:
+    name: Build (Node) + SonarCloud (tests optional)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history for Sonar)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate Sonar vars (fail fast)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${{ vars.SONAR_ORGANIZATION }}" ] || [ -z "${{ vars.SONAR_PROJECT_KEY }}" ]; then
+            echo "Missing GitHub Actions Variables: SONAR_ORGANIZATION / SONAR_PROJECT_KEY"
+            exit 1
+          fi
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests (only if *.spec.ts exists)
+        shell: bash
+        run: |
+          set -e
+          if ls src/**/*.spec.ts >/dev/null 2>&1; then
+            echo "Specs found -> running ng test with coverage"
+            npm run test -- --watch=false --code-coverage
+          else
+            echo "No specs found -> skipping tests for now"
+          fi
+
+      - name: Build (if script exists)
+        run: npm run build --if-present
+
+      - name: SonarCloud scan (coverage if available)
+        uses: SonarSource/sonarqube-scan-action@v7
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
+            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
+            -Dsonar.sources=src
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.coverage.exclusions=**/*.spec.ts,**/test/**,**/*.config.*,**/environment*.ts
+
+  docker_build_and_push:
+    name: Docker Build & Push (GHCR)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    needs: [build_and_sonar]
+    if: ${{ github.event_name == 'push' }}
+    outputs:
+      short_sha: ${{ steps.meta.outputs.short_sha }}
+      image_tag_sha: ${{ steps.meta.outputs.image_tag_sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login GHCR (push)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute image tags
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          OWNER_LC="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
+          SHORT="${GITHUB_SHA::7}"
+          echo "short_sha=$SHORT" >> "$GITHUB_OUTPUT"
+          echo "image_tag_sha=ghcr.io/${OWNER_LC}/${{ env.IMAGE_NAME }}:sha-${SHORT}" >> "$GITHUB_OUTPUT"
+
+      - name: Build & Push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.image_tag_sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  trivy_image_scan:
+    name: Trivy - Image Scan (GHCR)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      security-events: write
+    needs: [docker_build_and_push]
+    if: ${{ github.event_name == 'push' }}
+    steps:
+      - name: Login GHCR (pull)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull image (sha tag)
+        run: docker pull "${{ needs.docker_build_and_push.outputs.image_tag_sha }}"
+
+      - name: Trivy (image)
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: ${{ needs.docker_build_and_push.outputs.image_tag_sha }}
+          format: sarif
+          output: trivy-image.sarif
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+
+      - name: Upload SARIF (Trivy Image)
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-image.sarif

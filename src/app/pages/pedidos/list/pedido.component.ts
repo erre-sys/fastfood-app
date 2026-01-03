@@ -123,7 +123,7 @@ export default class PedidosListPage extends BaseListComponent implements OnInit
     if (this.tab === 'C') filtros.push({ llave: 'estado', operacion: '=', valor: 'C' });
     if (this.tab === 'L') filtros.push({ llave: 'estado', operacion: '=', valor: 'L' });
     if (this.tab === 'E') filtros.push({ llave: 'estado', operacion: '=', valor: 'E' });
-    if (this.tab === 'A') filtros.push({ llave: 'estado', operacion: 'EQ', valor: 'A' });
+    if (this.tab === 'A') filtros.push({ llave: 'estado', operacion: '=', valor: 'A' });
 
     const term = this.searchForm.controls.q.value.trim();
     if (term) {

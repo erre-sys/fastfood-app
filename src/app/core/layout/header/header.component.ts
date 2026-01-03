@@ -23,12 +23,20 @@ export class HeaderComponent implements OnInit {
 
   constructor(public theme: ThemeService) {} 
 
-  async ngOnInit() {
-    const p = await authService.profile();
-    this.username.set(p.username ?? null);
+  ngOnInit(): void {
+    void this.loadProfile();  // "void" para dejar claro que no esperas el Promise
   }
 
-
+  private async loadProfile(): Promise<void> {
+    try {
+      const p = await authService.profile();
+      this.username.set(p?.username ?? null);
+    } catch (e) {
+      // opcional: log o fallback
+      this.username.set(null);
+      console.error('No se pudo cargar el perfil', e);
+    }
+  }
 
   login() {
     authService.login();

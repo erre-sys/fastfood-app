@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  IMAGE_NAME: fastfood-app
+  IMAGE_NAME: fastfood-web
   INFRA_DIR: /opt/palaspapas/infra
   COMPOSE_SERVICE: web
 
@@ -132,14 +132,20 @@ jobs:
         with:
           sarif_file: trivy-image-results.sarif
 
-  # 4) Deploy a laptop (develop)
+  # 4) Deploy a (develop)
   deploy-develop:
     runs-on: [self-hosted, develop]
     needs: [build-push, trivy-image-scan]
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
     environment: develop
     steps:
-      - name: Deploy frontend en ambiente develop (laptop)
+      - name: Autenticarse en GHCR 
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}   
+      - name: Deploy frontend en ambiente develop 
         shell: bash
         env:
           TAG: ${{ needs.build-push.outputs.tag_sha }}
@@ -163,6 +169,12 @@ jobs:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     environment: production
     steps:
+      - name: Autenticarse en GHCR 
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}   
       - name: Deploy frontend en ambiente prod (VPS)
         shell: bash
         env:

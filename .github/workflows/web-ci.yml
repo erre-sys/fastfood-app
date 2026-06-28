@@ -13,7 +13,6 @@ concurrency:
   cancel-in-progress: true
 env:
   IMAGE_NAME: fastfood-web
-  TRIVY_ACTION_VERSION: v0.36.0
 jobs:
   trivy_repo_scan:
     name: Trivy - Repo Scan (FS/Config/Secrets)
@@ -22,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Trivy (filesystem)
-        uses: aquasecurity/trivy-action@${{ env.TRIVY_ACTION_VERSION }}
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           scan-ref: .
@@ -142,7 +141,7 @@ jobs:
       - name: Pull image (sha tag)
         run: docker pull "${{ needs.docker_build_and_push.outputs.image_tag_sha }}"
       - name: Trivy (image)
-        uses: aquasecurity/trivy-action@${{ env.TRIVY_ACTION_VERSION }}
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ needs.docker_build_and_push.outputs.image_tag_sha }}
           format: sarif

@@ -5,7 +5,7 @@ import { authService } from './app/core/auth/auth.service';
 import { LoadingService } from './app/core/layout/loading/loading.service';
 import { registerLocaleData } from '@angular/common';
 import localeEsEc from '@angular/common/locales/es-EC';
-import { RuntimeConfigService } from './app/core/runtime-config.service'; 
+import { RuntimeConfigService } from './app/core/runtime-config.service'; // ← AGREGAR
 
 registerLocaleData(localeEsEc);
 

@@ -13,7 +13,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([authTokenInterceptor, httpNotifyInterceptor, toastInterceptor])),
     { provide: LOCALE_ID, useValue: 'es-EC' },
     { provide: DEFAULT_CURRENCY_CODE, useValue: 'USD' },
-    // NUEVO: carga la configuración runtime ANTES de que arranque cualquier componente
+    
     {
       provide: APP_INITIALIZER,
       useFactory: (configService: RuntimeConfigService) => () => configService.load(),
